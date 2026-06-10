@@ -1,0 +1,21 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import BuilderIsland from '@/components/builder/BuilderIsland';
+import { promptRepo } from '@/db/repositories/prompt.repo';
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect(`/login?redirect=${Astro.url.pathname}`);
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/builder');
+
+const prompt = await promptRepo.findById(Astro.locals.supabase, id);
+if (!prompt) return Astro.redirect('/dashboard');
+if (prompt.user_id !== user.id) return Astro.redirect('/dashboard');
+---
+
+<AppLayout title={`${prompt.title} — PromptBase`}>
+  <BuilderIsland initialPrompt={prompt} client:load />
+</AppLayout>

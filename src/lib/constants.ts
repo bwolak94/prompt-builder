@@ -124,6 +124,25 @@ export const SCORE_COLORS: Readonly<Record<ScoreLevel, string>> = {
   poor: 'text-score-poor',
 } as const;
 
+// ── Prompt Sections ─────────────────────────────────────────────
+import type { PromptSection } from '@/types';
+
+export const PROMPT_SECTIONS: readonly PromptSection[] = [
+  // Rdzeń (Core)
+  { slug: 'role', name: 'Rola', description: 'Zdefiniuj rolę lub personę AI w tym prompcie.', category: 'core', icon: 'User' },
+  { slug: 'context', name: 'Kontekst', description: 'Podaj tło i kontekst zadania dla modelu.', category: 'core', icon: 'BookOpen' },
+  { slug: 'task', name: 'Zadanie', description: 'Opisz główne zadanie do wykonania.', category: 'core', icon: 'Target' },
+  { slug: 'format', name: 'Format', description: 'Określ oczekiwany format i strukturę odpowiedzi.', category: 'core', icon: 'Layout' },
+  // Opcjonalne
+  { slug: 'constraints', name: 'Ograniczenia', description: 'Podaj ograniczenia i rzeczy których należy unikać.', category: 'optional', icon: 'ShieldOff' },
+  { slug: 'examples', name: 'Przykłady', description: 'Dodaj przykłady wejścia/wyjścia (few-shot).', category: 'optional', icon: 'Lightbulb' },
+  { slug: 'tone', name: 'Ton', description: 'Ustal ton i styl odpowiedzi.', category: 'optional', icon: 'MessageSquare' },
+  { slug: 'audience', name: 'Odbiorca', description: 'Zdefiniuj docelowego odbiorcę treści.', category: 'optional', icon: 'Users' },
+  // Zaawansowane
+  { slug: 'chain_of_thought', name: 'Rozumowanie', description: 'Poproś model o stopniowe rozumowanie (chain-of-thought).', category: 'advanced', icon: 'GitBranch' },
+  { slug: 'output_schema', name: 'Schema JSON', description: 'Zdefiniuj oczekiwany schemat JSON wyjścia.', category: 'advanced', icon: 'Code2' },
+] as const;
+
 // ── Variable detection ──────────────────────────────────────────
 /** Regex for detecting {{variable_name}} placeholders in prompt content. */
 export const VARIABLE_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g;

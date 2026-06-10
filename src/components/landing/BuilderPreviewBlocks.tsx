@@ -44,7 +44,7 @@ export default function BuilderPreviewBlocks() {
 
   const blockVariants = {
     hidden: { opacity: 0, x: prefersReducedMotion ? 0 : -12 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
   };
 
   return (

@@ -1,0 +1,214 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import { promptRepo } from '@/db/repositories/prompt.repo';
+import { PlusIcon } from 'lucide-react';
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=/dashboard');
+
+const prompts = await promptRepo.findByUserId(Astro.locals.supabase, user.id);
+
+const totalCount = prompts.length;
+const publicCount = prompts.filter((p) => p.is_public).length;
+const privateCount = totalCount - publicCount;
+
+const filter = Astro.url.searchParams.get('filter') ?? 'all';
+const filtered = filter === 'public'
+  ? prompts.filter((p) => p.is_public)
+  : filter === 'private'
+    ? prompts.filter((p) => !p.is_public)
+    : prompts;
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m temu`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h temu`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d temu`;
+}
+---
+
+<AppLayout
+  title="Dashboard — PromptBase"
+  breadcrumbs={[{ label: 'Dashboard' }]}
+>
+  <div class="mx-auto max-w-5xl px-4 py-8">
+
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-text-primary">Moje prompty</h1>
+        <p class="mt-1 text-sm text-text-muted">Zarządzaj swoją biblioteką promptów</p>
+      </div>
+      <a
+        href="/builder"
+        class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nowy prompt
+      </a>
+    </div>
+
+    <!-- Stats row -->
+    <div class="mb-6 grid grid-cols-3 gap-4">
+      {[
+        { label: 'Wszystkie', value: totalCount, icon: '📝' },
+        { label: 'Publiczne', value: publicCount, icon: '🌍' },
+        { label: 'Prywatne', value: privateCount, icon: '🔒' },
+      ].map(({ label, value, icon }) => (
+        <div class="rounded-xl border border-border bg-surface-raised px-5 py-4">
+          <div class="flex items-center gap-2 text-text-muted text-xs mb-1">
+            <span aria-hidden="true">{icon}</span>
+            {label}
+          </div>
+          <p class="text-2xl font-bold text-text-primary">{value}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="mb-5 flex gap-1 border-b border-border">
+      {[
+        { key: 'all', label: 'Wszystkie', count: totalCount },
+        { key: 'public', label: 'Publiczne', count: publicCount },
+        { key: 'private', label: 'Prywatne', count: privateCount },
+      ].map(({ key, label, count }) => (
+        <a
+          href={`/dashboard${key !== 'all' ? `?filter=${key}` : ''}`}
+          class={[
+            'flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+            filter === key
+              ? 'border-brand-500 text-brand-400'
+              : 'border-transparent text-text-muted hover:text-text-secondary',
+          ].join(' ')}
+          aria-current={filter === key ? 'page' : undefined}
+        >
+          {label}
+          <span class="rounded-full bg-surface-raised px-1.5 py-0.5 text-xs text-text-muted">{count}</span>
+        </a>
+      ))}
+    </div>
+
+    <!-- Prompt list -->
+    {filtered.length === 0 ? (
+      <div class="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border py-20 text-center">
+        <div class="text-4xl" aria-hidden="true">📭</div>
+        <div>
+          <p class="text-sm font-medium text-text-primary">Brak promptów</p>
+          <p class="mt-1 text-xs text-text-muted">Stwórz swój pierwszy prompt w builderze</p>
+        </div>
+        <a
+          href="/builder"
+          class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+        >
+          Utwórz prompt
+        </a>
+      </div>
+    ) : (
+      <ul class="grid gap-3 sm:grid-cols-2" role="list">
+        {filtered.map((prompt) => (
+          <li class="group relative rounded-xl border border-border bg-surface-raised p-4 transition-colors hover:border-brand-500/40 hover:bg-surface-raised">
+
+            <!-- Public / private badge -->
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <span class={[
+                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
+                prompt.is_public
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : 'bg-zinc-500/10 text-text-muted',
+              ].join(' ')}>
+                {prompt.is_public ? '🌍 Publiczny' : '🔒 Prywatny'}
+              </span>
+              <span class="text-xs text-text-muted">{timeAgo(prompt.updated_at)}</span>
+            </div>
+
+            <!-- Title -->
+            <h2 class="truncate text-sm font-semibold text-text-primary">
+              {prompt.title || 'Bez tytułu'}
+            </h2>
+
+            <!-- Description -->
+            {prompt.description && (
+              <p class="mt-1 line-clamp-2 text-xs text-text-muted">{prompt.description}</p>
+            )}
+
+            <!-- Tags -->
+            {prompt.tags.length > 0 && (
+              <div class="mt-3 flex flex-wrap gap-1">
+                {prompt.tags.slice(0, 4).map((tag) => (
+                  <span class="rounded-md bg-surface-overlay px-1.5 py-0.5 text-[10px] text-text-muted">
+                    {tag}
+                  </span>
+                ))}
+                {prompt.tags.length > 4 && (
+                  <span class="text-[10px] text-text-muted">+{prompt.tags.length - 4}</span>
+                )}
+              </div>
+            )}
+
+            <!-- Stats row -->
+            <div class="mt-3 flex items-center gap-3 text-xs text-text-muted">
+              <span title="Bloki">{prompt.blocks.length} bloków</span>
+              {prompt.view_count > 0 && <span>👁 {prompt.view_count}</span>}
+              {prompt.fork_count > 0 && <span>🍴 {prompt.fork_count}</span>}
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-4 flex items-center gap-2 border-t border-border pt-3">
+              <a
+                href={`/builder/${prompt.id}`}
+                class="flex-1 rounded-md bg-brand-500/10 px-3 py-1.5 text-center text-xs font-medium text-brand-400 transition-colors hover:bg-brand-500/20"
+              >
+                Edytuj
+              </a>
+              {prompt.is_public && prompt.slug && (
+                <a
+                  href={`/p/${prompt.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text-primary"
+                >
+                  Podgląd
+                </a>
+              )}
+              <button
+                data-prompt-id={prompt.id}
+                data-action="delete"
+                aria-label={`Usuń prompt: ${prompt.title}`}
+                class="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:border-red-500/40 hover:text-red-400"
+              >
+                Usuń
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</AppLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-action="delete"]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.promptId;
+      if (!id) return;
+      if (!confirm('Usunąć ten prompt?')) return;
+
+      btn.disabled = true;
+      btn.textContent = '…';
+
+      const res = await fetch(`/api/prompts/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        btn.closest('li')?.remove();
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Usuń';
+        alert('Nie udało się usunąć promptu.');
+      }
+    });
+  });
+</script>

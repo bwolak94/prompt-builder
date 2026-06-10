@@ -140,6 +140,59 @@ export type ApiResponse<T> =
   | { data: T; error?: never }
   | { error: string; code?: string; data?: never };
 
+// ── Prompt (typed domain entity) ──────────────────────────────────────────────
+
+/**
+ * Application-level Prompt — the prompts table Row with JSONB columns
+ * cast to strongly-typed interfaces.
+ */
+export interface Prompt {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  blocks: PromptBlock[];
+  variables: PromptVariable[];
+  content_md: string;
+  tags: string[];
+  is_public: boolean;
+  slug: string | null;
+  fork_of: string | null;
+  fork_count: number;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+// ── PromptSection (static builder metadata) ───────────────────────────────────
+
+/**
+ * A section type available in the builder palette.
+ * Not stored in DB — loaded from PROMPT_SECTIONS constant.
+ */
+export interface PromptSection {
+  /** Matches PromptBlock.section_slug */
+  slug: string;
+  /** Human-readable name shown in the palette */
+  name: string;
+  /** Short description shown in tooltip */
+  description: string;
+  category: SectionCategory;
+  /** Lucide icon name */
+  icon: string;
+}
+
+// ── VariableDefinition ────────────────────────────────────────────────────────
+
+/**
+ * A detected variable placeholder from the prompt blocks.
+ * Populated by useVariableDetection from {{variable_name}} patterns.
+ */
+export interface VariableDefinition {
+  name: string;
+}
+
 // ── API DTOs ──────────────────────────────────────────────────────────────────
 
 /** POST /api/prompts — create prompt */

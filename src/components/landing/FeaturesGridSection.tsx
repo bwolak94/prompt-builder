@@ -81,7 +81,7 @@ export default function FeaturesGridSection() {
 
   const cardVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' as const } },
   };
 
   return (
