@@ -1,7 +1,6 @@
 # Supabase project configuration
 # Docs: https://supabase.com/docs/guides/self-hosting
 
-[project]
 project_id = "promptbase-local"
 
 [api]
