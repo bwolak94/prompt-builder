@@ -1,0 +1,73 @@
+---
+/**
+ * Public Header — used in PublicLayout.
+ * Logo + navigation links + ThemeToggle + auth buttons.
+ */
+import Logo from './Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+const { pathname } = Astro.url;
+const isLoggedIn = !!Astro.locals.user;
+
+const navLinks = [
+  { label: 'Szablony', href: '/explore' },
+  { label: 'Funkcje', href: '/#features' },
+  { label: 'Cennik', href: '/pricing' },
+];
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-surface-base/80 backdrop-blur-md">
+  <div class="container mx-auto flex h-14 items-center justify-between gap-4 px-4">
+    <!-- Logo -->
+    <Logo />
+
+    <!-- Nav links — hidden on mobile -->
+    <nav
+      class="hidden items-center gap-1 md:flex"
+      aria-label="Główna nawigacja"
+    >
+      {navLinks.map(({ label, href }) => (
+        <a
+          href={href}
+          class:list={[
+            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            pathname === href
+              ? 'bg-surface-overlay text-text-primary'
+              : 'text-text-secondary hover:bg-surface-overlay hover:text-text-primary',
+          ]}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Right side actions -->
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+
+      {isLoggedIn ? (
+        <a
+          href="/dashboard"
+          class="rounded-md bg-brand-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+        >
+          Dashboard
+        </a>
+      ) : (
+        <>
+          <a
+            href="/login"
+            class="hidden rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block"
+          >
+            Zaloguj
+          </a>
+          <a
+            href="/register"
+            class="rounded-md bg-brand-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+          >
+            Zarejestruj
+          </a>
+        </>
+      )}
+    </div>
+  </div>
+</header>

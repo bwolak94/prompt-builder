@@ -1,0 +1,138 @@
+---
+/**
+ * AppLayout Sidebar — desktop persistent + mobile drawer.
+ *
+ * Active link detection: compares Astro.url.pathname with each nav item href.
+ * Mobile: hidden by default; toggled via #sidebar-toggle button (hamburger).
+ */
+import Logo from './Logo.astro';
+
+const { pathname } = Astro.url;
+
+const navItems = [
+  {
+    label: 'Dashboard',
+    href: '/dashboard',
+    icon: `<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+  },
+  {
+    label: 'Przeglądaj',
+    href: '/explore',
+    icon: `<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>`,
+  },
+];
+
+function isActive(href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+---
+
+<!-- Mobile overlay backdrop -->
+<div
+  id="sidebar-backdrop"
+  class="fixed inset-0 z-30 bg-black/60 opacity-0 transition-opacity duration-200 lg:hidden"
+  aria-hidden="true"
+></div>
+
+<!-- Sidebar panel -->
+<aside
+  id="sidebar"
+  class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-border bg-surface-raised transition-transform duration-200 ease-in-out lg:static lg:translate-x-0"
+  aria-label="Nawigacja aplikacji"
+>
+  <!-- Logo area -->
+  <div class="flex h-14 items-center border-b border-border px-4">
+    <Logo />
+  </div>
+
+  <!-- Nav links -->
+  <nav class="flex-1 overflow-y-auto p-3">
+    <ul class="space-y-1" role="list">
+      {navItems.map(({ label, href, icon }) => (
+        <li>
+          <a
+            href={href}
+            class:list={[
+              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              isActive(href)
+                ? 'bg-brand-500/10 text-brand-400'
+                : 'text-text-secondary hover:bg-surface-overlay hover:text-text-primary',
+            ]}
+            aria-current={isActive(href) ? 'page' : undefined}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={icon}
+            />
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <!-- New prompt CTA -->
+  <div class="border-t border-border p-3">
+    <a
+      href="/builder/new"
+      class="flex w-full items-center justify-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 focus-visible:outline-2 focus-visible:outline-brand-500"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M5 12h14M12 5v14"/>
+      </svg>
+      Nowy prompt
+    </a>
+  </div>
+</aside>
+
+<script is:inline>
+  (function () {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const openBtn = document.getElementById('sidebar-toggle');
+    const closeBtn = document.getElementById('sidebar-close');
+
+    function openSidebar() {
+      sidebar?.classList.remove('-translate-x-full');
+      backdrop?.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop?.classList.add('opacity-100');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar?.classList.add('-translate-x-full');
+      backdrop?.classList.remove('opacity-100');
+      backdrop?.classList.add('opacity-0');
+      document.body.style.overflow = '';
+    }
+
+    openBtn?.addEventListener('click', openSidebar);
+    closeBtn?.addEventListener('click', closeSidebar);
+    backdrop?.addEventListener('click', closeSidebar);
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSidebar();
+    });
+  })();
+</script>

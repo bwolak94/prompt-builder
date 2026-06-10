@@ -1,0 +1,115 @@
+---
+const year = new Date().getFullYear();
+
+// Stack badges (inline SVG monograms — keeps bundle zero)
+const stack = [
+  { name: 'Astro', color: '#FF5D01', letter: 'A' },
+  { name: 'React', color: '#61DAFB', letter: 'R' },
+  { name: 'Supabase', color: '#3ECF8E', letter: 'S' },
+  { name: 'TypeScript', color: '#3178C6', letter: 'TS' },
+];
+---
+
+<footer class="border-t border-border mt-auto">
+  <!-- Main footer columns -->
+  <div class="container mx-auto grid gap-8 px-4 py-10 sm:grid-cols-3">
+    <!-- Brand column -->
+    <div>
+      <div class="flex items-center gap-2">
+        <span
+          class="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white"
+          aria-hidden="true"
+        >P</span>
+        <span class="font-semibold text-text-primary">
+          Prompt<span class="text-brand-400">Base</span>
+        </span>
+      </div>
+      <p class="mt-3 text-sm text-text-muted leading-relaxed">
+        Wizualny builder promptów z AI scoringiem dla developerów i twórców AI.
+      </p>
+    </div>
+
+    <!-- Produkt column -->
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wider text-text-muted">Produkt</h3>
+      <ul class="mt-3 space-y-2">
+        {[
+          { label: 'Przeglądaj szablony', href: '/explore' },
+          { label: 'Builder', href: '/builder/new' },
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Cennik', href: '/pricing' },
+        ].map(({ label, href }) => (
+          <li>
+            <a href={href} class="text-sm text-text-secondary transition-colors hover:text-text-primary">
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Stack column -->
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wider text-text-muted">Stack</h3>
+      <ul class="mt-3 space-y-2">
+        {[
+          { label: 'Astro 5', href: 'https://astro.build' },
+          { label: 'React 19', href: 'https://react.dev' },
+          { label: 'Supabase', href: 'https://supabase.com' },
+          { label: 'Tailwind CSS 4', href: 'https://tailwindcss.com' },
+        ].map(({ label, href }) => (
+          <li>
+            <a
+              href={href}
+              class="text-sm text-text-secondary transition-colors hover:text-text-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="border-t border-border">
+    <div class="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-4 sm:flex-row">
+      <p class="text-xs text-text-muted">
+        &copy; {year} PromptBase. Wszelkie prawa zastrzeżone.
+      </p>
+
+      <!-- Stack badges -->
+      <div class="flex items-center gap-2" aria-label="Technologie">
+        {stack.map(({ name, color, letter }) => (
+          <span
+            class="inline-flex h-6 items-center rounded px-1.5 text-[10px] font-bold"
+            style={`background-color: ${color}18; color: ${color}; border: 1px solid ${color}30;`}
+            title={name}
+            aria-label={name}
+          >
+            {letter}
+          </span>
+        ))}
+      </div>
+
+      <!-- Legal links -->
+      <nav aria-label="Linki prawne">
+        <ul class="flex items-center gap-4">
+          {[
+            { label: 'Prywatność', href: '/privacy' },
+            { label: 'Regulamin', href: '/terms' },
+            { label: 'GitHub', href: 'https://github.com' },
+          ].map(({ label, href }) => (
+            <li>
+              <a href={href} class="text-xs text-text-muted transition-colors hover:text-text-secondary">
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</footer>

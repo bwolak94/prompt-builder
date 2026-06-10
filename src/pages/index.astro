@@ -1,28 +1,21 @@
 ---
-/**
- * Landing page — full implementation in TASK-014.
- * This is the SSG entry point for the public landing page.
- */
-import '@/styles/globals.css';
+import PublicLayout from '@/layouts/PublicLayout.astro';
+import HeroSection from '@/components/landing/HeroSection.astro';
+import HowItWorksSection from '@/components/landing/HowItWorksSection';
+import FeaturesGridSection from '@/components/landing/FeaturesGridSection';
+import BuilderPreviewSection from '@/components/landing/BuilderPreviewSection.astro';
+import FeaturedPromptsSection from '@/components/landing/FeaturedPromptsSection.astro';
+import CTASection from '@/components/landing/CTASection.astro';
 ---
 
-<!doctype html>
-<html lang="pl" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="generator" content={Astro.generator} />
-    <title>PromptBase — Buduj lepsze prompty</title>
-    <meta
-      name="description"
-      content="Wizualny builder promptów z AI scoringiem. Dla developerów i entuzjastów AI."
-    />
-  </head>
-  <body class="min-h-screen bg-zinc-950 font-sans text-zinc-50 antialiased">
-    <main id="main" class="container mx-auto px-4 py-16 text-center">
-      <h1 class="mb-4 text-5xl font-bold">PromptBase</h1>
-      <p class="text-lg text-zinc-400">Buduj lepsze prompty. Szybciej.</p>
-      <p class="mt-8 text-sm text-zinc-600">Setup gotowy — implementacja w toku (TASK-014+)</p>
-    </main>
-  </body>
-</html>
+<PublicLayout
+  title="PromptBase — Buduj lepsze prompty"
+  description="Wizualny builder promptów z AI scoringiem, biblioteką szablonów i zmiennymi. Dla developerów i entuzjastów AI."
+>
+  <HeroSection />
+  <HowItWorksSection client:visible />
+  <BuilderPreviewSection />
+  <FeaturesGridSection client:visible />
+  <FeaturedPromptsSection />
+  <CTASection />
+</PublicLayout>

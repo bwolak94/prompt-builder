@@ -1,0 +1,40 @@
+---
+interface Props {
+  /** If true, renders as a plain <span> without a link wrapping it */
+  noLink?: boolean;
+  class?: string;
+}
+
+const { noLink = false, class: className } = Astro.props;
+---
+
+{noLink ? (
+  <span class:list={['flex items-center gap-2 select-none', className]}>
+    <!-- Brand icon: stylised P in a rounded square -->
+    <span
+      class="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white"
+      aria-hidden="true"
+    >
+      P
+    </span>
+    <span class="font-semibold tracking-tight text-text-primary">
+      Prompt<span class="text-brand-400">Base</span>
+    </span>
+  </span>
+) : (
+  <a
+    href="/"
+    class:list={['flex items-center gap-2 select-none', className]}
+    aria-label="PromptBase — strona główna"
+  >
+    <span
+      class="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white"
+      aria-hidden="true"
+    >
+      P
+    </span>
+    <span class="font-semibold tracking-tight text-text-primary">
+      Prompt<span class="text-brand-400">Base</span>
+    </span>
+  </a>
+)}

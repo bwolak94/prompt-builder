@@ -1,0 +1,31 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+import RegisterForm from '@/components/auth/RegisterForm';
+
+// Already authenticated → go to dashboard
+if (Astro.locals.user) {
+  return Astro.redirect('/dashboard', 302);
+}
+---
+
+<PublicLayout
+  title="Utwórz konto"
+  description="Dołącz do PromptBase i zacznij tworzyć lepsze prompty."
+  noindex
+>
+  <div class="flex min-h-[calc(100dvh-8rem)] items-center justify-center px-4 py-12">
+    <div class="w-full max-w-sm">
+      <div class="mb-8 text-center">
+        <h1 class="text-2xl font-bold text-text-primary">Utwórz konto</h1>
+        <p class="mt-2 text-sm text-text-secondary">
+          Masz już konto?{' '}
+          <a href="/login" class="text-brand-400 hover:text-brand-300 transition-colors">
+            Zaloguj się
+          </a>
+        </p>
+      </div>
+
+      <RegisterForm client:load />
+    </div>
+  </div>
+</PublicLayout>

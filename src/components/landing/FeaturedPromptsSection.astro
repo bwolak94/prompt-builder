@@ -1,0 +1,69 @@
+---
+import type { SystemTemplate } from '@/db/types';
+import TemplateCard from './TemplateCard.astro';
+
+// Fetch is_featured templates during SSR via the server Supabase client set by middleware
+let templates: SystemTemplate[] = [];
+
+try {
+  const { data, error } = await Astro.locals.supabase
+    .from('system_templates')
+    .select('*')
+    .eq('is_featured', true)
+    .order('order_index')
+    .limit(4);
+
+  if (!error && data) {
+    templates = data;
+  }
+} catch {
+  // Supabase unavailable (e.g. during local dev without Docker) — render no cards
+}
+---
+
+<section class="px-4 py-20 sm:py-28" aria-labelledby="featured-heading">
+  <div class="mx-auto max-w-5xl">
+    <!-- Heading -->
+    <div class="mb-10 flex items-end justify-between">
+      <div>
+        <h2
+          id="featured-heading"
+          class="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl"
+        >
+          Wyróżnione szablony
+        </h2>
+        <p class="mt-2 text-text-secondary">
+          Sprawdzone przez AI, gotowe do użycia i forkowania.
+        </p>
+      </div>
+      <a
+        href="/explore"
+        class="hidden shrink-0 text-sm text-brand-400 transition-colors hover:text-brand-300 sm:block"
+      >
+        Wszystkie szablony →
+      </a>
+    </div>
+
+    {templates.length > 0 ? (
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {templates.map((template) => (
+          <TemplateCard template={template} />
+        ))}
+      </div>
+    ) : (
+      <!-- Skeleton placeholders when Supabase is unavailable -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map(() => (
+          <div class="h-56 animate-shimmer rounded-xl border border-border" />
+        ))}
+      </div>
+    )}
+
+    <!-- Mobile "all templates" link -->
+    <div class="mt-6 text-center sm:hidden">
+      <a href="/explore" class="text-sm text-brand-400 transition-colors hover:text-brand-300">
+        Przeglądaj wszystkie szablony →
+      </a>
+    </div>
+  </div>
+</section>

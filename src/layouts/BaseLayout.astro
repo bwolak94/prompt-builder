@@ -1,0 +1,64 @@
+---
+import '@/styles/globals.css';
+import SEO from '@/components/common/SEO.astro';
+import { Toaster } from 'sonner';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'Wizualny builder promptów z AI scoringiem. Dla developerów i entuzjastów AI.',
+  ogImage,
+  canonical,
+  noindex,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <SEO
+      title={title}
+      description={description}
+      ogImage={ogImage}
+      canonical={canonical}
+      noindex={noindex}
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- FOUC prevention: apply stored theme before first paint -->
+    <script is:inline>
+      (function () {
+        try {
+          var theme = localStorage.getItem('theme') || 'dark';
+          document.documentElement.classList.remove('dark', 'light');
+          document.documentElement.classList.add(theme);
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+    <Toaster
+      client:load
+      theme="dark"
+      position="bottom-right"
+      richColors
+      closeButton
+    />
+  </body>
+</html>
