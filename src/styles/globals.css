@@ -1,0 +1,8 @@
+/* Tailwind CSS v4 — base import */
+@import 'tailwindcss';
+
+/*
+  Design system tokens are defined in TASK-002.
+  This file is the single CSS entry point for the entire application.
+  All @theme customisations, @layer base, and component styles live here.
+*/
