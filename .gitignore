@@ -41,6 +41,11 @@ __pycache__/
 # Docker
 docker-compose.override.yml
 
+# Supabase
+supabase/.branches
+supabase/.temp
+supabase/.env
+
 # IDE
 .vscode/
 prd.md

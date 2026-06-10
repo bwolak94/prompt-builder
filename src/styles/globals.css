@@ -1,8 +1,315 @@
-/* Tailwind CSS v4 — base import */
+/* ============================================================
+   PromptBase — Design System
+   Single CSS entry point for the entire application.
+   All @theme tokens, base styles, keyframes live here.
+   ============================================================ */
+
+/* Self-hosted variable fonts (no external network requests) */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* Tailwind CSS v4 */
 @import 'tailwindcss';
 
-/*
-  Design system tokens are defined in TASK-002.
-  This file is the single CSS entry point for the entire application.
-  All @theme customisations, @layer base, and component styles live here.
-*/
+/* ── Design tokens (@theme) ────────────────────────────────
+   All tokens become Tailwind utility classes automatically.
+   e.g. --color-brand-500 → bg-brand-500, text-brand-500
+        --font-sans        → font-sans
+   ──────────────────────────────────────────────────────── */
+@theme {
+  /* Typography */
+  --font-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* Brand — Violet (primary action color) */
+  --color-brand-50: #f5f3ff;
+  --color-brand-100: #ede9fe;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6; /* primary action */
+  --color-brand-600: #7c3aed; /* primary hover */
+  --color-brand-700: #6d28d9;
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;
+
+  /* Surface — dark-first layered backgrounds */
+  --color-surface-base: #09090b; /* page background */
+  --color-surface-raised: #111113; /* cards, panels */
+  --color-surface-overlay: #18181b; /* dialogs, dropdowns */
+  --color-surface-sunken: #050506; /* input backgrounds */
+
+  /* Border */
+  --color-border: #27272a; /* zinc-800 — default border */
+  --color-border-subtle: #1f1f22; /* very subtle separation */
+  --color-border-strong: #3f3f46; /* zinc-700 — focus rings, hover */
+
+  /* Text */
+  --color-text-primary: #fafafa; /* zinc-50 */
+  --color-text-secondary: #a1a1aa; /* zinc-400 */
+  --color-text-muted: #71717a; /* zinc-500 */
+  --color-text-disabled: #3f3f46; /* zinc-700 */
+
+  /* Semantic */
+  --color-success: #22c55e; /* green-500 */
+  --color-warning: #f59e0b; /* amber-500 */
+  --color-error: #ef4444; /* red-500 */
+  --color-info: #3b82f6; /* blue-500 */
+
+  /* AI Score thresholds */
+  --color-score-excellent: #22c55e; /* 80–100 */
+  --color-score-good: #84cc16; /* 60–79  lime-500 */
+  --color-score-fair: #f59e0b; /* 40–59  amber-500 */
+  --color-score-poor: #ef4444; /* 0–39   red-500 */
+}
+
+/* ── shadcn/ui CSS variable bridge ─────────────────────────
+   shadcn/ui components rely on HSL CSS variables.
+   We define dark values as the default (dark-first),
+   and override to light values when html has class="light".
+   ──────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Dark mode (default — dark-first design) */
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 5% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 263 70% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 263 70% 58%;
+    --radius: 0.75rem;
+
+    /* Recharts / chart tokens */
+    --chart-1: 263 70% 58%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 72% 51%;
+    --chart-5: 217 91% 60%;
+  }
+
+  /* Light mode — activated by class="light" on <html> */
+  html.light {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 263 70% 50%;
+  }
+
+  /* Light mode body overrides (surface and text tokens aren't toggled by html class alone) */
+  html.light body {
+    background-color: #ffffff;
+    color: #09090b;
+  }
+}
+
+/* ── Base element styles ────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    /* Prevent layout shift from scrollbar appearing */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    min-height: 100dvh;
+  }
+
+  /* Accessible focus ring — brand-coloured, consistent everywhere */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Subtle custom scrollbar that fits the dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #52525b; /* zinc-600 */
+  }
+
+  /* Selection highlight */
+  ::selection {
+    background-color: oklch(52% 0.25 293 / 0.3);
+    color: var(--color-text-primary);
+  }
+}
+
+/* ── CSS Keyframe animations ────────────────────────────── */
+@layer base {
+  /* Landing page: decorative floating blocks */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(-6deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(-6deg);
+    }
+  }
+
+  /* AI score ring / brand accent pulsing glow */
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 20px oklch(52% 0.25 293 / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 40px oklch(52% 0.25 293 / 0.4);
+    }
+  }
+
+  /* Skeleton loading shimmer */
+  @keyframes shimmer {
+    from {
+      background-position: -200% center;
+    }
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  /* Page/section entry */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Theme toggle icon spin */
+  @keyframes spin-once {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Honour prefers-reduced-motion — disable all animations */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ── Utility classes ────────────────────────────────────── */
+@layer utilities {
+  /* Gradient text — used in hero headline */
+  .text-gradient {
+    background: linear-gradient(135deg, #fafafa 0%, var(--color-brand-500) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Brand-coloured outer glow (buttons, rings) */
+  .shadow-glow {
+    box-shadow:
+      0 0 0 1px oklch(52% 0.25 293 / 0.15),
+      0 0 30px oklch(52% 0.25 293 / 0.25);
+  }
+
+  /* Skeleton loading background */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface-raised) 25%,
+      var(--color-surface-overlay) 50%,
+      var(--color-surface-raised) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* Landing page decorative block float */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Page entry animation */
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+
+  /* Subtle CSS grid background — used in hero */
+  .bg-grid {
+    background-image:
+      linear-gradient(var(--color-border-subtle) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border-subtle) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Radial fade overlay (mask over bg-grid for edge fade) */
+  .bg-grid-fade {
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+}
