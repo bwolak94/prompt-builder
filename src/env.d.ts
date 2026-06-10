@@ -1,10 +1,16 @@
 /// <reference path="../.astro/types.d.ts" />
 
-// App.Locals is extended in src/middleware/index.ts (TASK-008)
-// Defined here as the canonical interface for TypeScript awareness
+import type { Session, User, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/db/types';
+
 declare namespace App {
   interface Locals {
-    // Populated by middleware after TASK-008
+    /** Typed Supabase server client — unique per request */
+    supabase: SupabaseClient<Database>;
+    /** Active session (access + refresh tokens), or null if logged out */
+    session: Session | null;
+    /** Authenticated user object, or null if logged out */
+    user: User | null;
   }
 }
 
