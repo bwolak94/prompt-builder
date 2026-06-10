@@ -130,6 +130,16 @@ export function castPreferences(raw: Json): UserPreferences {
   return (raw as unknown as UserPreferences) ?? { defaultModel: 'openai', language: 'pl' };
 }
 
+// ── Generic API response wrapper ──────────────────────────────────────────────
+
+/**
+ * Standard envelope for all JSON API responses.
+ * Success: `{ data: T }` — Error: `{ error: string; code?: string }`
+ */
+export type ApiResponse<T> =
+  | { data: T; error?: never }
+  | { error: string; code?: string; data?: never };
+
 // ── API DTOs ──────────────────────────────────────────────────────────────────
 
 /** POST /api/prompts — create prompt */
