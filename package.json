@@ -17,7 +17,7 @@
     "test": "vitest",
     "test:run": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage",
-    "db:types": "supabase gen types typescript --local > src/db/types.ts"
+    "db:types": "supabase gen types typescript --db-url postgresql://postgres:${POSTGRES_PASSWORD:-your-super-secret-postgres-password}@localhost:5432/postgres 2>/dev/null | grep -v '^Connecting to' | grep -v '^A new version' | grep -v '^We recommend' > src/db/types.ts"
   },
   "dependencies": {
     "@astrojs/node": "^10.0.0",

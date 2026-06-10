@@ -1,288 +1,411 @@
-/**
- * Database type definitions for Supabase.
- *
- * This file is a placeholder that mirrors the schema from 04-database.md.
- * Replace the full contents by running:
- *   pnpm db:types
- * which executes: supabase gen types typescript --local > src/db/types.ts
- */
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
-// ── JSONB shapes used in prompt blocks / variables ───────────────────────────
-
-export interface PromptBlock {
-  id: string;
-  section_slug: string;
-  content: string;
-  order_index: number;
-}
-
-export interface PromptVariable {
-  name: string;
-  label: string;
-  defaultValue: string;
-  type: 'text' | 'textarea' | 'select' | 'number';
-  options?: string[];
-}
-
-export interface ScoreDimension {
-  score: number;
-  comment: string;
-  suggestions: string[];
-}
-
-export interface AIScoreFeedback {
-  clarity: ScoreDimension;
-  specificity: ScoreDimension;
-  structure: ScoreDimension;
-  tone: ScoreDimension;
-  completeness: ScoreDimension;
-}
-
-export interface AIScores {
-  clarity: number;
-  specificity: number;
-  structure: number;
-  tone: number;
-  completeness: number;
-}
-
-export interface UserPreferences {
-  defaultModel: 'openai' | 'anthropic';
-  language: 'pl' | 'en';
-}
-
-// ── Supabase Database type (auto-generated stub) ─────────────────────────────
-// Run `pnpm db:types` to replace this with the generated version.
-
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       profiles: {
         Row: {
-          id: string;
-          display_name: string;
-          username: string | null;
-          avatar_url: string | null;
-          bio: string | null;
-          preferences: UserPreferences;
-          created_at: string;
-          updated_at: string;
-        };
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string
+          id: string
+          preferences: Json
+          updated_at: string
+          username: string | null
+        }
         Insert: {
-          id: string;
-          display_name: string;
-          username?: string | null;
-          avatar_url?: string | null;
-          bio?: string | null;
-          preferences?: UserPreferences;
-          created_at?: string;
-          updated_at?: string;
-        };
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name: string
+          id: string
+          preferences?: Json
+          updated_at?: string
+          username?: string | null
+        }
         Update: {
-          id?: string;
-          display_name?: string;
-          username?: string | null;
-          avatar_url?: string | null;
-          bio?: string | null;
-          preferences?: UserPreferences;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      prompt_sections: {
-        Row: {
-          id: string;
-          name: string;
-          name_en: string;
-          slug: string;
-          description: string;
-          description_en: string;
-          icon: string;
-          color: string;
-          placeholder: string | null;
-          order_index: number;
-          category: 'core' | 'optional' | 'advanced';
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          name_en: string;
-          slug: string;
-          description: string;
-          description_en: string;
-          icon: string;
-          color: string;
-          placeholder?: string | null;
-          order_index: number;
-          category: 'core' | 'optional' | 'advanced';
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          name_en?: string;
-          slug?: string;
-          description?: string;
-          description_en?: string;
-          icon?: string;
-          color?: string;
-          placeholder?: string | null;
-          order_index?: number;
-          category?: 'core' | 'optional' | 'advanced';
-          created_at?: string;
-        };
-      };
-      prompts: {
-        Row: {
-          id: string;
-          user_id: string;
-          title: string;
-          description: string | null;
-          content_md: string;
-          blocks: PromptBlock[];
-          variables: PromptVariable[];
-          tags: string[];
-          is_public: boolean;
-          slug: string | null;
-          fork_of: string | null;
-          deleted_at: string | null;
-          view_count: number;
-          fork_count: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          title: string;
-          description?: string | null;
-          content_md: string;
-          blocks?: PromptBlock[];
-          variables?: PromptVariable[];
-          tags?: string[];
-          is_public?: boolean;
-          slug?: string | null;
-          fork_of?: string | null;
-          deleted_at?: string | null;
-          view_count?: number;
-          fork_count?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          title?: string;
-          description?: string | null;
-          content_md?: string;
-          blocks?: PromptBlock[];
-          variables?: PromptVariable[];
-          tags?: string[];
-          is_public?: boolean;
-          slug?: string | null;
-          fork_of?: string | null;
-          deleted_at?: string | null;
-          view_count?: number;
-          fork_count?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      system_templates: {
-        Row: {
-          id: string;
-          title: string;
-          description: string;
-          content_md: string;
-          blocks: PromptBlock[];
-          variables: PromptVariable[];
-          tags: string[];
-          category: 'coding' | 'writing' | 'analysis' | 'roleplay';
-          difficulty: 'beginner' | 'intermediate' | 'advanced';
-          ai_score: number | null;
-          fork_count: number;
-          order_index: number;
-          is_featured: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          title: string;
-          description: string;
-          content_md: string;
-          blocks?: PromptBlock[];
-          variables?: PromptVariable[];
-          tags?: string[];
-          category: 'coding' | 'writing' | 'analysis' | 'roleplay';
-          difficulty: 'beginner' | 'intermediate' | 'advanced';
-          ai_score?: number | null;
-          fork_count?: number;
-          order_index?: number;
-          is_featured?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          title?: string;
-          description?: string;
-          content_md?: string;
-          blocks?: PromptBlock[];
-          variables?: PromptVariable[];
-          tags?: string[];
-          category?: 'coding' | 'writing' | 'analysis' | 'roleplay';
-          difficulty?: 'beginner' | 'intermediate' | 'advanced';
-          ai_score?: number | null;
-          fork_count?: number;
-          order_index?: number;
-          is_featured?: boolean;
-          created_at?: string;
-        };
-      };
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          preferences?: Json
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       prompt_ratings: {
         Row: {
-          id: string;
-          prompt_id: string;
-          overall_score: number;
-          scores: AIScores;
-          feedback: AIScoreFeedback;
-          model_used: string;
-          provider: 'openai' | 'anthropic';
-          created_at: string;
-        };
+          created_at: string
+          feedback: Json
+          id: string
+          model_used: string
+          overall_score: number
+          prompt_id: string
+          provider: string
+          scores: Json
+        }
         Insert: {
-          id?: string;
-          prompt_id: string;
-          overall_score: number;
-          scores: AIScores;
-          feedback: AIScoreFeedback;
-          model_used: string;
-          provider: 'openai' | 'anthropic';
-          created_at?: string;
-        };
+          created_at?: string
+          feedback: Json
+          id?: string
+          model_used: string
+          overall_score: number
+          prompt_id: string
+          provider: string
+          scores: Json
+        }
         Update: {
-          id?: string;
-          prompt_id?: string;
-          overall_score?: number;
-          scores?: AIScores;
-          feedback?: AIScoreFeedback;
-          model_used?: string;
-          provider?: 'openai' | 'anthropic';
-          created_at?: string;
-        };
-      };
-    };
-    Views: Record<string, never>;
+          created_at?: string
+          feedback?: Json
+          id?: string
+          model_used?: string
+          overall_score?: number
+          prompt_id?: string
+          provider?: string
+          scores?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_ratings_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompt_sections: {
+        Row: {
+          category: string
+          color: string
+          created_at: string
+          description: string
+          description_en: string
+          icon: string
+          id: string
+          name: string
+          name_en: string
+          order_index: number
+          placeholder: string | null
+          slug: string
+        }
+        Insert: {
+          category: string
+          color: string
+          created_at?: string
+          description: string
+          description_en: string
+          icon: string
+          id?: string
+          name: string
+          name_en: string
+          order_index: number
+          placeholder?: string | null
+          slug: string
+        }
+        Update: {
+          category?: string
+          color?: string
+          created_at?: string
+          description?: string
+          description_en?: string
+          icon?: string
+          id?: string
+          name?: string
+          name_en?: string
+          order_index?: number
+          placeholder?: string | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      prompts: {
+        Row: {
+          blocks: Json
+          content_md: string
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          fork_count: number
+          fork_of: string | null
+          id: string
+          is_public: boolean
+          search_vector: unknown
+          slug: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+          variables: Json
+          view_count: number
+        }
+        Insert: {
+          blocks?: Json
+          content_md: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          fork_count?: number
+          fork_of?: string | null
+          id?: string
+          is_public?: boolean
+          search_vector?: unknown
+          slug?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+          variables?: Json
+          view_count?: number
+        }
+        Update: {
+          blocks?: Json
+          content_md?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          fork_count?: number
+          fork_of?: string | null
+          id?: string
+          is_public?: boolean
+          search_vector?: unknown
+          slug?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+          variables?: Json
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompts_fork_of_fkey"
+            columns: ["fork_of"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prompts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_templates: {
+        Row: {
+          ai_score: number | null
+          blocks: Json
+          category: string
+          content_md: string
+          created_at: string
+          description: string
+          difficulty: string
+          fork_count: number
+          id: string
+          is_featured: boolean
+          order_index: number
+          search_vector: unknown
+          tags: string[]
+          title: string
+          variables: Json
+        }
+        Insert: {
+          ai_score?: number | null
+          blocks?: Json
+          category: string
+          content_md: string
+          created_at?: string
+          description: string
+          difficulty: string
+          fork_count?: number
+          id?: string
+          is_featured?: boolean
+          order_index?: number
+          search_vector?: unknown
+          tags?: string[]
+          title: string
+          variables?: Json
+        }
+        Update: {
+          ai_score?: number | null
+          blocks?: Json
+          category?: string
+          content_md?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          fork_count?: number
+          id?: string
+          is_featured?: boolean
+          order_index?: number
+          search_vector?: unknown
+          tags?: string[]
+          title?: string
+          variables?: Json
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
-      increment_view_count: {
-        Args: { prompt_id: string };
-        Returns: void;
-      };
-      increment_fork_count: {
-        Args: { prompt_id: string };
-        Returns: void;
-      };
-    };
-    Enums: Record<string, never>;
-  };
+      increment_fork_count: { Args: { prompt_id: string }; Returns: undefined }
+      increment_template_fork_count: {
+        Args: { template_id: string }
+        Returns: undefined
+      }
+      increment_view_count: { Args: { prompt_id: string }; Returns: undefined }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
+
+// ── Convenience Row aliases ───────────────────────────────────────────────────
+// Use these instead of the verbose Tables<"profiles">["Row"] form.
+export type Profile = Tables<'profiles'>
+export type Prompt = Tables<'prompts'>
+export type PromptSection = Tables<'prompt_sections'>
+export type SystemTemplate = Tables<'system_templates'>
+export type PromptRating = Tables<'prompt_ratings'>
+
