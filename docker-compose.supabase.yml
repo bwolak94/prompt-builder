@@ -210,16 +210,22 @@ services:
       - '8000:8000'
       - '8443:8443'
     volumes:
-      - ./supabase/kong.yml:/var/lib/kong/kong.yml:ro
+      # Mounted as a template; envsubst injects ANON/SERVICE keys at startup
+      - ./supabase/kong.yml:/home/kong/temp.yml:ro
     environment:
       KONG_DATABASE: 'off'
-      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    # envsubst expands ${SUPABASE_ANON_KEY} / ${SUPABASE_SERVICE_KEY} in the template
+    # before Kong reads its declarative config.
+    command: >
+      bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml
+      && /docker-entrypoint.sh kong docker-start'
 
   # ── Supabase Studio — web UI ──────────────────────────────────────────
   studio:
