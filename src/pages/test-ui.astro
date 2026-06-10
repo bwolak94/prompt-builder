@@ -1,0 +1,337 @@
+---
+/**
+ * /test-ui — Design System demo page.
+ *
+ * DEV ONLY — redirects to / in production.
+ * Shows: palette, typography, section colors, animations, components.
+ */
+import '@/styles/globals.css';
+import ThemeToggle from '@/components/common/ThemeToggle.astro';
+
+if (import.meta.env.PROD) {
+  return Astro.redirect('/');
+}
+---
+
+<!doctype html>
+<html lang="pl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design System — PromptBase</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- FOUC prevention: read localStorage before first paint -->
+    <script is:inline>
+      (function () {
+        let theme = 'dark';
+        try {
+          theme = localStorage.getItem('theme') || 'dark';
+        } catch {
+          // localStorage unavailable — keep default
+        }
+        document.documentElement.classList.add(theme);
+        if (theme === 'light') document.documentElement.classList.remove('dark');
+      })();
+    </script>
+  </head>
+  <body class="bg-surface-base text-text-primary min-h-screen font-sans">
+    <!-- Header -->
+    <header
+      class="border-border bg-surface-base/80 sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3 backdrop-blur-sm"
+    >
+      <span class="text-text-muted font-mono text-sm">PromptBase / design-system</span>
+      <ThemeToggle />
+    </header>
+
+    <main class="mx-auto max-w-5xl space-y-16 px-6 py-12">
+      <!-- ── Hero typography ─────────────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">Typography</h2>
+
+        <div class="text-gradient text-7xl leading-tight font-bold">Buduj lepsze prompty.</div>
+        <p class="text-text-secondary text-xl">
+          Wizualny builder promptów z AI scoringiem. Dla developerów i entuzjastów AI.
+        </p>
+
+        <div class="space-y-2 pt-4">
+          {
+            [
+              { size: 'text-xs', label: 'text-xs / 12px — Etykiety, metadane' },
+              { size: 'text-sm', label: 'text-sm / 14px — Body text, UI elementy' },
+              { size: 'text-base', label: 'text-base / 16px — Domyślny body' },
+              { size: 'text-lg', label: 'text-lg / 18px — Subheadlingi' },
+              { size: 'text-xl', label: 'text-xl / 20px — Card titles' },
+              { size: 'text-2xl', label: 'text-2xl / 24px — Page titles' },
+              { size: 'text-3xl', label: 'text-3xl / 30px — Section headers' },
+              { size: 'text-5xl', label: 'text-5xl / 48px — Hero headline' },
+            ].map(({ size, label }) => (
+              <p class={`${size} text-text-primary font-sans leading-tight`}>{label}</p>
+            ))
+          }
+        </div>
+
+        <div class="space-y-1 pt-2">
+          <p class="text-text-secondary font-mono text-sm">
+            JetBrains Mono — for code and monospace contexts
+          </p>
+          <p class="text-text-muted font-mono text-sm">
+            {'const VARIABLE_REGEX = /\\{\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}\\}/g;'}
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Brand color palette ─────────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">Brand Palette</h2>
+        <div class="grid grid-cols-5 gap-2 sm:grid-cols-10">
+          {
+            [
+              { cls: 'bg-brand-50', label: '50' },
+              { cls: 'bg-brand-100', label: '100' },
+              { cls: 'bg-brand-200', label: '200' },
+              { cls: 'bg-brand-300', label: '300' },
+              { cls: 'bg-brand-400', label: '400' },
+              { cls: 'bg-brand-500', label: '500' },
+              { cls: 'bg-brand-600', label: '600' },
+              { cls: 'bg-brand-700', label: '700' },
+              { cls: 'bg-brand-800', label: '800' },
+              { cls: 'bg-brand-900', label: '900' },
+            ].map(({ cls, label }) => (
+              <div class="flex flex-col items-center gap-1">
+                <div class={`${cls} h-10 w-full rounded-md`} />
+                <span class="text-text-muted font-mono text-xs">{label}</span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- ── Surface + Border + Text tokens ─────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">
+          Surface / Border / Text tokens
+        </h2>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {
+            [
+              { bg: 'bg-surface-base', label: 'surface-base', hex: '#09090b' },
+              { bg: 'bg-surface-raised', label: 'surface-raised', hex: '#111113' },
+              { bg: 'bg-surface-overlay', label: 'surface-overlay', hex: '#18181b' },
+              { bg: 'bg-surface-sunken', label: 'surface-sunken', hex: '#050506' },
+            ].map(({ bg, label, hex }) => (
+              <div class="border-border rounded-lg border p-3">
+                <div class={`${bg} border-border-strong mb-2 h-10 rounded border`} />
+                <p class="text-text-primary text-sm">{label}</p>
+                <p class="text-text-muted font-mono text-xs">{hex}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-4 pt-2">
+          <span class="text-text-primary text-sm">text-primary</span>
+          <span class="text-text-secondary text-sm">text-secondary</span>
+          <span class="text-text-muted text-sm">text-muted</span>
+          <span class="text-text-disabled text-sm">text-disabled</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <div class="border-border h-8 w-16 rounded border"></div>
+          <div class="border-border-subtle h-8 w-16 rounded border"></div>
+          <div class="border-border-strong h-8 w-16 rounded border"></div>
+          <span class="text-text-muted self-center font-mono text-xs"
+            >border / border-subtle / border-strong</span
+          >
+        </div>
+      </section>
+
+      <!-- ── Semantic + Score colors ─────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">
+          Semantic + AI Score
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          {
+            [
+              { cls: 'bg-success/15 text-success border-success/20', label: 'success' },
+              { cls: 'bg-warning/15 text-warning border-warning/20', label: 'warning' },
+              { cls: 'bg-error/15 text-error border-error/20', label: 'error' },
+              { cls: 'bg-info/15 text-info border-info/20', label: 'info' },
+            ].map(({ cls, label }) => (
+              <span class={`${cls} rounded-full border px-3 py-1 text-sm font-medium`}>
+                {label}
+              </span>
+            ))
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          {
+            [
+              { cls: 'text-score-excellent', label: 'score-excellent (80–100)' },
+              { cls: 'text-score-good', label: 'score-good (60–79)' },
+              { cls: 'text-score-fair', label: 'score-fair (40–59)' },
+              { cls: 'text-score-poor', label: 'score-poor (0–39)' },
+            ].map(({ cls, label }) => (
+              <span class={`${cls} font-mono text-sm font-semibold`}>{label}</span>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- ── Section colors (builder) ───────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">
+          Builder Section Colors
+        </h2>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            [
+              {
+                slug: 'role',
+                name: 'Rola',
+                bg: 'bg-violet-600/10',
+                border: 'border-violet-600/20',
+                text: 'text-violet-400',
+              },
+              {
+                slug: 'context',
+                name: 'Kontekst',
+                bg: 'bg-blue-600/10',
+                border: 'border-blue-600/20',
+                text: 'text-blue-400',
+              },
+              {
+                slug: 'task',
+                name: 'Zadanie',
+                bg: 'bg-emerald-600/10',
+                border: 'border-emerald-600/20',
+                text: 'text-emerald-400',
+              },
+              {
+                slug: 'format',
+                name: 'Format',
+                bg: 'bg-amber-600/10',
+                border: 'border-amber-600/20',
+                text: 'text-amber-400',
+              },
+              {
+                slug: 'constraints',
+                name: 'Ograniczenia',
+                bg: 'bg-red-600/10',
+                border: 'border-red-600/20',
+                text: 'text-red-400',
+              },
+              {
+                slug: 'examples',
+                name: 'Przykłady',
+                bg: 'bg-cyan-600/10',
+                border: 'border-cyan-600/20',
+                text: 'text-cyan-400',
+              },
+              {
+                slug: 'tone',
+                name: 'Ton i styl',
+                bg: 'bg-purple-600/10',
+                border: 'border-purple-600/20',
+                text: 'text-purple-400',
+              },
+              {
+                slug: 'audience',
+                name: 'Odbiorca',
+                bg: 'bg-lime-600/10',
+                border: 'border-lime-600/20',
+                text: 'text-lime-400',
+              },
+              {
+                slug: 'chain_of_thought',
+                name: 'Rozumowanie',
+                bg: 'bg-fuchsia-600/10',
+                border: 'border-fuchsia-600/20',
+                text: 'text-fuchsia-400',
+              },
+              {
+                slug: 'output_schema',
+                name: 'Schema JSON',
+                bg: 'bg-zinc-600/10',
+                border: 'border-zinc-600/20',
+                text: 'text-zinc-400',
+              },
+            ].map(({ name, bg, border, text }) => (
+              <div class={`${bg} ${border} rounded-lg border p-3`}>
+                <span class={`${text} text-sm font-semibold`}>{name}</span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- ── Animations ──────────────────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">Animations</h2>
+        <div class="flex flex-wrap items-center gap-4">
+          <div
+            class="animate-float h-16 w-28 rounded-xl border border-violet-600/30 bg-violet-600/10 text-center text-sm leading-16 text-violet-400"
+          >
+            float
+          </div>
+          <div class="animate-shimmer h-8 w-48 rounded-md"></div>
+          <div class="animate-fade-in-up border-border bg-surface-raised rounded-lg border p-4">
+            <span class="text-text-secondary text-sm">fade-in-up</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Utility classes ─────────────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">Utilities</h2>
+        <div class="space-y-3">
+          <div class="bg-grid bg-grid-fade rounded-xl p-8">
+            <p class="text-text-muted text-center text-sm">bg-grid + bg-grid-fade</p>
+          </div>
+          <div
+            class="shadow-glow border-brand-600/30 bg-brand-600/10 text-brand-400 rounded-xl border p-4 text-center text-sm"
+          >
+            shadow-glow
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Card variants ───────────────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">Card variants</h2>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="border-border bg-surface-raised rounded-xl border p-4">
+            <p class="text-text-primary text-sm font-medium">Base card</p>
+            <p class="text-text-muted mt-1 text-xs">bg-surface-raised border-border</p>
+          </div>
+          <div
+            class="border-border bg-surface-raised hover:border-border-strong hover:bg-surface-overlay rounded-xl border p-4 transition-colors duration-150"
+          >
+            <p class="text-text-primary text-sm font-medium">Interactive card</p>
+            <p class="text-text-muted mt-1 text-xs">hover:border-border-strong</p>
+          </div>
+          <div
+            class="shadow-glow border-brand-600/20 bg-surface-raised ring-brand-600/20 rounded-xl border p-4 ring-1"
+          >
+            <p class="text-text-primary text-sm font-medium">Featured card</p>
+            <p class="text-text-muted mt-1 text-xs">ring-1 ring-brand-600/20</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Skeleton loader ─────────────────────────────────── -->
+      <section class="space-y-4">
+        <h2 class="text-text-muted font-mono text-xs tracking-widest uppercase">
+          Skeleton / Loading
+        </h2>
+        <div class="border-border bg-surface-raised space-y-3 rounded-xl border p-4">
+          <div class="animate-shimmer h-5 w-2/3 rounded-md"></div>
+          <div class="animate-shimmer h-4 w-full rounded-md"></div>
+          <div class="animate-shimmer h-4 w-5/6 rounded-md"></div>
+          <div class="animate-shimmer h-4 w-3/4 rounded-md"></div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

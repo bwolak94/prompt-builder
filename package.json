@@ -20,33 +20,36 @@
     "db:types": "supabase gen types typescript --local > src/db/types.ts"
   },
   "dependencies": {
-    "astro": "^6.4.5",
-    "@astrojs/react": "^5.0.0",
     "@astrojs/node": "^10.0.0",
+    "@astrojs/react": "^5.0.0",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^6.4.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.40.0",
+    "lucide-react": "^0.400.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/vite": "^4.0.0",
-    "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.0",
-    "class-variance-authority": "^0.7.1",
-    "lucide-react": "^0.400.0"
+    "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@astrojs/check": "^0.9.9",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@astrojs/check": "^0.9.9",
+    "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-astro": "^1.7.0",
     "eslint-plugin-react-hooks": "^5.0.0",
-    "typescript-eslint": "^8.61.0",
+    "jsdom": "^29.0.0",
     "prettier": "^3.3.0",
     "prettier-plugin-astro": "^0.14.0",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "vitest": "^4.0.0",
-    "@vitest/coverage-v8": "^4.0.0",
-    "@vitejs/plugin-react": "^5.2.0",
-    "jsdom": "^29.0.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.61.0",
+    "vitest": "^4.0.0"
   }
 }
