@@ -114,7 +114,8 @@ export const promptService = {
       tags: source.tags,
       is_public: false,
       slug: null,
-      fork_of: source.id,
+      // fork_of references prompts(id) — only set for user-prompt forks, not system templates
+      fork_of: sourcePrompt ? source.id : null,
     });
 
     // fire-and-forget: increment fork_count on the source

@@ -124,7 +124,7 @@ export const PromptBlock: React.FC<PromptBlockProps> = React.memo(
         </div>
 
         {/* Content area */}
-        <div className="relative p-2">
+        <div className="relative">
           <PromptBlockOverlay content={block.content} />
           <textarea
             ref={textareaRef}
