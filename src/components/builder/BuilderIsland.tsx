@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import { toast } from 'sonner';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BuilderToolbar } from './components/BuilderToolbar';
@@ -9,21 +8,29 @@ import { VariableForm } from './components/VariableForm';
 import { MarkdownPreview } from './components/MarkdownPreview';
 import { useBuilderStore } from './store/builder.store';
 import { useVariableDetection } from './hooks/useVariableDetection';
+import { useBuilderSave } from './hooks/useBuilderSave';
+import { useMarkdownGeneration } from './hooks/useMarkdownGeneration';
 import { PROMPT_SECTIONS } from '@/lib/constants';
-import type { Prompt, PromptSection } from '@/types';
+import type { Prompt, PromptSection, AIProvider } from '@/types';
+
+const AIScoreIsland = lazy(() =>
+  import('@/components/ai-score/AIScoreIsland').then((m) => ({ default: m.AIScoreIsland })),
+);
 
 interface BuilderIslandProps {
   initialPrompt?: Prompt;
   sections?: PromptSection[];
+  aiProvider?: AIProvider;
 }
 
 export const BuilderIsland: React.FC<BuilderIslandProps> = ({
   initialPrompt,
   sections = PROMPT_SECTIONS as PromptSection[],
+  aiProvider = 'openai',
 }) => {
   const loadPrompt = useBuilderStore((s) => s.loadPrompt);
   const reset = useBuilderStore((s) => s.reset);
-  const save = useBuilderStore((s) => s.save);
+  const promptId = useBuilderStore((s) => s.promptId);
 
   // Load initial prompt once
   useEffect(() => {
@@ -34,46 +41,32 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Variable detection
+  // Variable detection + save/autosave/beforeunload
   useVariableDetection();
-
-  // Save wrapper with toast feedback
-  const handleSave = async () => {
-    try {
-      await save();
-      toast.success('Prompt zapisany', { duration: 2000 });
-    } catch {
-      toast.error('Nie udało się zapisać', {
-        action: { label: 'Spróbuj ponownie', onClick: handleSave },
-      });
-    }
-  };
-
-  // Warn before leaving if dirty
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      const { isDirty } = useBuilderStore.getState();
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, []);
+  const { handleSave } = useBuilderSave();
+  const markdown = useMarkdownGeneration();
 
   const RightPanel = (
     <div className="flex flex-col gap-4 overflow-y-auto p-4">
       <MarkdownPreview />
       <VariableForm />
+      {promptId && markdown && (
+        <Suspense fallback={null}>
+          <AIScoreIsland
+            promptId={promptId}
+            content={markdown}
+            provider={aiProvider}
+          />
+        </Suspense>
+      )}
     </div>
   );
 
   return (
     <TooltipProvider delayDuration={500}>
-      <div className="flex h-screen flex-col overflow-hidden bg-bg-base">
+      <div className="flex h-screen flex-col overflow-hidden bg-surface-base">
         {/* Toolbar */}
-        <BuilderToolbar onBack={() => history.back()} />
+        <BuilderToolbar onBack={() => history.back()} onSave={handleSave} />
 
         {/* Desktop layout: 3 columns xl, 2 columns lg */}
         <div className="hidden flex-1 overflow-hidden lg:grid lg:grid-cols-[1fr_320px] xl:grid-cols-[280px_1fr_320px]">

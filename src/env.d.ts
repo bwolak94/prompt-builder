@@ -1,16 +1,13 @@
 /// <reference path="../.astro/types.d.ts" />
 
-import type { Session, User, SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/db/types';
-
 declare namespace App {
   interface Locals {
     /** Typed Supabase server client — unique per request */
-    supabase: SupabaseClient<Database>;
+    supabase: import('@supabase/supabase-js').SupabaseClient<import('@/db/types').Database>;
     /** Active session (access + refresh tokens), or null if logged out */
-    session: Session | null;
+    session: import('@supabase/supabase-js').Session | null;
     /** Authenticated user object, or null if logged out */
-    user: User | null;
+    user: import('@supabase/supabase-js').User | null;
   }
 }
 

@@ -8,6 +8,18 @@
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/jetbrains-mono';
 
+/* Ensure font-display:swap for all @font-face from fontsource */
+@layer base {
+  @font-face {
+    font-family: 'Inter Variable';
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono Variable';
+    font-display: swap;
+  }
+}
+
 /* Tailwind CSS v4 */
 @import 'tailwindcss';
 

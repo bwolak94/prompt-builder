@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@/db/supabase.client';
 import type { Prompt, CreatePromptDto, UpdatePromptDto } from '@/types';
 import { promptRepo } from '@/db/repositories/prompt.repo';
+import { templateRepo } from '@/db/repositories/template.repo';
 import { blocksToMarkdown, generateSlug } from '@/lib/markdown';
 
 // ── Slug generation with retry ─────────────────────────────────────────────────
@@ -97,7 +98,10 @@ export const promptService = {
     id: string,
     userId: string,
   ): Promise<Prompt> {
-    const source = await promptRepo.findById(supabase, id);
+    // Look up in user prompts first, then fall back to system templates
+    const sourcePrompt = await promptRepo.findById(supabase, id);
+    const sourceTemplate = sourcePrompt ? null : await templateRepo.findById(supabase, id);
+    const source = sourcePrompt ?? sourceTemplate;
     if (!source) throw new Error('Prompt not found');
 
     const forked = await promptRepo.create(supabase, {
@@ -114,7 +118,11 @@ export const promptService = {
     });
 
     // fire-and-forget: increment fork_count on the source
-    promptRepo.incrementForkCount(supabase, source.id);
+    if (sourcePrompt) {
+      promptRepo.incrementForkCount(supabase, source.id);
+    } else {
+      supabase.from('system_templates').update({ fork_count: (source.fork_count ?? 0) + 1 }).eq('id', source.id);
+    }
 
     return forked;
   },

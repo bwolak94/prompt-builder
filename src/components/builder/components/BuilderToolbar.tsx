@@ -4,9 +4,10 @@ import { useBuilderStore } from '../store/builder.store';
 
 interface BuilderToolbarProps {
   onBack?: () => void;
+  onSave?: () => Promise<void>;
 }
 
-export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack }) => {
+export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack, onSave }) => {
   const titleId = useId();
 
   const title = useBuilderStore((s) => s.title);
@@ -17,21 +18,15 @@ export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack }) => {
   const setIsPublic = useBuilderStore((s) => s.setIsPublic);
   const save = useBuilderStore((s) => s.save);
 
-  const handleSave = async () => {
-    try {
-      await save();
-    } catch {
-      // toast handled upstream by BuilderIsland
-    }
-  };
+  const handleSave = onSave ?? (async () => { try { await save(); } catch {} });
 
   return (
-    <div className="flex h-14 items-center gap-3 border-b border-border bg-bg-base px-4">
+    <div className="flex h-14 items-center gap-3 border-b border-border bg-surface-base px-4">
       {/* Back button */}
       <button
         onClick={onBack ?? (() => history.back())}
         aria-label="Wróć"
-        className="flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-1 hover:text-text-primary"
+        className="flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
       >
         <ArrowLeft size={16} />
       </button>
@@ -51,7 +46,7 @@ export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack }) => {
       <button
         onClick={() => setIsPublic(!isPublic)}
         aria-label={isPublic ? 'Publiczny — kliknij aby zmienić na prywatny' : 'Prywatny — kliknij aby upublicznić'}
-        className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-surface-1"
+        className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-surface-raised"
       >
         {isPublic ? (
           <Globe size={14} className="text-brand-400" />

@@ -8,6 +8,12 @@ const user = Astro.locals.user;
 if (!user) return Astro.redirect('/login?redirect=/builder');
 ---
 
-<AppLayout title="Nowy prompt — PromptBase">
+<AppLayout
+  title="Nowy prompt — PromptBase"
+  breadcrumbs={[
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Nowy prompt' },
+  ]}
+>
   <BuilderIsland client:load />
 </AppLayout>

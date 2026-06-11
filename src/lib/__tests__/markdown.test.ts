@@ -99,7 +99,8 @@ describe('generateSlug', () => {
   it('truncates long titles to 60 chars base', () => {
     const longTitle = 'a'.repeat(100);
     const slug = generateSlug(longTitle);
-    const base = slug.split('-').slice(0, -1).join('-');
+    // Strip the trailing "-<nanoid6>" suffix (separator + exactly 6 URL-safe chars)
+    const base = slug.replace(/-[A-Za-z0-9_-]{6}$/, '');
     expect(base.length).toBeLessThanOrEqual(60);
   });
 });

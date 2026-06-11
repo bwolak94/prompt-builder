@@ -15,7 +15,7 @@ COPY . .
 # PUBLIC_* vars are baked into the client-side JS bundle at build time.
 # The browser will hit localhost:8000 (Kong exposed on the host machine).
 # Server-side SSR code reads PUBLIC_SUPABASE_URL from process.env at runtime,
-# so the docker-compose.app.yml runtime value (http://kong:8000) takes precedence
+# so the docker-compose runtime value (http://kong:8000) takes precedence
 # for all SSR requests within the Docker network.
 ARG PUBLIC_SUPABASE_URL=http://localhost:8000
 ARG PUBLIC_SUPABASE_ANON_KEY
@@ -28,14 +28,24 @@ RUN npm run build
 FROM node:22-alpine AS runner
 WORKDIR /app
 
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --ingroup nodejs astro
+
 # Copy only the built artefacts and runtime node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package.json .
+COPY --from=builder --chown=astro:nodejs /app/dist ./dist
+COPY --from=builder --chown=astro:nodejs /app/node_modules ./node_modules
+COPY --chown=astro:nodejs package.json .
+
+USER astro
 
 # @astrojs/node standalone server reads HOST and PORT from environment
 ENV HOST=0.0.0.0
 ENV PORT=4321
+ENV NODE_ENV=production
 EXPOSE 4321
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:4321/api/health || exit 1
 
 CMD ["node", "./dist/server/entry.mjs"]

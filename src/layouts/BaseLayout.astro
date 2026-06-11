@@ -38,6 +38,21 @@ const {
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+    <!-- Skip to main content (a11y) -->
+    <style is:inline>
+      .skip-link { position: absolute; top: -100%; left: 0; z-index: 9999; }
+      .skip-link:focus { top: 0; }
+    </style>
+
+    <!-- Font preload — Inter Variable (woff2 subset for Latin) -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/inter-latin.woff2"
+      crossorigin="anonymous"
+    />
+
     <!-- FOUC prevention: apply stored theme before first paint -->
     <script is:inline>
       (function () {
@@ -52,6 +67,14 @@ const {
     </script>
   </head>
   <body>
+    <!-- Skip-to-main link — hidden until focused (WCAG 2.4.1) -->
+    <a
+      href="#main-content"
+      class="skip-link rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+    >
+      Przejdź do treści
+    </a>
+
     <slot />
     <Toaster
       client:load

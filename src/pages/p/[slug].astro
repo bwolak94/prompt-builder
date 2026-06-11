@@ -1,0 +1,227 @@
+---
+export const prerender = false;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { promptService } from '@/lib/services/prompt.service';
+import { ratingRepo } from '@/db/repositories/rating.repo';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404');
+
+const prompt = await promptService.getPublicPrompt(Astro.locals.supabase, slug);
+if (!prompt) return new Response(null, { status: 404 });
+
+const latestRating = await ratingRepo.findLatestByPromptId(Astro.locals.supabase, prompt.id);
+const user = Astro.locals.user;
+
+const siteUrl = import.meta.env.SITE_URL || 'https://promptbase.app';
+const canonicalUrl = `${siteUrl}/p/${slug}`;
+
+function formatDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'medium' }).format(new Date(dateStr));
+}
+
+const DIMENSION_LABELS: Record<string, string> = {
+  clarity: 'Klarowność',
+  specificity: 'Szczegółowość',
+  structure: 'Struktura',
+  tone: 'Ton',
+  completeness: 'Kompletność',
+};
+---
+
+<BaseLayout
+  title={`${prompt.title} — PromptBase`}
+  description={prompt.description ?? `Prompt: ${prompt.title}`}
+  canonical={canonicalUrl}
+>
+  <!-- Nav bar -->
+  <header class="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-surface-base/80 px-4 backdrop-blur">
+    <a href="/" class="text-sm font-semibold text-brand-400 transition-colors hover:text-brand-300">
+      ← PromptBase
+    </a>
+    <div class="flex items-center gap-2">
+      {user ? (
+        <a href="/dashboard" class="text-sm text-text-muted transition-colors hover:text-text-primary">
+          Dashboard
+        </a>
+      ) : (
+        <a
+          href="/register"
+          class="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-600"
+        >
+          Dołącz do PromptBase
+        </a>
+      )}
+    </div>
+  </header>
+
+  <main id="main" class="mx-auto max-w-6xl px-4 py-8">
+    <!-- 2-column layout on desktop -->
+    <div class="grid gap-8 lg:grid-cols-[1fr_320px]">
+
+      <!-- Left: Main content -->
+      <div class="min-w-0">
+        <!-- Title + meta -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-text-primary">{prompt.title}</h1>
+          {prompt.description && (
+            <p class="mt-2 text-sm text-text-muted">{prompt.description}</p>
+          )}
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-text-muted">
+            <time datetime={prompt.created_at}>{formatDate(prompt.created_at)}</time>
+            {prompt.view_count > 0 && <span>👁 {prompt.view_count} wyświetleń</span>}
+            {prompt.fork_count > 0 && <span>🍴 {prompt.fork_count} forków</span>}
+          </div>
+          {prompt.tags.length > 0 && (
+            <div class="mt-3 flex flex-wrap gap-1">
+              {prompt.tags.map((tag) => (
+                <span class="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] text-text-muted">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Markdown preview (read-only static render) -->
+        <section
+          aria-label="Treść promptu"
+          class="prose prose-invert prose-sm max-w-none overflow-x-auto rounded-xl border border-border bg-surface-raised p-6 font-mono text-xs leading-relaxed text-text-secondary whitespace-pre-wrap"
+        >
+          {prompt.content_md}
+        </section>
+
+        <!-- Variables read-only -->
+        {prompt.variables.length > 0 && (
+          <div class="mt-6">
+            <h2 class="mb-3 text-sm font-semibold text-text-primary">Zmienne</h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {prompt.variables.map((v) => (
+                <div class="rounded-lg border border-border bg-surface-raised p-3">
+                  <p class="mb-1 text-xs font-medium text-text-primary">{v.label || v.name}</p>
+                  <p class="truncate rounded bg-surface-overlay px-2 py-1 font-mono text-xs text-text-muted">
+                    {v.defaultValue || `{{${v.name}}}`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Right: Sidebar -->
+      <aside class="flex flex-col gap-5">
+
+        <!-- Actions -->
+        <div class="rounded-xl border border-border bg-surface-raised p-4">
+          <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">Akcje</h2>
+          <div class="flex flex-col gap-2">
+            {user ? (
+              <button
+                id="fork-btn"
+                data-prompt-id={prompt.id}
+                class="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+              >
+                🍴 Fork tego promptu
+              </button>
+            ) : (
+              <a
+                href={`/register?fork=${slug}`}
+                class="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+              >
+                🍴 Fork tego promptu
+              </a>
+            )}
+
+            <button
+              id="copy-btn"
+              data-content={prompt.content_md}
+              class="flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text-primary"
+            >
+              📋 Kopiuj treść
+            </button>
+
+            <a
+              href={`data:text/markdown;charset=utf-8,${encodeURIComponent(prompt.content_md)}`}
+              download={`${prompt.slug ?? prompt.id}.md`}
+              class="flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text-primary"
+            >
+              ⬇️ Pobierz .md
+            </a>
+          </div>
+        </div>
+
+        <!-- AI Score -->
+        {latestRating && (
+          <div class="rounded-xl border border-border bg-surface-raised p-4">
+            <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">Ocena AI</h2>
+            <div class="flex flex-col items-center gap-2">
+              <div class="flex h-24 w-24 items-center justify-center rounded-full border-4 border-brand-500/30">
+                <span class="text-2xl font-bold text-brand-400">
+                  {Math.round(latestRating.overall_score)}
+                </span>
+              </div>
+              <p class="text-xs text-text-muted">Wynik ogólny / 100</p>
+              <span class="rounded-full bg-brand-500/10 px-2.5 py-0.5 text-[10px] text-brand-400">
+                {latestRating.provider === 'openai' ? 'GPT-4o mini' : 'Claude Haiku'}
+              </span>
+            </div>
+            <div class="mt-4 flex flex-col gap-1.5">
+              {Object.entries(latestRating.scores).map(([dim, score]) => (
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-text-muted">{DIMENSION_LABELS[dim] ?? dim}</span>
+                  <span class="font-medium text-text-primary">{score}/100</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Details -->
+        <div class="rounded-xl border border-border bg-surface-raised p-4">
+          <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">Szczegóły</h2>
+          <div class="flex flex-col gap-2 text-xs">
+            <div class="flex justify-between">
+              <span class="text-text-muted">Sekcje</span>
+              <span class="font-medium text-text-primary">{prompt.blocks.length}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-text-muted">Zmienne</span>
+              <span class="font-medium text-text-primary">{prompt.variables.length}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-text-muted">Znaki</span>
+              <span class="font-medium text-text-primary">{prompt.content_md.length}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement | null;
+  copyBtn?.addEventListener('click', () => {
+    const content = (copyBtn as HTMLButtonElement).dataset.content ?? '';
+    navigator.clipboard.writeText(content).then(() => {
+      copyBtn.textContent = '✅ Skopiowano!';
+      setTimeout(() => { if (copyBtn) copyBtn.textContent = '📋 Kopiuj treść'; }, 2000);
+    });
+  });
+
+  const forkBtn = document.getElementById('fork-btn') as HTMLButtonElement | null;
+  forkBtn?.addEventListener('click', async () => {
+    const promptId = forkBtn.dataset.promptId ?? '';
+    forkBtn.disabled = true;
+    forkBtn.textContent = 'Forking…';
+    const res = await fetch(`/api/prompts/${promptId}/fork`, { method: 'POST' });
+    if (res.ok) {
+      window.location.href = '/dashboard';
+    } else {
+      forkBtn.disabled = false;
+      forkBtn.textContent = '🍴 Fork tego promptu';
+    }
+  });
+</script>
