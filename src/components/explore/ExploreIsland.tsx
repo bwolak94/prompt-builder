@@ -3,13 +3,16 @@ import { SearchBar } from './components/SearchBar';
 import { FilterPanel } from './components/FilterPanel';
 import { TemplateCard, TemplateCardSkeleton } from './components/TemplateCard';
 import { useTemplates } from './hooks/useTemplates';
+import { useI18n, type Lang } from '@/lib/i18n';
 import type { SystemTemplate } from '@/db/repositories/template.repo';
 
 interface ExploreIslandProps {
   initialTemplates: SystemTemplate[];
+  lang: Lang;
 }
 
-export const ExploreIsland: React.FC<ExploreIslandProps> = ({ initialTemplates }) => {
+export const ExploreIsland: React.FC<ExploreIslandProps> = ({ initialTemplates, lang }) => {
+  const { t } = useI18n(lang);
   const { templates, isLoading, isFetchingMore, nextCursor, error, filters, updateFilters, fetchMore } =
     useTemplates(initialTemplates);
 
@@ -44,10 +47,8 @@ export const ExploreIsland: React.FC<ExploreIslandProps> = ({ initialTemplates }
     <div className="mx-auto max-w-6xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-text-primary">Explore</h1>
-        <p className="mt-1 text-sm text-text-muted">
-          Przeglądaj gotowe szablony i twórz na ich podstawie własne prompty
-        </p>
+        <h1 className="text-2xl font-semibold text-text-primary">{t('explore.title')}</h1>
+        <p className="mt-1 text-sm text-text-muted">{t('explore.subtitle')}</p>
       </div>
 
       {/* Search + Filters */}
@@ -58,6 +59,7 @@ export const ExploreIsland: React.FC<ExploreIslandProps> = ({ initialTemplates }
           difficulty={filters.difficulty}
           onCategoryChange={(v) => updateFilters({ category: v })}
           onDifficultyChange={(v) => updateFilters({ difficulty: v })}
+          lang={lang}
         />
       </div>
 
@@ -77,14 +79,14 @@ export const ExploreIsland: React.FC<ExploreIslandProps> = ({ initialTemplates }
         </div>
       ) : templates.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border py-20 text-center">
-          <p className="text-sm font-medium text-text-primary">Brak wyników</p>
-          <p className="text-xs text-text-muted">Spróbuj zmienić filtry lub wyszukiwaną frazę</p>
+          <p className="text-sm font-medium text-text-primary">{t('explore.noResults')}</p>
+          <p className="text-xs text-text-muted">{t('explore.noResultsSub')}</p>
         </div>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((template) => (
-              <TemplateCard key={template.id} template={template} onFork={handleFork} />
+              <TemplateCard key={template.id} template={template} onFork={handleFork} lang={lang} />
             ))}
           </div>
 

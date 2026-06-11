@@ -5,6 +5,8 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import { ExploreIsland } from '@/components/explore/ExploreIsland';
 import { templateRepo } from '@/db/repositories/template.repo';
 
+const lang = Astro.locals.lang;
+
 // Fetch first page server-side
 const { data: initialTemplates } = await templateRepo.findMany(Astro.locals.supabase, {
   limit: 12,
@@ -16,5 +18,5 @@ const { data: initialTemplates } = await templateRepo.findMany(Astro.locals.supa
   description="Przeglądaj gotowe szablony promptów i twórz na ich podstawie własne."
   breadcrumbs={[{ label: 'Explore' }]}
 >
-  <ExploreIsland client:load initialTemplates={initialTemplates} />
+  <ExploreIsland client:load initialTemplates={initialTemplates} lang={lang} />
 </AppLayout>

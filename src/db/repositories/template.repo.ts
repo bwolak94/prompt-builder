@@ -5,7 +5,9 @@ import { castBlocks, castVariables } from '@/types';
 export interface SystemTemplate {
   id: string;
   title: string;
+  title_en: string | null;
   description: string;
+  description_en: string | null;
   category: string;
   difficulty: string;
   tags: string[];
@@ -36,7 +38,9 @@ function rowToTemplate(row: Record<string, unknown>): SystemTemplate {
   return {
     id: row.id as string,
     title: row.title as string,
+    title_en: (row.title_en as string | null) ?? null,
     description: row.description as string,
+    description_en: (row.description_en as string | null) ?? null,
     category: row.category as string,
     difficulty: row.difficulty as string,
     tags: (row.tags as string[]) ?? [],
@@ -55,7 +59,7 @@ export const templateRepo = {
   async findById(supabase: SupabaseClient, id: string): Promise<SystemTemplate | null> {
     const { data, error } = await supabase
       .from('system_templates')
-      .select('id,title,description,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at')
+      .select('id,title,title_en,description,description_en,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at')
       .eq('id', id)
       .single();
     if (error || !data) return null;
@@ -67,7 +71,7 @@ export const templateRepo = {
 
     let query = supabase
       .from('system_templates')
-      .select('id,title,description,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at')
+      .select('id,title,title_en,description,description_en,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at')
       .order('order_index', { ascending: true })
       .order('created_at', { ascending: false })
       .limit(limit + 1); // fetch one extra to detect nextCursor

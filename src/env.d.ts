@@ -8,6 +8,8 @@ declare namespace App {
     session: import('@supabase/supabase-js').Session | null;
     /** Authenticated user object, or null if logged out */
     user: import('@supabase/supabase-js').User | null;
+    /** Active UI language — read from `lang` cookie */
+    lang: import('@/lib/i18n').Lang;
   }
 }
 

@@ -10,7 +10,8 @@ import { useBuilderStore } from './store/builder.store';
 import { useVariableDetection } from './hooks/useVariableDetection';
 import { useBuilderSave } from './hooks/useBuilderSave';
 import { useMarkdownGeneration } from './hooks/useMarkdownGeneration';
-import { PROMPT_SECTIONS } from '@/lib/constants';
+import { getPromptSections } from '@/lib/constants';
+import { useI18n, type Lang } from '@/lib/i18n';
 import type { Prompt, PromptSection, AIProvider } from '@/types';
 
 const AIScoreIsland = lazy(() =>
@@ -21,13 +22,17 @@ interface BuilderIslandProps {
   initialPrompt?: Prompt;
   sections?: PromptSection[];
   aiProvider?: AIProvider;
+  lang?: Lang;
 }
 
 export const BuilderIsland: React.FC<BuilderIslandProps> = ({
   initialPrompt,
-  sections = PROMPT_SECTIONS as PromptSection[],
+  sections,
   aiProvider = 'openai',
+  lang = 'pl',
 }) => {
+  const { t } = useI18n(lang);
+  const resolvedSections = sections ?? (getPromptSections(lang) as PromptSection[]);
   const loadPrompt = useBuilderStore((s) => s.loadPrompt);
   const reset = useBuilderStore((s) => s.reset);
   const promptId = useBuilderStore((s) => s.promptId);
@@ -72,12 +77,12 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
         <div className="hidden flex-1 overflow-hidden lg:grid lg:grid-cols-[1fr_320px] xl:grid-cols-[280px_1fr_320px]">
           {/* Left: section palette (visible on xl only) */}
           <div className="hidden overflow-y-auto border-r border-border xl:block">
-            <SectionPalette sections={sections} />
+            <SectionPalette sections={resolvedSections} />
           </div>
 
           {/* Center: canvas */}
           <div className="overflow-y-auto border-r border-border">
-            <DragDropCanvas sections={sections} />
+            <DragDropCanvas sections={resolvedSections} />
           </div>
 
           {/* Right: preview + variables */}
@@ -88,17 +93,17 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
         <div className="flex-1 overflow-hidden lg:hidden">
           <Tabs defaultValue="canvas" className="flex h-full flex-col">
             <TabsList className="mx-4 mt-2 grid w-auto grid-cols-3">
-              <TabsTrigger value="palette">Sekcje</TabsTrigger>
-              <TabsTrigger value="canvas">Kanwa</TabsTrigger>
-              <TabsTrigger value="preview">Podgląd</TabsTrigger>
+              <TabsTrigger value="palette">{t('builder.sectionPaletteTitle')}</TabsTrigger>
+              <TabsTrigger value="canvas">{t('builder.edit')}</TabsTrigger>
+              <TabsTrigger value="preview">{t('builder.preview')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="palette" className="flex-1 overflow-y-auto">
-              <SectionPalette sections={sections} />
+              <SectionPalette sections={resolvedSections} />
             </TabsContent>
 
             <TabsContent value="canvas" className="flex-1 overflow-y-auto">
-              <DragDropCanvas sections={sections} />
+              <DragDropCanvas sections={resolvedSections} />
             </TabsContent>
 
             <TabsContent value="preview" className="flex-1 overflow-hidden">

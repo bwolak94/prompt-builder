@@ -126,22 +126,37 @@ export const SCORE_COLORS: Readonly<Record<ScoreLevel, string>> = {
 
 // ── Prompt Sections ─────────────────────────────────────────────
 import type { PromptSection } from '@/types';
+import { getTranslations, type Lang } from '@/lib/i18n';
 
-export const PROMPT_SECTIONS: readonly PromptSection[] = [
-  // Rdzeń (Core)
-  { slug: 'role', name: 'Rola', description: 'Zdefiniuj rolę lub personę AI w tym prompcie.', category: 'core', icon: 'User' },
-  { slug: 'context', name: 'Kontekst', description: 'Podaj tło i kontekst zadania dla modelu.', category: 'core', icon: 'BookOpen' },
-  { slug: 'task', name: 'Zadanie', description: 'Opisz główne zadanie do wykonania.', category: 'core', icon: 'Target' },
-  { slug: 'format', name: 'Format', description: 'Określ oczekiwany format i strukturę odpowiedzi.', category: 'core', icon: 'Layout' },
-  // Opcjonalne
-  { slug: 'constraints', name: 'Ograniczenia', description: 'Podaj ograniczenia i rzeczy których należy unikać.', category: 'optional', icon: 'ShieldOff' },
-  { slug: 'examples', name: 'Przykłady', description: 'Dodaj przykłady wejścia/wyjścia (few-shot).', category: 'optional', icon: 'Lightbulb' },
-  { slug: 'tone', name: 'Ton', description: 'Ustal ton i styl odpowiedzi.', category: 'optional', icon: 'MessageSquare' },
-  { slug: 'audience', name: 'Odbiorca', description: 'Zdefiniuj docelowego odbiorcę treści.', category: 'optional', icon: 'Users' },
-  // Zaawansowane
-  { slug: 'chain_of_thought', name: 'Rozumowanie', description: 'Poproś model o stopniowe rozumowanie (chain-of-thought).', category: 'advanced', icon: 'GitBranch' },
-  { slug: 'output_schema', name: 'Schema JSON', description: 'Zdefiniuj oczekiwany schemat JSON wyjścia.', category: 'advanced', icon: 'Code2' },
-] as const;
+type SectionSlug = 'role' | 'context' | 'task' | 'format' | 'constraints' | 'examples' | 'tone' | 'audience' | 'chain_of_thought' | 'output_schema';
+
+const SECTION_ICONS: Record<SectionSlug, { category: PromptSection['category']; icon: string }> = {
+  role:            { category: 'core',     icon: 'User' },
+  context:         { category: 'core',     icon: 'BookOpen' },
+  task:            { category: 'core',     icon: 'Target' },
+  format:          { category: 'core',     icon: 'Layout' },
+  constraints:     { category: 'optional', icon: 'ShieldOff' },
+  examples:        { category: 'optional', icon: 'Lightbulb' },
+  tone:            { category: 'optional', icon: 'MessageSquare' },
+  audience:        { category: 'optional', icon: 'Users' },
+  chain_of_thought:{ category: 'advanced', icon: 'GitBranch' },
+  output_schema:   { category: 'advanced', icon: 'Code2' },
+} as const;
+
+/** Returns localized prompt sections for the given language. */
+export function getPromptSections(lang: Lang = 'pl'): readonly PromptSection[] {
+  const sections = getTranslations(lang).sections as Record<string, { name: string; description: string }>;
+  return (Object.keys(SECTION_ICONS) as SectionSlug[]).map((slug) => ({
+    slug,
+    name: sections[slug]?.name ?? slug,
+    description: sections[slug]?.description ?? '',
+    category: SECTION_ICONS[slug].category,
+    icon: SECTION_ICONS[slug].icon,
+  }));
+}
+
+/** @deprecated Use getPromptSections(lang) instead */
+export const PROMPT_SECTIONS: readonly PromptSection[] = getPromptSections('pl');
 
 // ── Variable detection ──────────────────────────────────────────
 /** Regex for detecting {{variable_name}} placeholders in prompt content. */

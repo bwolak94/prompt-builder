@@ -4,17 +4,22 @@ import { StatsRow, type Stats } from './components/StatsRow';
 import { FilterBar, type FilterValue } from './components/FilterBar';
 import { PromptCard } from './components/PromptCard';
 import { EmptyState } from './components/EmptyState';
+import { useI18n } from '@/lib/i18n';
 import type { Prompt } from '@/types';
+import type { Lang } from '@/lib/i18n';
 
 interface DashboardIslandProps {
   initialPrompts: Prompt[];
   initialStats: Stats;
+  lang: Lang;
 }
 
 export const DashboardIsland: React.FC<DashboardIslandProps> = ({
   initialPrompts,
   initialStats,
+  lang,
 }) => {
+  const { t } = useI18n(lang);
   const [filter, setFilter] = useState<FilterValue>('all');
   const [stats] = useState<Stats>(initialStats);
   const [isPending, startTransition] = useTransition();
@@ -73,15 +78,15 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-text-primary">Moje prompty</h1>
-          <p className="mt-1 text-sm text-text-muted">Zarządzaj swoją biblioteką promptów</p>
+          <h1 className="text-2xl font-semibold text-text-primary">{t('dashboard.title')}</h1>
+          <p className="mt-1 text-sm text-text-muted">{t('dashboard.subtitle')}</p>
         </div>
         <a
           href="/builder"
           className="hidden items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600 sm:flex"
         >
           <Plus size={16} aria-hidden="true" />
-          Nowy prompt
+          {t('dashboard.newPrompt')}
         </a>
       </div>
 
@@ -118,7 +123,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
       <a
         href="/builder"
         className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-white shadow-lg transition-colors hover:bg-brand-600 sm:hidden"
-        aria-label="Nowy prompt"
+        aria-label={t('dashboard.newPrompt')}
       >
         <Plus size={24} aria-hidden="true" />
       </a>

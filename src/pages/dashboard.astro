@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import { DashboardIsland } from '@/components/dashboard/DashboardIsland';
 import { promptRepo } from '@/db/repositories/prompt.repo';
 
+const lang = Astro.locals.lang;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect('/login?redirect=/dashboard');
 
@@ -44,6 +45,7 @@ const initialStats = { total: prompts.length, public: publicCount, forks, avgSco
     client:load
     initialPrompts={prompts}
     initialStats={initialStats}
+    lang={lang}
   />
 </AppLayout>
 

@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createServerClient } from '@/db/supabase.client';
+import { parseLangCookie, type Lang } from '@/lib/i18n';
 
 /**
  * Routes that require an authenticated session.
@@ -26,12 +27,16 @@ function isApiRoute(pathname: string): boolean {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { request, cookies, locals, url } = context;
 
-  // ── 1. Attach a fresh Supabase client to every request ─────────────────────
+  // ── 1. Resolve language from cookie ────────────────────────────────────────
+  const cookieHeader = request.headers.get('cookie');
+  locals.lang = parseLangCookie(cookieHeader) as Lang;
+
+  // ── 2. Attach a fresh Supabase client to every request ─────────────────────
   // createServerClient reads the session cookie from request headers and
   // writes refreshed tokens back via AstroCookies before the response is sent.
   locals.supabase = createServerClient(request, cookies);
 
-  // ── 2. Resolve the current session (auto-refreshes via refresh token) ───────
+  // ── 3. Resolve the current session (auto-refreshes via refresh token) ───────
   // getUser() validates the JWT with the Supabase auth server — more secure
   // than getSession() which only reads the local cookie.
   const {
@@ -53,7 +58,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     locals.session = session;
   }
 
-  // ── 3. Auth guard ───────────────────────────────────────────────────────────
+  // ── 4. Auth guard ───────────────────────────────────────────────────────────
   const { pathname } = url;
 
   if (locals.user === null && isProtectedRoute(pathname)) {
@@ -71,6 +76,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return context.redirect(loginUrl.toString(), 302);
   }
 
-  // ── 4. Pass through ─────────────────────────────────────────────────────────
+  // ── 5. Pass through ─────────────────────────────────────────────────────────
   return next();
 });

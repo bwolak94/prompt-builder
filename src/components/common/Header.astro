@@ -1,18 +1,22 @@
 ---
 /**
  * Public Header — used in PublicLayout.
- * Logo + navigation links + ThemeToggle + auth buttons.
+ * Logo + navigation links + ThemeToggle + LanguageToggle + auth buttons.
  */
 import Logo from './Logo.astro';
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageToggle from './LanguageToggle.astro';
+import { getT } from '@/lib/i18n';
 
 const { pathname } = Astro.url;
 const isLoggedIn = !!Astro.locals.user;
+const lang = Astro.locals.lang;
+const t = getT(lang);
 
 const navLinks = [
-  { label: 'Szablony', href: '/explore' },
-  { label: 'Funkcje', href: '/#features' },
-  { label: 'Cennik', href: '/pricing' },
+  { label: t('nav.templates'), href: '/explore' },
+  { label: t('nav.features'), href: '/#features' },
+  { label: t('nav.pricing'), href: '/pricing' },
 ];
 ---
 
@@ -24,7 +28,7 @@ const navLinks = [
     <!-- Nav links — hidden on mobile -->
     <nav
       class="hidden items-center gap-1 md:flex"
-      aria-label="Główna nawigacja"
+      aria-label={lang === 'pl' ? 'Główna nawigacja' : 'Main navigation'}
     >
       {navLinks.map(({ label, href }) => (
         <a
@@ -43,6 +47,7 @@ const navLinks = [
 
     <!-- Right side actions -->
     <div class="flex items-center gap-2">
+      <LanguageToggle lang={lang} />
       <ThemeToggle />
 
       {isLoggedIn ? (
@@ -50,7 +55,7 @@ const navLinks = [
           href="/dashboard"
           class="rounded-md bg-brand-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
         >
-          Dashboard
+          {t('nav.dashboard')}
         </a>
       ) : (
         <>
@@ -58,13 +63,13 @@ const navLinks = [
             href="/login"
             class="hidden rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block"
           >
-            Zaloguj
+            {t('nav.login')}
           </a>
           <a
             href="/register"
             class="rounded-md bg-brand-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
           >
-            Zarejestruj
+            {t('nav.register')}
           </a>
         </>
       )}
