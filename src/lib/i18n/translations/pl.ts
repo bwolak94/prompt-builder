@@ -18,6 +18,14 @@ export interface Translations {
   landing: { heroTitle: string; heroSubtitle: string; heroCta: string; heroCtaSub: string; featuredTitle: string; featuredSubtitle: string; featuresTitle: string; howItWorksTitle: string; ctaTitle: string; ctaSubtitle: string; ctaButton: string };
   common: { loading: string; error: string; cancel: string; confirm: string; save: string; delete: string; edit: string; close: string; back: string; next: string; yes: string; no: string; or: string; and: string; search: string; filter: string; clear: string; copy: string; copied: string; share: string; notFound: string; forbidden: string; serverError: string; tryAgain: string };
   run: { runPrompt: string; cancel: string; reset: string; provider: string; model: string; keySource: string; keyHosted: string; keyByok: string; responseTitle: string; creditsUnlimited: string; creditsThisMonth: string; limitReached: string; noByokKey: string };
+  versions: { title: string; create: string; creating: string; createTitle: string; createDesc: string; summaryPlaceholder: string; empty: string; noSummary: string; restore: string; restoring: string; restoreConfirm: string; restoreConfirmTitle: string; restoreConfirmDesc: string; savedOnSave: string };
+  ab: { title: string; enterMode: string; enterModeDesc: string; creating: string; exit: string; variantA: string; variantB: string; scoreOffline: string; scoring: string; runLive: string; tabDiff: string; tabScore: string; tabResponses: string; applyB: string; keepBoth: string; winner: string; tie: string };
+  smartVars: { title: string; reset: string; preview: string; copy: string; typeText: string; typeSelect: string; typeNumber: string; typeMultiline: string; typeBoolean: string; validationRequired: string; validationRange: string; on: string; off: string };
+  community: { title: string; subtitle: string; tabs: { trending: string; recent: string; topRated: string; featured: string }; period: { h24: string; week: string; month: string; all: string }; forkThis: string; by: string; noResults: string; loadMore: string };
+  collections: { title: string; newCollection: string; editCollection: string; deleteCollection: string; deleteConfirm: string; namePlaceholder: string; noCollections: string; noCollectionsSub: string; makePublic: string; copyBundleLink: string };
+  challenges: { title: string; subtitle: string; activeChallenge: string; timeRemaining: string; submit: string; submitConfirm: string; submissions: string; noSubmissions: string; vote: string; votes: string; voted: string; propose: string; proposals: string; noProposals: string; proposalThreshold: string; proposalTitlePlaceholder: string; proposalDescPlaceholder: string; leaderboard: string; leaderboardEmpty: string; wins: string; badges: string; noActive: string; statusActive: string; statusVoting: string; statusUpcoming: string; statusCompleted: string };
+  ratings: { title: string; yourRating: string; rate: string; loginTo: string; loginLink: string };
+  comments: { title: string; add: string; reply: string; edit: string; delete: string; helpful: string; report: string; send: string; sending: string; cancel: string; placeholder: string; replyPlaceholder: string; loadMore: string; loading: string; empty: string; loginTo: string; loginLink: string; reportSpam: string; reportAbuse: string; reportOfftopic: string; reportOther: string };
 }
 
 export const pl: Translations = {
@@ -284,6 +292,162 @@ export const pl: Translations = {
     creditsThisMonth: 'uruchomień w tym miesiącu',
     limitReached: 'Limit miesięczny wyczerpany. Uaktualnij plan lub dodaj własny klucz.',
     noByokKey: 'Brak skonfigurowanego klucza BYOK dla tego dostawcy.',
+  },
+
+  // ── Smart variables ────────────────────────────────────────────
+  smartVars: {
+    title: 'Zmienne',
+    reset: 'Resetuj',
+    preview: 'Podgląd z wartościami',
+    copy: 'Kopiuj',
+    typeText: 'Tekst',
+    typeSelect: 'Wybór',
+    typeNumber: 'Liczba',
+    typeMultiline: 'Wieloliniowy',
+    typeBoolean: 'Przełącznik',
+    validationRequired: 'Zmienna "{{name}}" jest wymagana',
+    validationRange: 'Wartość {{name}} musi być między {{min}} a {{max}}',
+    on: 'Tak',
+    off: 'Nie',
+  },
+
+  // ── A/B testing ────────────────────────────────────────────────
+  ab: {
+    title: 'Tryb A/B',
+    enterMode: 'Tryb A/B',
+    enterModeDesc: 'Porównaj dwa warianty promptu side-by-side.',
+    creating: 'Tworzenie testu…',
+    exit: 'Wyjdź z A/B',
+    variantA: 'Wariant A (oryginalny)',
+    variantB: 'Wariant B (edytowalny)',
+    scoreOffline: 'Oceń oba',
+    scoring: 'Ocenianie…',
+    runLive: 'Uruchom oba',
+    tabDiff: 'Różnice',
+    tabScore: 'Wyniki',
+    tabResponses: 'Odpowiedzi',
+    applyB: 'Zastąp A przez B',
+    keepBoth: 'Zachowaj oba',
+    winner: 'Lepszy',
+    tie: 'Remis',
+  },
+
+  // ── Version history ────────────────────────────────────────────
+  versions: {
+    title: 'Historia wersji',
+    create: 'Zapisz wersję',
+    creating: 'Zapisywanie…',
+    createTitle: 'Zapisz wersję',
+    createDesc: 'Opcjonalnie dodaj opis zmian.',
+    summaryPlaceholder: 'Opis zmian (opcjonalnie)',
+    empty: 'Brak zapisanych wersji.',
+    noSummary: 'Brak opisu',
+    restore: 'Przywróć tę wersję',
+    restoring: 'Przywracanie…',
+    restoreConfirm: 'Tak, przywróć',
+    restoreConfirmTitle: 'Przywrócić wersję?',
+    restoreConfirmDesc: 'Obecna zawartość promptu zostanie zastąpiona tą wersją. Aktualna wersja zostanie zachowana w historii.',
+    savedOnSave: 'Wersja zapisana automatycznie',
+  },
+
+  // ── Collections ────────────────────────────────────────────────
+  collections: {
+    title: 'Kolekcje',
+    newCollection: 'Nowa kolekcja',
+    editCollection: 'Edytuj kolekcję',
+    deleteCollection: 'Usuń kolekcję',
+    deleteConfirm: 'Usunąć kolekcję i wszystkie podkolekcje?',
+    namePlaceholder: 'Nazwa kolekcji…',
+    noCollections: 'Brak kolekcji',
+    noCollectionsSub: 'Utwórz folder, aby organizować prompty',
+    makePublic: 'Udostępnij jako bundle',
+    copyBundleLink: 'Kopiuj link do bundle',
+  },
+
+  // ── Challenges ─────────────────────────────────────────────────
+  challenges: {
+    title: 'Wyzwania',
+    subtitle: 'Tygodniowe wyzwania promptów dla społeczności',
+    activeChallenge: 'Aktywne wyzwanie',
+    timeRemaining: 'Pozostało',
+    submit: 'Wyślij swój prompt',
+    submitConfirm: 'Wyślij',
+    submissions: 'Zgłoszenia',
+    noSubmissions: 'Brak zgłoszeń. Bądź pierwszy!',
+    vote: 'Głosuj',
+    votes: 'głosów',
+    voted: 'Zagłosowano',
+    propose: 'Zaproponuj temat',
+    proposals: 'Propozycje tematów',
+    noProposals: 'Brak propozycji.',
+    proposalThreshold: 'Potrzeba {{n}} głosów, aby przejść do kolejki',
+    proposalTitlePlaceholder: 'Tytuł wyzwania (min. 5 znaków)…',
+    proposalDescPlaceholder: 'Opis wyzwania (min. 20 znaków)…',
+    leaderboard: 'Ranking',
+    leaderboardEmpty: 'Ranking jest pusty.',
+    wins: 'Wygrane',
+    badges: 'Odznaki',
+    noActive: 'Brak aktywnego wyzwania. Zaproponuj temat poniżej!',
+    statusActive: 'Trwa',
+    statusVoting: 'Głosowanie',
+    statusUpcoming: 'Nadchodzi',
+    statusCompleted: 'Zakończone',
+  },
+
+  // ── Community feed ─────────────────────────────────────────────
+  community: {
+    title: 'Społeczność',
+    subtitle: 'Odkrywaj i remixuj prompty stworzone przez innych',
+    tabs: {
+      trending: 'Trending',
+      recent: 'Najnowsze',
+      topRated: 'Najlepiej oceniane',
+      featured: 'Wyróżnione',
+    },
+    period: {
+      h24: 'Ostatnie 24h',
+      week: 'Ten tydzień',
+      month: 'Ten miesiąc',
+      all: 'Wszystkie',
+    },
+    forkThis: 'Remixuj',
+    by: 'przez',
+    noResults: 'Brak wyników dla tych filtrów',
+    loadMore: 'Załaduj więcej',
+  },
+
+  // ── Ratings ────────────────────────────────────────────────────
+  ratings: {
+    title: 'Ocena',
+    yourRating: 'Twoja ocena: {{value}}★',
+    rate: 'Oceń ten prompt:',
+    loginTo: 'aby ocenić',
+    loginLink: 'Zaloguj się',
+  },
+
+  // ── Comments ───────────────────────────────────────────────────
+  comments: {
+    title: 'Komentarze',
+    add: 'Dodaj komentarz',
+    reply: 'Odpowiedz',
+    edit: 'Edytuj',
+    delete: 'Usuń',
+    helpful: 'Pomocny',
+    report: 'Zgłoś',
+    send: 'Wyślij',
+    sending: 'Wysyłanie…',
+    cancel: 'Anuluj',
+    placeholder: 'Dodaj komentarz…',
+    replyPlaceholder: 'Odpowiedz na komentarz…',
+    loadMore: 'Załaduj więcej',
+    loading: 'Ładowanie…',
+    empty: 'Brak komentarzy. Bądź pierwszy!',
+    loginTo: 'aby komentować',
+    loginLink: 'Zaloguj się',
+    reportSpam: 'spam',
+    reportAbuse: 'nadużycie',
+    reportOfftopic: 'nie na temat',
+    reportOther: 'inne',
   },
 
   // ── Common ─────────────────────────────────────────────────────

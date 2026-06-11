@@ -4,6 +4,8 @@ export const prerender = false;
 import AppLayout from '@/layouts/AppLayout.astro';
 import { DashboardIsland } from '@/components/dashboard/DashboardIsland';
 import { promptRepo } from '@/db/repositories/prompt.repo';
+import { collectionRepo } from '@/db/repositories/collection.repo';
+import { buildCollectionTree } from '@/lib/services/collection.service';
 
 const lang = Astro.locals.lang;
 const user = Astro.locals.user;
@@ -35,6 +37,11 @@ if (promptIds.length > 0) {
 }
 
 const initialStats = { total: prompts.length, public: publicCount, forks, avgScore };
+
+// F-09: collections
+const activeCollectionId = Astro.url.searchParams.get('collection');
+const collectionsFlat = await collectionRepo.findByUser(Astro.locals.supabase, user.id);
+const initialCollectionTree = buildCollectionTree(collectionsFlat);
 ---
 
 <AppLayout
@@ -45,6 +52,8 @@ const initialStats = { total: prompts.length, public: publicCount, forks, avgSco
     client:load
     initialPrompts={prompts}
     initialStats={initialStats}
+    initialCollectionTree={initialCollectionTree}
+    initialActiveCollectionId={activeCollectionId}
     lang={lang}
   />
 </AppLayout>

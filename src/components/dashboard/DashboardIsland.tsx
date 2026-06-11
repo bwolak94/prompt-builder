@@ -7,17 +7,23 @@ import { EmptyState } from './components/EmptyState';
 import { useI18n } from '@/lib/i18n';
 import type { Prompt } from '@/types';
 import type { Lang } from '@/lib/i18n';
+import { CollectionsSidebar } from '@/components/collections/CollectionsSidebar';
+import type { CollectionNode } from '@/db/repositories/collection.repo';
 
 interface DashboardIslandProps {
   initialPrompts: Prompt[];
   initialStats: Stats;
   lang: Lang;
+  initialCollectionTree?: CollectionNode[];
+  initialActiveCollectionId?: string | null;
 }
 
 export const DashboardIsland: React.FC<DashboardIslandProps> = ({
   initialPrompts,
   initialStats,
   lang,
+  initialCollectionTree = [],
+  initialActiveCollectionId = null,
 }) => {
   const { t } = useI18n(lang);
   const [filter, setFilter] = useState<FilterValue>('all');
@@ -73,8 +79,28 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
     [prompts],
   );
 
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(
+    initialActiveCollectionId,
+  );
+
+  // Filter prompts by active collection
+  // Note: for collection filtering we rely on URL-driven reload (server fetches filtered list)
+  // The sidebar's setActiveCollection pushes to URL and triggers navigation
+
   return (
-    <div className="relative mx-auto max-w-5xl px-4 py-8">
+    <div className="relative mx-auto max-w-6xl px-4 py-8">
+      <div className="flex gap-6">
+        {/* Collections sidebar */}
+        <aside className="hidden w-52 shrink-0 lg:block">
+          <CollectionsSidebar
+            lang={lang}
+            initialTree={initialCollectionTree}
+            initialActiveId={activeCollectionId}
+          />
+        </aside>
+
+        {/* Main content */}
+        <div className="min-w-0 flex-1">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -127,6 +153,8 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
       >
         <Plus size={24} aria-hidden="true" />
       </a>
+        </div> {/* end main content */}
+      </div> {/* end flex */}
     </div>
   );
 };

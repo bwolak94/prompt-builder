@@ -78,6 +78,8 @@ export const promptService = {
       }),
       ...(dto.tags !== undefined && { tags: dto.tags }),
       ...(dto.is_public !== undefined && { is_public: dto.is_public }),
+      ...(dto.category !== undefined && { category: dto.category }),
+      ...(dto.difficulty !== undefined && { difficulty: dto.difficulty }),
       ...(slug !== existing.slug && { slug }),
     });
   },

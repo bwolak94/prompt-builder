@@ -159,8 +159,12 @@ export function getPromptSections(lang: Lang = 'pl'): readonly PromptSection[] {
 export const PROMPT_SECTIONS: readonly PromptSection[] = getPromptSections('pl');
 
 // ── Variable detection ──────────────────────────────────────────
-/** Regex for detecting {{variable_name}} placeholders in prompt content. */
-export const VARIABLE_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g;
+/**
+ * Smart variable regex — matches {{name}}, {{name:type}}, {{name:type:params}}.
+ * Groups: [1]=name, [2]=type (optional), [3]=params (optional).
+ * @deprecated Use SMART_VAR_REGEX from @/lib/variables/parser instead.
+ */
+export const VARIABLE_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)(?::([a-z]+)(?::([^}]*))?)?\}\}/g;
 
 // ── Rate limiting ───────────────────────────────────────────────
 export const AI_SCORE_RATE_LIMIT = 10; // requests per window

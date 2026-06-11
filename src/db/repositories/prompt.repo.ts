@@ -24,6 +24,8 @@ function rowToPrompt(row: PromptsRow): Prompt {
     fork_of: row.fork_of,
     fork_count: row.fork_count,
     view_count: row.view_count,
+    category: row.category ?? null,
+    difficulty: row.difficulty ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
     deleted_at: row.deleted_at,

@@ -31,11 +31,12 @@ export interface PromptBlock {
 // ── Variable ──────────────────────────────────────────────────────────────────
 
 /** Variable type determines which input control is rendered */
-export type VariableType = 'text' | 'textarea' | 'select' | 'number';
+export type VariableType = 'text' | 'textarea' | 'select' | 'number' | 'multiline' | 'boolean';
 
 /**
  * A {{variable_name}} placeholder declared in a prompt.
  * Stored as JSONB in prompts.variables and system_templates.variables.
+ * Extended in F-04: multiline, boolean, min/max/step for number.
  */
 export interface PromptVariable {
   /** Matches the placeholder token: {{name}} */
@@ -47,6 +48,12 @@ export interface PromptVariable {
   type: VariableType;
   /** Only used when type === "select" */
   options?: string[];
+  /** Only used when type === "number" */
+  min?: number;
+  /** Only used when type === "number" */
+  max?: number;
+  /** Only used when type === "number", default 1 */
+  step?: number;
 }
 
 // ── AI Scoring ────────────────────────────────────────────────────────────────
@@ -160,6 +167,8 @@ export interface Prompt {
   fork_of: string | null;
   fork_count: number;
   view_count: number;
+  category: string | null;
+  difficulty: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -209,6 +218,8 @@ export interface CreatePromptDto {
 /** PATCH /api/prompts/[id] — update prompt */
 export interface UpdatePromptDto extends Partial<CreatePromptDto> {
   content_md?: string;
+  category?: string;
+  difficulty?: string;
 }
 
 /** POST /api/score — request AI scoring */

@@ -1,16 +1,21 @@
-import React, { lazy, Suspense, useEffect, useCallback } from 'react';
+import React, { lazy, Suspense, useEffect, useCallback, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 import { BuilderToolbar } from './components/BuilderToolbar';
 import { SectionPalette } from './components/SectionPalette';
 import { DragDropCanvas } from './components/DragDropCanvas';
 import { VariableForm } from './components/VariableForm';
 import { MarkdownPreview } from './components/MarkdownPreview';
 import { RunButton } from './components/RunButton';
+import { VersionsPanel } from './components/VersionsPanel';
+import { ABTestView } from './components/ABTestView';
 import { useBuilderStore } from './store/builder.store';
 import { useVariableDetection } from './hooks/useVariableDetection';
 import { useBuilderSave } from './hooks/useBuilderSave';
+import { useAutoCategorize } from './hooks/useAutoCategorize';
 import { useMarkdownGeneration } from './hooks/useMarkdownGeneration';
+import { AutoTagModal } from './components/AutoTagModal';
 import { getPromptSections } from '@/lib/constants';
 import { useI18n, type Lang } from '@/lib/i18n';
 import type { Prompt, PromptSection, AIProvider } from '@/types';
@@ -37,6 +42,7 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
   const loadPrompt = useBuilderStore((s) => s.loadPrompt);
   const reset = useBuilderStore((s) => s.reset);
   const promptId = useBuilderStore((s) => s.promptId);
+  const [abMode, setAbMode] = useState(false);
 
   // Load initial prompt once
   useEffect(() => {
@@ -49,29 +55,77 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
 
   // Variable detection + save/autosave/beforeunload
   useVariableDetection();
-  const { handleSave } = useBuilderSave();
+  const { suggestAndToast, suggestion, editOpen, setEditOpen, applyTags } = useAutoCategorize(lang);
+  const { handleSave } = useBuilderSave(lang, { onSaved: suggestAndToast });
   const markdown = useMarkdownGeneration();
 
   // Stable getter passed to RunButton — avoids re-renders on markdown change
   const getPromptText = useCallback(() => markdown ?? '', [markdown]);
 
   const RightPanel = (
-    <div className="flex flex-col gap-4 overflow-y-auto p-4">
-      <MarkdownPreview />
-      <VariableForm />
-      {/* Run prompt */}
-      <RunButton getPromptText={getPromptText} lang={lang} />
-      {promptId && markdown && (
-        <Suspense fallback={null}>
-          <AIScoreIsland
-            promptId={promptId}
-            content={markdown}
-            provider={aiProvider}
-          />
-        </Suspense>
-      )}
-    </div>
+    <Tabs defaultValue="preview" className="flex h-full flex-col overflow-hidden">
+      <div className="flex items-center gap-2 px-4 pt-2 shrink-0">
+        <TabsList className="grid flex-1 grid-cols-2">
+          <TabsTrigger value="preview">{t('builder.preview')}</TabsTrigger>
+          <TabsTrigger value="history">{t('versions.title')}</TabsTrigger>
+        </TabsList>
+        {promptId && (
+          <Button size="sm" variant="outline" className="shrink-0 text-xs" onClick={() => setAbMode(true)}>
+            {t('ab.enterMode')}
+          </Button>
+        )}
+      </div>
+
+      <TabsContent value="preview" className="flex-1 overflow-y-auto p-4 mt-0">
+        <div className="flex flex-col gap-4">
+          <MarkdownPreview />
+          <VariableForm />
+          <RunButton getPromptText={getPromptText} lang={lang} />
+          {promptId && markdown && (
+            <Suspense fallback={null}>
+              <AIScoreIsland
+                promptId={promptId}
+                content={markdown}
+                provider={aiProvider}
+              />
+            </Suspense>
+          )}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="history" className="flex-1 overflow-y-auto mt-0">
+        <VersionsPanel lang={lang} />
+      </TabsContent>
+    </Tabs>
   );
+
+  // A/B mode takes over the whole builder area
+  const TagModal = suggestion && promptId && (
+    <AutoTagModal
+      open={editOpen}
+      suggestion={suggestion}
+      promptId={promptId}
+      lang={lang}
+      onApply={applyTags}
+      onClose={() => setEditOpen(false)}
+    />
+  );
+
+  if (abMode) {
+    return (
+      <TooltipProvider delayDuration={500}>
+        <div className="flex h-screen flex-col overflow-hidden bg-surface-base">
+          <BuilderToolbar onBack={() => history.back()} onSave={handleSave} />
+          <ABTestView
+            sections={resolvedSections}
+            lang={lang}
+            onExit={() => setAbMode(false)}
+          />
+        </div>
+        {TagModal}
+      </TooltipProvider>
+    );
+  }
 
   return (
     <TooltipProvider delayDuration={500}>
@@ -91,8 +145,8 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
             <DragDropCanvas sections={resolvedSections} />
           </div>
 
-          {/* Right: preview + variables */}
-          <div className="overflow-hidden">{RightPanel}</div>
+          {/* Right: preview + variables + history */}
+          <div className="flex flex-col overflow-hidden">{RightPanel}</div>
         </div>
 
         {/* Mobile/tablet: tabs */}
@@ -118,6 +172,7 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
           </Tabs>
         </div>
       </div>
+      {TagModal}
     </TooltipProvider>
   );
 };

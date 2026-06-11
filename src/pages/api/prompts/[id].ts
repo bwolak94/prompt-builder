@@ -29,6 +29,8 @@ const UpdatePromptSchema = z.object({
   variables: z.array(PromptVariableSchema).optional(),
   tags: z.array(z.string()).optional(),
   is_public: z.boolean().optional(),
+  category: z.string().max(50).optional(),
+  difficulty: z.string().max(50).optional(),
 });
 
 // ── GET /api/prompts/[id] ─────────────────────────────────────────────────────
