@@ -15,6 +15,10 @@ vi.mock('@/db/supabase.client', () => ({
 import { createServerClient } from '@/db/supabase.client';
 import { onRequest } from './index';
 
+// onRequest returns Promise<void | Response>; in tests it always returns a Response
+const callMiddleware = async (...args: Parameters<typeof onRequest>) =>
+  (await onRequest(...args)) as Response;
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 type MockUser = { id: string; email: string };
@@ -51,7 +55,7 @@ function makeContext(pathname: string, supabaseMock: SupabaseClient<Database>) {
     request,
     url,
     cookies: {} as Parameters<typeof onRequest>[0]['cookies'],
-    locals: locals as Parameters<typeof onRequest>[0]['locals'],
+    locals: locals as unknown as Parameters<typeof onRequest>[0]['locals'],
     redirect,
   } as unknown as Parameters<typeof onRequest>[0];
 }
@@ -71,7 +75,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null);
     const ctx = makeContext('/dashboard', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
 
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toContain('/login');
@@ -83,7 +87,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null);
     const ctx = makeContext('/builder/123', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
 
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toContain('redirect=%2Fbuilder%2F123');
@@ -100,7 +104,7 @@ describe('Astro middleware', () => {
     const ctx = makeContext('/api/prompts', supabase);
 
     // /api/prompts is NOT in PROTECTED_ROUTES, so it should pass through
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
     expect(response.status).toBe(200);
   });
 
@@ -114,7 +118,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null);
     const ctx = makeContext('/settings', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
     expect(response.status).toBe(302);
   });
 
@@ -125,7 +129,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(user);
     const ctx = makeContext('/dashboard', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
 
     expect(response.status).toBe(200);
     expect(next).toHaveBeenCalledOnce();
@@ -136,7 +140,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(user);
     const ctx = makeContext('/dashboard', supabase);
 
-    await onRequest(ctx, next);
+    await callMiddleware(ctx, next);
 
     expect(ctx.locals.user).toEqual(user);
     expect(ctx.locals.session).toBeDefined();
@@ -149,7 +153,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null);
     const ctx = makeContext('/', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
 
     expect(response.status).toBe(200);
     expect(next).toHaveBeenCalledOnce();
@@ -159,7 +163,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null);
     const ctx = makeContext('/login', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
 
     expect(response.status).toBe(200);
     expect(next).toHaveBeenCalledOnce();
@@ -171,7 +175,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null, true);
     const ctx = makeContext('/dashboard', supabase);
 
-    const response = await onRequest(ctx, next);
+    const response = await callMiddleware(ctx, next);
 
     expect(response.status).toBe(302);
     expect(ctx.locals.user).toBeNull();
@@ -184,7 +188,7 @@ describe('Astro middleware', () => {
     const supabase = makeSupabaseMock(null);
     const ctx = makeContext('/login', supabase);
 
-    await onRequest(ctx, next);
+    await callMiddleware(ctx, next);
 
     expect(ctx.locals.supabase).toBeDefined();
     expect(createServerClient).toHaveBeenCalledOnce();

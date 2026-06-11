@@ -124,6 +124,40 @@ export const SCORE_COLORS: Readonly<Record<ScoreLevel, string>> = {
   poor: 'text-score-poor',
 } as const;
 
+// ── Prompt Sections ─────────────────────────────────────────────
+import type { PromptSection } from '@/types';
+import { getTranslations, type Lang } from '@/lib/i18n';
+
+type SectionSlug = 'role' | 'context' | 'task' | 'format' | 'constraints' | 'examples' | 'tone' | 'audience' | 'chain_of_thought' | 'output_schema';
+
+const SECTION_ICONS: Record<SectionSlug, { category: PromptSection['category']; icon: string }> = {
+  role:            { category: 'core',     icon: 'User' },
+  context:         { category: 'core',     icon: 'BookOpen' },
+  task:            { category: 'core',     icon: 'Target' },
+  format:          { category: 'core',     icon: 'Layout' },
+  constraints:     { category: 'optional', icon: 'ShieldOff' },
+  examples:        { category: 'optional', icon: 'Lightbulb' },
+  tone:            { category: 'optional', icon: 'MessageSquare' },
+  audience:        { category: 'optional', icon: 'Users' },
+  chain_of_thought:{ category: 'advanced', icon: 'GitBranch' },
+  output_schema:   { category: 'advanced', icon: 'Code2' },
+} as const;
+
+/** Returns localized prompt sections for the given language. */
+export function getPromptSections(lang: Lang = 'pl'): readonly PromptSection[] {
+  const sections = getTranslations(lang).sections as Record<string, { name: string; description: string }>;
+  return (Object.keys(SECTION_ICONS) as SectionSlug[]).map((slug) => ({
+    slug,
+    name: sections[slug]?.name ?? slug,
+    description: sections[slug]?.description ?? '',
+    category: SECTION_ICONS[slug].category,
+    icon: SECTION_ICONS[slug].icon,
+  }));
+}
+
+/** @deprecated Use getPromptSections(lang) instead */
+export const PROMPT_SECTIONS: readonly PromptSection[] = getPromptSections('pl');
+
 // ── Variable detection ──────────────────────────────────────────
 /** Regex for detecting {{variable_name}} placeholders in prompt content. */
 export const VARIABLE_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g;

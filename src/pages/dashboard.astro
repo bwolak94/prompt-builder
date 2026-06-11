@@ -1,0 +1,56 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import { DashboardIsland } from '@/components/dashboard/DashboardIsland';
+import { promptRepo } from '@/db/repositories/prompt.repo';
+
+const lang = Astro.locals.lang;
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=/dashboard');
+
+const errorParam = Astro.url.searchParams.get('error');
+const errorMessages: Record<string, string> = {
+  not_found: 'Prompt nie został znaleziony.',
+  forbidden: 'Nie masz dostępu do tego promptu.',
+};
+
+// Fetch prompts server-side for fast initial render (repo returns fully-typed Prompt[])
+const prompts = await promptRepo.findByUserId(Astro.locals.supabase, user.id);
+
+// Fetch stats server-side
+const promptIds = prompts.map((p) => p.id);
+const publicCount = prompts.filter((p) => p.is_public).length;
+const forks = prompts.reduce((sum, p) => sum + (p.fork_count ?? 0), 0);
+
+let avgScore: number | null = null;
+if (promptIds.length > 0) {
+  const { data: ratings } = await Astro.locals.supabase
+    .from('prompt_ratings')
+    .select('overall_score')
+    .in('prompt_id', promptIds);
+  if (ratings && ratings.length > 0) {
+    avgScore = Math.round(ratings.reduce((s: number, r: { overall_score: number }) => s + r.overall_score, 0) / ratings.length);
+  }
+}
+
+const initialStats = { total: prompts.length, public: publicCount, forks, avgScore };
+---
+
+<AppLayout
+  title="Dashboard — PromptBase"
+  breadcrumbs={[{ label: 'Dashboard' }]}
+>
+  <DashboardIsland
+    client:load
+    initialPrompts={prompts}
+    initialStats={initialStats}
+    lang={lang}
+  />
+</AppLayout>
+
+{errorParam && errorMessages[errorParam] && (
+  <script define:vars={{ msg: errorMessages[errorParam] }}>
+    import('sonner').then(({ toast }) => toast.error(msg));
+  </script>
+)}

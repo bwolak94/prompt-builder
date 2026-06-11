@@ -1,0 +1,30 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import BuilderIsland from '@/components/builder/BuilderIsland';
+import { promptRepo } from '@/db/repositories/prompt.repo';
+
+const lang = Astro.locals.lang;
+const user = Astro.locals.user;
+if (!user) return Astro.redirect(`/login?redirect=${Astro.url.pathname}`);
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/builder');
+
+const prompt = await promptRepo.findById(Astro.locals.supabase, id);
+if (!prompt) return Astro.redirect('/dashboard?error=not_found');
+if (prompt.user_id !== user.id) return Astro.redirect('/dashboard?error=forbidden');
+
+const title = prompt.title || 'Bez tytułu';
+---
+
+<AppLayout
+  title={`Edycja: ${title} — PromptBase`}
+  breadcrumbs={[
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: `Edycja: ${title}` },
+  ]}
+>
+  <BuilderIsland initialPrompt={prompt} lang={lang} client:load />
+</AppLayout>

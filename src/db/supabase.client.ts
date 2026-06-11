@@ -23,8 +23,16 @@ import type { Database } from './types';
 
 // ── Environment variables ─────────────────────────────────────────────────────
 
-const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string;
-const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
+// Server-side: prefer process.env (runtime) over import.meta.env (baked at build time).
+// This allows Docker to override PUBLIC_SUPABASE_URL with the internal kong:8000 URL
+// while the client bundle still uses the build-time localhost:8000 value.
+const SUPABASE_URL: string =
+  (typeof process !== 'undefined' && process.env.PUBLIC_SUPABASE_URL) ||
+  (import.meta.env.PUBLIC_SUPABASE_URL as string);
+
+const SUPABASE_ANON_KEY: string =
+  (typeof process !== 'undefined' && process.env.PUBLIC_SUPABASE_ANON_KEY) ||
+  (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string);
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error(

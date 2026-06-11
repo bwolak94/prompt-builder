@@ -1,0 +1,20 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import BuilderIsland from '@/components/builder/BuilderIsland';
+
+const lang = Astro.locals.lang;
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=/builder');
+---
+
+<AppLayout
+  title="Nowy prompt — PromptBase"
+  breadcrumbs={[
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Nowy prompt' },
+  ]}
+>
+  <BuilderIsland client:load lang={lang} />
+</AppLayout>

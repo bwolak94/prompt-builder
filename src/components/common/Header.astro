@@ -1,0 +1,78 @@
+---
+/**
+ * Public Header — used in PublicLayout.
+ * Logo + navigation links + ThemeToggle + LanguageToggle + auth buttons.
+ */
+import Logo from './Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import LanguageToggle from './LanguageToggle.astro';
+import { getT } from '@/lib/i18n';
+
+const { pathname } = Astro.url;
+const isLoggedIn = !!Astro.locals.user;
+const lang = Astro.locals.lang;
+const t = getT(lang);
+
+const navLinks = [
+  { label: t('nav.templates'), href: '/explore' },
+  { label: t('nav.features'), href: '/#features' },
+  { label: t('nav.pricing'), href: '/pricing' },
+];
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-surface-base/80 backdrop-blur-md">
+  <div class="container mx-auto flex h-14 items-center justify-between gap-4 px-4">
+    <!-- Logo -->
+    <Logo />
+
+    <!-- Nav links — hidden on mobile -->
+    <nav
+      class="hidden items-center gap-1 md:flex"
+      aria-label={lang === 'pl' ? 'Główna nawigacja' : 'Main navigation'}
+    >
+      {navLinks.map(({ label, href }) => (
+        <a
+          href={href}
+          class:list={[
+            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            pathname === href
+              ? 'bg-surface-overlay text-text-primary'
+              : 'text-text-secondary hover:bg-surface-overlay hover:text-text-primary',
+          ]}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Right side actions -->
+    <div class="flex items-center gap-2">
+      <LanguageToggle lang={lang} />
+      <ThemeToggle />
+
+      {isLoggedIn ? (
+        <a
+          href="/dashboard"
+          class="rounded-md bg-brand-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+        >
+          {t('nav.dashboard')}
+        </a>
+      ) : (
+        <>
+          <a
+            href="/login"
+            class="hidden rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block"
+          >
+            {t('nav.login')}
+          </a>
+          <a
+            href="/register"
+            class="rounded-md bg-brand-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+          >
+            {t('nav.register')}
+          </a>
+        </>
+      )}
+    </div>
+  </div>
+</header>
