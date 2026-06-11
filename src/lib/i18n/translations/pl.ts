@@ -17,6 +17,7 @@ export interface Translations {
   publicPrompt: { fork: string; viewCount: string; forkCount: string; notFound: string; notFoundSub: string };
   landing: { heroTitle: string; heroSubtitle: string; heroCta: string; heroCtaSub: string; featuredTitle: string; featuredSubtitle: string; featuresTitle: string; howItWorksTitle: string; ctaTitle: string; ctaSubtitle: string; ctaButton: string };
   common: { loading: string; error: string; cancel: string; confirm: string; save: string; delete: string; edit: string; close: string; back: string; next: string; yes: string; no: string; or: string; and: string; search: string; filter: string; clear: string; copy: string; copied: string; share: string; notFound: string; forbidden: string; serverError: string; tryAgain: string };
+  run: { runPrompt: string; cancel: string; reset: string; provider: string; model: string; keySource: string; keyHosted: string; keyByok: string; responseTitle: string; creditsUnlimited: string; creditsThisMonth: string; limitReached: string; noByokKey: string };
 }
 
 export const pl: Translations = {
@@ -266,6 +267,23 @@ export const pl: Translations = {
     ctaTitle: 'Gotowy, żeby zacząć?',
     ctaSubtitle: 'Dołącz do tysięcy użytkowników, którzy tworzą lepsze prompty.',
     ctaButton: 'Utwórz darmowe konto',
+  },
+
+  // ── Run prompt ─────────────────────────────────────────────────
+  run: {
+    runPrompt: 'Uruchom prompt',
+    cancel: 'Zatrzymaj',
+    reset: 'Resetuj',
+    provider: 'Dostawca',
+    model: 'Model',
+    keySource: 'Klucz API',
+    keyHosted: 'Platformowy (limit)',
+    keyByok: 'Własny klucz (BYOK)',
+    responseTitle: 'Odpowiedź',
+    creditsUnlimited: 'Bez limitu (Pro)',
+    creditsThisMonth: 'uruchomień w tym miesiącu',
+    limitReached: 'Limit miesięczny wyczerpany. Uaktualnij plan lub dodaj własny klucz.',
+    noByokKey: 'Brak skonfigurowanego klucza BYOK dla tego dostawcy.',
   },
 
   // ── Common ─────────────────────────────────────────────────────

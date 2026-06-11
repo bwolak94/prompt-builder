@@ -16,6 +16,7 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          plan: string
           preferences: Json
           updated_at: string
           username: string | null
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string
           display_name: string
           id: string
+          plan?: string
           preferences?: Json
           updated_at?: string
           username?: string | null
@@ -36,6 +38,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          plan?: string
           preferences?: Json
           updated_at?: string
           username?: string | null
@@ -257,6 +260,114 @@ export type Database = {
         }
         Relationships: []
       }
+      run_credits: {
+        Row: {
+          id: string
+          user_id: string
+          month: string
+          used: number
+          monthly_limit: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          month: string
+          used?: number
+          monthly_limit?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          month?: string
+          used?: number
+          monthly_limit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_api_keys: {
+        Row: {
+          id: string
+          user_id: string
+          provider: string
+          key_encrypted: string
+          key_hint: string
+          label: string
+          is_active: boolean
+          last_used_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider: string
+          key_encrypted: string
+          key_hint: string
+          label?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: string
+          key_encrypted?: string
+          key_hint?: string
+          label?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      run_logs: {
+        Row: {
+          id: string
+          user_id: string
+          prompt_id: string | null
+          provider: string
+          model: string
+          key_source: string
+          input_tokens: number | null
+          output_tokens: number | null
+          status: string
+          error_message: string | null
+          duration_ms: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          prompt_id?: string | null
+          provider: string
+          model: string
+          key_source: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          status: string
+          error_message?: string | null
+          duration_ms?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          prompt_id?: string | null
+          provider?: string
+          model?: string
+          key_source?: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          status?: string
+          error_message?: string | null
+          duration_ms?: number | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -268,6 +379,10 @@ export type Database = {
         Returns: undefined
       }
       increment_view_count: { Args: { prompt_id: string }; Returns: undefined }
+      check_and_increment_run_credits: {
+        Args: { p_user_id: string; p_month: string }
+        Returns: { allowed: boolean; remaining: number }[]
+      }
     }
     Enums: {
       [_ in never]: never

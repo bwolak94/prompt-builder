@@ -276,4 +276,21 @@ export const en: Translations = {
     serverError: 'Server error',
     tryAgain: 'Try again',
   },
+
+  // ── Run prompt ─────────────────────────────────────────────────
+  run: {
+    runPrompt: 'Run prompt',
+    cancel: 'Stop',
+    reset: 'Reset',
+    provider: 'Provider',
+    model: 'Model',
+    keySource: 'API key',
+    keyHosted: 'Platform key (limited)',
+    keyByok: 'Your own key (BYOK)',
+    responseTitle: 'Response',
+    creditsUnlimited: 'Unlimited (Pro)',
+    creditsThisMonth: 'runs this month',
+    limitReached: 'Monthly limit reached. Upgrade to Pro or add your own API key.',
+    noByokKey: 'No BYOK key configured for this provider.',
+  },
 };

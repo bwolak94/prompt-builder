@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BuilderToolbar } from './components/BuilderToolbar';
@@ -6,6 +6,7 @@ import { SectionPalette } from './components/SectionPalette';
 import { DragDropCanvas } from './components/DragDropCanvas';
 import { VariableForm } from './components/VariableForm';
 import { MarkdownPreview } from './components/MarkdownPreview';
+import { RunButton } from './components/RunButton';
 import { useBuilderStore } from './store/builder.store';
 import { useVariableDetection } from './hooks/useVariableDetection';
 import { useBuilderSave } from './hooks/useBuilderSave';
@@ -51,10 +52,15 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
   const { handleSave } = useBuilderSave();
   const markdown = useMarkdownGeneration();
 
+  // Stable getter passed to RunButton — avoids re-renders on markdown change
+  const getPromptText = useCallback(() => markdown ?? '', [markdown]);
+
   const RightPanel = (
     <div className="flex flex-col gap-4 overflow-y-auto p-4">
       <MarkdownPreview />
       <VariableForm />
+      {/* Run prompt */}
+      <RunButton getPromptText={getPromptText} lang={lang} />
       {promptId && markdown && (
         <Suspense fallback={null}>
           <AIScoreIsland
