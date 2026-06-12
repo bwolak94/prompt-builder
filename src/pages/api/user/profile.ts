@@ -6,13 +6,20 @@ export const prerender = false;
 
 const UpdateProfileSchema = z.object({
   display_name: z.string().min(1).max(100).optional(),
-  username: z.string().min(3).max(30).regex(/^[a-z0-9_-]+$/, 'Tylko małe litery, cyfry, _ i -').optional(),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-z0-9_-]+$/, 'Tylko małe litery, cyfry, _ i -')
+    .optional(),
   bio: z.string().max(500).optional(),
-  avatar_url: z.string().url().optional(),
-  preferences: z.object({
-    defaultModel: z.enum(['openai', 'anthropic']).optional(),
-    language: z.enum(['pl', 'en']).optional(),
-  }).optional(),
+  avatar_url: z.url().optional(),
+  preferences: z
+    .object({
+      defaultModel: z.enum(['openai', 'anthropic']).optional(),
+      language: z.enum(['pl', 'en']).optional(),
+    })
+    .optional(),
 });
 
 export const PATCH: APIRoute = async ({ request, locals }) => {
@@ -47,10 +54,10 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       user.id,
     );
     if (taken) {
-      return new Response(
-        JSON.stringify({ error: 'Ta nazwa użytkownika jest już zajęta.' }),
-        { status: 409, headers: { 'Content-Type': 'application/json' } },
-      );
+      return new Response(JSON.stringify({ error: 'Ta nazwa użytkownika jest już zajęta.' }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
   }
 

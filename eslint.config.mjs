@@ -40,17 +40,19 @@ export default tseslint.config(
   },
 
   // Astro env.d.ts: triple-slash references are the official Astro pattern
-  // and the empty App.Locals interface is intentionally populated incrementally by middleware
+  // and the empty App.Locals interface is intentionally populated incrementally by middleware.
+  // Ambient declaration files must use inline import() — top-level imports are not valid there.
   {
     files: ['src/env.d.ts'],
     rules: {
       '@typescript-eslint/triple-slash-reference': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/consistent-type-imports': 'off',
     },
   },
 
   // Global ignores
   {
-    ignores: ['dist/', '.astro/', 'node_modules/', 'src/db/types.ts'],
+    ignores: ['dist/', '.astro/', 'node_modules/', 'src/db/types.ts', 'extension/', 'packages/'],
   },
 );

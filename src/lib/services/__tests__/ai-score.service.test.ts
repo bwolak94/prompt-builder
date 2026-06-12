@@ -9,8 +9,8 @@ const VALID_JSON =
   '"tone":{"score":80,"comment":"ok","suggestions":[]},' +
   '"completeness":{"score":80,"comment":"ok","suggestions":[]}}}';
 
-vi.mock('@/lib/ai/scoring.provider', () => {
-  const z = require('zod');
+vi.mock('@/lib/ai/scoring.provider', async () => {
+  const { z } = await import('zod');
   const DimSchema = z.object({
     score: z.number().min(0).max(100),
     comment: z.string(),
@@ -29,7 +29,9 @@ vi.mock('@/lib/ai/scoring.provider', () => {
   return {
     getScoringProvider: vi.fn().mockResolvedValue({
       name: 'openai',
-      score: async function* () { yield VALID_JSON; },
+      score: async function* () {
+        yield VALID_JSON;
+      },
     }),
     ScoreResponseSchema,
   };

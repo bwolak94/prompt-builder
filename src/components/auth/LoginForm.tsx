@@ -8,7 +8,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 // ── Schema ────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
-  email: z.string().email('Podaj prawidłowy adres email'),
+  email: z.email('Podaj prawidłowy adres email'),
   password: z.string().min(1, 'Hasło jest wymagane'),
 });
 
@@ -56,7 +56,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
       {/* Email */}
       <div className="space-y-1.5">
-        <label htmlFor="login-email" className="block text-sm font-medium text-text-primary">
+        <label htmlFor="login-email" className="text-text-primary block text-sm font-medium">
           Email
         </label>
         <input
@@ -64,7 +64,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
           type="email"
           autoComplete="email"
           {...register('email')}
-          className={`w-full rounded-md border bg-surface-sunken px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors ${
+          className={`bg-surface-sunken text-text-primary placeholder:text-text-muted focus:ring-brand-500 w-full rounded-md border px-3 py-2 text-sm transition-colors focus:ring-2 focus:outline-none ${
             errors.email ? 'border-error' : 'border-border focus:border-brand-500'
           }`}
           placeholder="ty@przykład.pl"
@@ -72,7 +72,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
           aria-describedby={errors.email ? 'login-email-error' : undefined}
         />
         {errors.email && (
-          <p id="login-email-error" className="text-xs text-error" role="alert">
+          <p id="login-email-error" className="text-error text-xs" role="alert">
             {errors.email.message}
           </p>
         )}
@@ -80,7 +80,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
 
       {/* Password */}
       <div className="space-y-1.5">
-        <label htmlFor="login-password" className="block text-sm font-medium text-text-primary">
+        <label htmlFor="login-password" className="text-text-primary block text-sm font-medium">
           Hasło
         </label>
         <div className="relative">
@@ -89,7 +89,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             {...register('password')}
-            className={`w-full rounded-md border bg-surface-sunken px-3 py-2 pr-10 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors ${
+            className={`bg-surface-sunken text-text-primary placeholder:text-text-muted focus:ring-brand-500 w-full rounded-md border px-3 py-2 pr-10 text-sm transition-colors focus:ring-2 focus:outline-none ${
               errors.password ? 'border-error' : 'border-border focus:border-brand-500'
             }`}
             placeholder="••••••••"
@@ -99,14 +99,14 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+            className="text-text-muted hover:text-text-secondary absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
             aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
         {errors.password && (
-          <p id="login-password-error" className="text-xs text-error" role="alert">
+          <p id="login-password-error" className="text-error text-xs" role="alert">
             {errors.password.message}
           </p>
         )}
@@ -116,7 +116,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
       <div className="flex justify-end">
         <a
           href="/forgot-password"
-          className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+          className="text-text-muted hover:text-text-secondary text-xs transition-colors"
         >
           Zapomniałeś hasła?
         </a>
@@ -126,7 +126,7 @@ export default function LoginForm({ redirectTo = '/dashboard' }: Props) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="flex w-full items-center justify-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-brand-500"
+        className="bg-brand-500 hover:bg-brand-600 focus-visible:outline-brand-500 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
         {isSubmitting ? 'Logowanie…' : 'Zaloguj się'}

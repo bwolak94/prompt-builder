@@ -41,10 +41,7 @@ export const runService = {
    * Yields { type: 'delta', delta } chunks, then { type: 'done' }.
    * Yields { type: 'error', error } on failure.
    */
-  async *stream(
-    supabase: SupabaseClient,
-    req: RunRequest,
-  ): AsyncGenerator<RunStreamEvent> {
+  async *stream(supabase: SupabaseClient, req: RunRequest): AsyncGenerator<RunStreamEvent> {
     const { userId, promptText, provider, model, useByok = false, signal } = req;
     const startTime = Date.now();
     let keySource: 'hosted' | 'byok' = 'hosted';
@@ -79,7 +76,7 @@ export const runService = {
 
     // ── Stream from provider ─────────────────────────────────────────────────
     const runProvider = getRunProvider({ provider, apiKey });
-    let fullText = '';
+    let _fullText = '';
     let inputTokens: number | undefined;
     let outputTokens: number | undefined;
     let status: 'success' | 'error' | 'timeout' = 'success';
@@ -91,7 +88,7 @@ export const runService = {
 
       while (!result.done) {
         const delta = result.value as string;
-        fullText += delta;
+        _fullText += delta;
         yield { type: 'delta', delta };
         result = await gen.next();
       }

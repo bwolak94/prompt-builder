@@ -40,10 +40,7 @@ describe('blocksToMarkdown', () => {
   });
 
   it('skips empty blocks', () => {
-    const result = blocksToMarkdown([
-      block('role', '', 0),
-      block('task', 'Do something', 1),
-    ]);
+    const result = blocksToMarkdown([block('role', '', 0), block('task', 'Do something', 1)]);
     expect(result).not.toContain('## Rola');
     expect(result).toContain('## Zadanie');
   });
@@ -64,9 +61,9 @@ describe('substituteVariables', () => {
     expect(result).toBe('foo and foo');
   });
 
-  it('leaves unknown variables as-is', () => {
+  it('replaces unknown variables with empty string (no default)', () => {
     const result = substituteVariables('Hello {{missing}}', {});
-    expect(result).toBe('Hello {{missing}}');
+    expect(result).toBe('Hello ');
   });
 
   it('handles empty variables map', () => {

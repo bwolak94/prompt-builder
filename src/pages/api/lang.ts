@@ -8,8 +8,8 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, redirect }) => {
-  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+export const POST: APIRoute = async ({ request }) => {
+  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   const lang = body.lang === 'en' ? 'en' : 'pl';
 
   const referer = request.headers.get('referer') ?? '/';

@@ -10,7 +10,7 @@
  *   if (qResult instanceof Response) return qResult;
  */
 
-import { z } from 'zod';
+import { type z } from 'zod';
 import { error, validationError } from './response';
 
 /** Parse and validate JSON request body. Returns typed data or a Response. */
@@ -34,10 +34,7 @@ export async function parseBody<T extends z.ZodTypeAny>(
 }
 
 /** Parse and validate URL search params. Returns typed data or a Response. */
-export function parseQuery<T extends z.ZodTypeAny>(
-  url: URL,
-  schema: T,
-): z.infer<T> | Response {
+export function parseQuery<T extends z.ZodTypeAny>(url: URL, schema: T): z.infer<T> | Response {
   const result = schema.safeParse(Object.fromEntries(url.searchParams));
   if (!result.success) {
     return validationError(result.error.issues[0]?.message ?? 'Invalid query parameters');

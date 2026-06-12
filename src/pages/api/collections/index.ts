@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ locals }) => {
 const CreateSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
-  parent_id: z.string().uuid().optional(),
+  parent_id: z.uuid().optional(),
   color: z.string().max(20).optional(),
   icon: z.string().max(10).optional(),
 });

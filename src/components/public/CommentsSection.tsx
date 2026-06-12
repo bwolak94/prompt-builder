@@ -4,7 +4,7 @@
  * Renders as a React island (client:load).
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useComments } from './hooks/useComments';
@@ -41,16 +41,16 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-sm font-semibold text-text-primary">
-        Komentarze ({totalCount})
-      </h2>
+      <h2 className="text-text-primary text-sm font-semibold">Komentarze ({totalCount})</h2>
 
       {/* Add comment form */}
       {isLoggedIn ? (
         <CommentForm onSubmit={(c) => addComment(c)} placeholder="Dodaj komentarz…" />
       ) : (
-        <p className="text-xs text-text-muted">
-          <a href="/login" className="text-brand-400 hover:underline">Zaloguj się</a>{' '}
+        <p className="text-text-muted text-xs">
+          <a href="/login" className="text-brand-400 hover:underline">
+            Zaloguj się
+          </a>{' '}
           aby komentować
         </p>
       )}
@@ -79,9 +79,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
       )}
 
       {threads.length === 0 && (
-        <p className="text-center text-xs text-text-muted py-4">
-          Brak komentarzy. Bądź pierwszy!
-        </p>
+        <p className="text-text-muted py-4 text-center text-xs">Brak komentarzy. Bądź pierwszy!</p>
       )}
     </div>
   );
@@ -106,7 +104,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!content.trim()) return;
     setSubmitting(true);
@@ -133,7 +131,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
         autoFocus={autoFocus}
         className="min-h-0 resize-none text-xs"
       />
-      {error && <p className="text-[10px] text-destructive">{error}</p>}
+      {error && <p className="text-destructive text-[10px]">{error}</p>}
       <div className="flex items-center justify-end gap-2">
         {onCancel && (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
@@ -188,7 +186,7 @@ const CommentThreadItem: React.FC<ThreadItemProps> = ({
 
       {/* Replies */}
       {thread.replies.length > 0 && (
-        <div className="ml-6 flex flex-col gap-2 border-l-2 border-border pl-3">
+        <div className="border-border ml-6 flex flex-col gap-2 border-l-2 pl-3">
           {thread.replies.map((reply) => (
             <CommentCard
               key={reply.id}
@@ -207,7 +205,7 @@ const CommentThreadItem: React.FC<ThreadItemProps> = ({
 
       {/* Reply form */}
       {showReplyForm && (
-        <div className="ml-6 border-l-2 border-border pl-3">
+        <div className="border-border ml-6 border-l-2 pl-3">
           <CommentForm
             onSubmit={onReply}
             placeholder="Odpowiedz na komentarz…"
@@ -259,9 +257,12 @@ const CommentCard: React.FC<CardProps> = ({
 
   if (editing) {
     return (
-      <div className="rounded-lg border border-border bg-surface-raised p-3">
+      <div className="border-border bg-surface-raised rounded-lg border p-3">
         <CommentForm
-          onSubmit={async (c) => { await onEdit(comment.id, c); setEditing(false); }}
+          onSubmit={async (c) => {
+            await onEdit(comment.id, c);
+            setEditing(false);
+          }}
           placeholder={comment.content}
           onCancel={() => setEditing(false)}
           autoFocus
@@ -271,26 +272,26 @@ const CommentCard: React.FC<CardProps> = ({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-surface-raised p-3">
+    <div className="border-border bg-surface-raised rounded-lg border p-3">
       {/* Header */}
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           {comment.avatar_url ? (
             <img src={comment.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
           ) : (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-500/20 text-[10px] font-bold text-brand-400">
+            <div className="bg-brand-500/20 text-brand-400 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold">
               {(comment.display_name ?? 'A')[0]?.toUpperCase()}
             </div>
           )}
-          <span className="text-xs font-medium text-text-primary">{comment.display_name}</span>
+          <span className="text-text-primary text-xs font-medium">{comment.display_name}</span>
         </div>
-        <time className="text-[10px] text-text-muted" dateTime={comment.created_at}>
+        <time className="text-text-muted text-[10px]" dateTime={comment.created_at}>
           {formatDate(comment.created_at)}
         </time>
       </div>
 
       {/* Content */}
-      <p className="whitespace-pre-wrap text-xs leading-relaxed text-text-secondary">
+      <p className="text-text-secondary text-xs leading-relaxed whitespace-pre-wrap">
         {comment.content}
       </p>
 
@@ -300,9 +301,7 @@ const CommentCard: React.FC<CardProps> = ({
           <button
             onClick={() => void onHelpful(comment.id)}
             className={`flex items-center gap-1 text-[10px] transition-colors ${
-              comment.viewer_helpful
-                ? 'text-brand-400'
-                : 'text-text-muted hover:text-text-primary'
+              comment.viewer_helpful ? 'text-brand-400' : 'text-text-muted hover:text-text-primary'
             }`}
           >
             👍 {comment.is_helpful > 0 && <span>{comment.is_helpful}</span>}
@@ -313,7 +312,7 @@ const CommentCard: React.FC<CardProps> = ({
         {!isReply && onReplyClick && (
           <button
             onClick={onReplyClick}
-            className="text-[10px] text-text-muted transition-colors hover:text-text-primary"
+            className="text-text-muted hover:text-text-primary text-[10px] transition-colors"
           >
             Odpowiedz
           </button>
@@ -323,7 +322,7 @@ const CommentCard: React.FC<CardProps> = ({
           <>
             <button
               onClick={() => setEditing(true)}
-              className="text-[10px] text-text-muted transition-colors hover:text-text-primary"
+              className="text-text-muted hover:text-text-primary text-[10px] transition-colors"
             >
               Edytuj
             </button>
@@ -340,17 +339,20 @@ const CommentCard: React.FC<CardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowReport((v) => !v)}
-              className="text-[10px] text-text-muted/50 transition-colors hover:text-text-muted"
+              className="text-text-muted/50 hover:text-text-muted text-[10px] transition-colors"
             >
               Zgłoś
             </button>
             {showReport && (
-              <div className="absolute bottom-5 left-0 z-10 flex flex-col rounded-md border border-border bg-surface-raised shadow-lg">
+              <div className="border-border bg-surface-raised absolute bottom-5 left-0 z-10 flex flex-col rounded-md border shadow-lg">
                 {REPORT_REASONS.map((r) => (
                   <button
                     key={r}
-                    onClick={() => { void onReport(comment.id, r); setShowReport(false); }}
-                    className="px-3 py-1.5 text-left text-xs text-text-muted hover:bg-surface-overlay hover:text-text-primary"
+                    onClick={() => {
+                      void onReport(comment.id, r);
+                      setShowReport(false);
+                    }}
+                    className="text-text-muted hover:bg-surface-overlay hover:text-text-primary px-3 py-1.5 text-left text-xs"
                   >
                     {r}
                   </button>

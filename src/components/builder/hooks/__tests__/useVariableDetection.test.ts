@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { VARIABLE_REGEX } from '@/lib/constants';
+import { describe, it, expect } from 'vitest';
+import { SMART_VAR_REGEX } from '@/lib/variables/parser';
 import type { PromptBlock } from '@/types';
 
 // Test the detection logic directly (pure function extract)
 function detectVariables(blocks: PromptBlock[]): string[] {
   const seen = new Set<string>();
-  const regex = new RegExp(VARIABLE_REGEX.source, 'g');
+  const regex = new RegExp(SMART_VAR_REGEX.source, 'g');
 
   for (const block of blocks) {
     let match: RegExpExecArray | null;
@@ -43,10 +43,7 @@ describe('variable detection logic', () => {
   });
 
   it('deduplicates across multiple blocks', () => {
-    const vars = detectVariables([
-      makeBlock('{{user}}', 'b1'),
-      makeBlock('Hello {{user}}', 'b2'),
-    ]);
+    const vars = detectVariables([makeBlock('{{user}}', 'b1'), makeBlock('Hello {{user}}', 'b2')]);
     expect(vars.filter((v) => v === 'user')).toHaveLength(1);
   });
 
@@ -68,9 +65,7 @@ describe('variable detection logic', () => {
   });
 
   it('preserves detection order (first occurrence wins for dedup)', () => {
-    const vars = detectVariables([
-      makeBlock('{{b}} then {{a}}'),
-    ]);
+    const vars = detectVariables([makeBlock('{{b}} then {{a}}')]);
     expect(vars[0]).toBe('b');
     expect(vars[1]).toBe('a');
   });

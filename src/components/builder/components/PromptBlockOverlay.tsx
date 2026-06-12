@@ -1,5 +1,5 @@
 import React from 'react';
-import { VARIABLE_REGEX } from '@/lib/constants';
+import { SMART_VAR_REGEX } from '@/lib/variables/parser';
 
 interface PromptBlockOverlayProps {
   content: string;
@@ -17,19 +17,14 @@ export const PromptBlockOverlay: React.FC<PromptBlockOverlayProps> = ({ content,
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
-  const regex = new RegExp(VARIABLE_REGEX.source, 'g');
+  const regex = new RegExp(SMART_VAR_REGEX.source, 'g');
 
   while ((match = regex.exec(content)) !== null) {
     if (match.index > lastIndex) {
-      parts.push(
-        <span key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</span>,
-      );
+      parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</span>);
     }
     parts.push(
-      <mark
-        key={`var-${match.index}`}
-        className="rounded-sm bg-amber-400/20 text-amber-300"
-      >
+      <mark key={`var-${match.index}`} className="rounded-sm bg-amber-400/20 text-amber-300">
         {match[0]}
       </mark>,
     );
@@ -44,7 +39,7 @@ export const PromptBlockOverlay: React.FC<PromptBlockOverlayProps> = ({ content,
     <div
       aria-hidden="true"
       className={[
-        'pointer-events-none absolute inset-0 whitespace-pre-wrap break-words',
+        'pointer-events-none absolute inset-0 break-words whitespace-pre-wrap',
         'p-2 font-mono text-xs leading-relaxed text-transparent',
         className,
       ].join(' ')}

@@ -21,9 +21,9 @@ const label = lang === 'pl' ? 'Switch to English' : 'Przełącz na Polski';
   title={label}
   data-next-lang={nextLang}
   data-current-url={Astro.url.pathname + Astro.url.search}
-  class="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium text-text-secondary transition-colors hover:border-brand-500/50 hover:text-text-primary"
+  class="border-border text-text-secondary hover:border-brand-500/50 hover:text-text-primary flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors"
 >
-  <span class="font-semibold uppercase tracking-wide" aria-hidden="true">
+  <span class="font-semibold tracking-wide uppercase" aria-hidden="true">
     {lang === 'pl' ? '🇵🇱 PL' : '🇬🇧 EN'}
   </span>
   <svg
@@ -39,16 +39,16 @@ const label = lang === 'pl' ? 'Switch to English' : 'Przełącz na Polski';
     aria-hidden="true"
     class="opacity-60"
   >
-    <path d="m6 9 6 6 6-6"/>
+    <path d="m6 9 6 6 6-6"></path>
   </svg>
 </button>
 
 <script is:inline>
   (function () {
-    var btn = document.getElementById('lang-toggle');
+    const btn = document.getElementById('lang-toggle');
     if (!btn) return;
     btn.addEventListener('click', function () {
-      var next = btn.getAttribute('data-next-lang');
+      const next = btn.getAttribute('data-next-lang');
       fetch('/api/lang', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

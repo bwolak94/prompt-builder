@@ -9,7 +9,7 @@ import { challengeService } from '@/lib/services/challenge.service';
 export const prerender = false;
 
 const SubmitSchema = z.object({
-  promptId: z.string().uuid(),
+  promptId: z.uuid(),
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {

@@ -9,7 +9,7 @@ import { abTestRepo } from '@/db/repositories/ab-test.repo';
 export const prerender = false;
 
 const CreateSchema = z.object({
-  promptId: z.string().uuid(),
+  promptId: z.uuid(),
 });
 
 /** POST /api/ab-tests — create a new A/B test (B = clone of A) */
@@ -21,11 +21,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (parsed instanceof Response) return parsed;
 
   try {
-    const test = await abTestService.createTest(
-      auth.supabase,
-      parsed.promptId,
-      auth.user.id,
-    );
+    const test = await abTestService.createTest(auth.supabase, parsed.promptId, auth.user.id);
     return created(test);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed to create A/B test';

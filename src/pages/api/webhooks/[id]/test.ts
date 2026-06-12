@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { requireAuth } from '@/lib/api/auth';
-import { ok, notFound, error } from '@/lib/api/response';
+import { ok, notFound } from '@/lib/api/response';
 import { webhookRepo } from '@/db/repositories/webhook.repo';
 import { WebhookDispatcher } from '@/lib/webhooks/dispatcher';
 

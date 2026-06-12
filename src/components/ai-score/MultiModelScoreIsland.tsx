@@ -17,28 +17,30 @@ interface DimensionRow {
 // ── Radar chart (lazy) ────────────────────────────────────────────────────────
 
 const PROVIDER_COLORS: Record<AIProvider, { stroke: string; fill: string }> = {
-  openai:    { stroke: '#10b981', fill: '#10b981' },
+  openai: { stroke: '#10b981', fill: '#10b981' },
   anthropic: { stroke: '#8b5cf6', fill: '#8b5cf6' },
 };
 
 const MultiRadarChart = lazy(() =>
   import('recharts').then((mod) => ({
     default: function Chart({ results }: { results: ModelScoreResult[] }) {
-      const {
-        RadarChart, Radar, PolarGrid, PolarAngleAxis,
-        ResponsiveContainer, Tooltip, Legend,
-      } = mod;
+      const { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip, Legend } =
+        mod;
 
       const dimensions = ['clarity', 'specificity', 'structure', 'tone', 'completeness'];
       const labels: Record<string, string> = {
-        clarity: 'Clarity', specificity: 'Specificity',
-        structure: 'Structure', tone: 'Tone', completeness: 'Completeness',
+        clarity: 'Clarity',
+        specificity: 'Specificity',
+        structure: 'Structure',
+        tone: 'Tone',
+        completeness: 'Completeness',
       };
 
       const data = dimensions.map((dim) => {
         const entry: Record<string, unknown> = { subject: labels[dim] ?? dim };
         for (const r of results) {
-          entry[r.provider] = r.score.dimensions[dim as keyof typeof r.score.dimensions]?.score ?? 0;
+          entry[r.provider] =
+            r.score.dimensions[dim as keyof typeof r.score.dimensions]?.score ?? 0;
         }
         return entry;
       });
@@ -69,8 +71,11 @@ const MultiRadarChart = lazy(() =>
             })}
             <Tooltip
               contentStyle={{
-                backgroundColor: '#18181b', border: '1px solid #27272a',
-                borderRadius: '8px', fontSize: '12px', color: '#fafafa',
+                backgroundColor: '#18181b',
+                border: '1px solid #27272a',
+                borderRadius: '8px',
+                fontSize: '12px',
+                color: '#fafafa',
               }}
               formatter={(v: unknown) => [`${v}/100`] as [string]}
             />
@@ -88,12 +93,16 @@ const MultiRadarChart = lazy(() =>
 // ── Comparison table ──────────────────────────────────────────────────────────
 
 const DIMENSION_LABELS: Record<string, string> = {
-  clarity: 'Clarity', specificity: 'Specificity',
-  structure: 'Structure', tone: 'Tone', completeness: 'Completeness',
+  clarity: 'Clarity',
+  specificity: 'Specificity',
+  structure: 'Structure',
+  tone: 'Tone',
+  completeness: 'Completeness',
 };
 
 const ComparisonTable: React.FC<{ results: ModelScoreResult[]; isPl: boolean }> = ({
-  results, isPl,
+  results,
+  isPl,
 }) => {
   const PROVIDER_LABELS: Record<AIProvider, string> = {
     openai: 'GPT-4o Mini',
@@ -102,7 +111,7 @@ const ComparisonTable: React.FC<{ results: ModelScoreResult[]; isPl: boolean }> 
 
   const rows: DimensionRow[] = Object.keys(DIMENSION_LABELS).map((key) => ({
     key,
-    label: DIMENSION_LABELS[key]!,
+    label: DIMENSION_LABELS[key] ?? key,
     scores: Object.fromEntries(
       results.map((r) => [
         r.provider,
@@ -120,29 +129,25 @@ const ComparisonTable: React.FC<{ results: ModelScoreResult[]; isPl: boolean }> 
   };
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
+    <div className="border-border overflow-hidden rounded-xl border">
       <table className="w-full text-xs">
         <thead>
           <tr className="bg-surface-raised text-text-muted">
-            <th className="px-3 py-2 text-left font-medium">
-              {isPl ? 'Wymiar' : 'Dimension'}
-            </th>
+            <th className="px-3 py-2 text-left font-medium">{isPl ? 'Wymiar' : 'Dimension'}</th>
             {results.map((r) => (
               <th key={r.provider} className="px-3 py-2 text-center font-medium">
                 {PROVIDER_LABELS[r.provider]}
               </th>
             ))}
-            <th className="px-3 py-2 text-center font-medium">
-              {isPl ? 'Lepszy' : 'Winner'}
-            </th>
+            <th className="px-3 py-2 text-center font-medium">{isPl ? 'Lepszy' : 'Winner'}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => {
             const winner = getWinner(row);
             return (
-              <tr key={row.key} className="border-t border-border">
-                <td className="px-3 py-2 text-text-secondary">{row.label}</td>
+              <tr key={row.key} className="border-border border-t">
+                <td className="text-text-secondary px-3 py-2">{row.label}</td>
                 {results.map((r) => {
                   const score = row.scores[r.provider] ?? 0;
                   const isWinner = winner === r.provider;
@@ -159,40 +164,41 @@ const ComparisonTable: React.FC<{ results: ModelScoreResult[]; isPl: boolean }> 
                   );
                 })}
                 <td className="px-3 py-2 text-center">
-                  {winner === 'tie'
-                    ? <span className="text-text-muted">{isPl ? 'Remis' : 'Tie'}</span>
-                    : winner
-                      ? <span className="text-[10px] font-medium text-green-400">
-                          {PROVIDER_LABELS[winner]}
-                        </span>
-                      : '—'}
+                  {winner === 'tie' ? (
+                    <span className="text-text-muted">{isPl ? 'Remis' : 'Tie'}</span>
+                  ) : winner ? (
+                    <span className="text-[10px] font-medium text-green-400">
+                      {PROVIDER_LABELS[winner]}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
                 </td>
               </tr>
             );
           })}
           {/* Overall row */}
-          <tr className="border-t-2 border-border bg-surface-raised font-semibold">
-            <td className="px-3 py-2 text-text-primary">
-              {isPl ? 'Ogółem' : 'Overall'}
-            </td>
+          <tr className="border-border bg-surface-raised border-t-2 font-semibold">
+            <td className="text-text-primary px-3 py-2">{isPl ? 'Ogółem' : 'Overall'}</td>
             {results.map((r) => (
-              <td key={r.provider} className="px-3 py-2 text-center font-mono text-brand-400">
+              <td key={r.provider} className="text-brand-400 px-3 py-2 text-center font-mono">
                 {r.score.overall}
               </td>
             ))}
             <td className="px-3 py-2 text-center">
-              {results.length >= 2 && (() => {
-                const [a, b] = results as [ModelScoreResult, ModelScoreResult];
-                if (Math.abs(a.score.overall - b.score.overall) <= 2) {
-                  return <span className="text-text-muted">{isPl ? 'Remis' : 'Tie'}</span>;
-                }
-                const winner = a.score.overall > b.score.overall ? a.provider : b.provider;
-                return (
-                  <span className="text-[10px] font-medium text-green-400">
-                    {PROVIDER_LABELS[winner]}
-                  </span>
-                );
-              })()}
+              {results.length >= 2 &&
+                (() => {
+                  const [a, b] = results as [ModelScoreResult, ModelScoreResult];
+                  if (Math.abs(a.score.overall - b.score.overall) <= 2) {
+                    return <span className="text-text-muted">{isPl ? 'Remis' : 'Tie'}</span>;
+                  }
+                  const winner = a.score.overall > b.score.overall ? a.provider : b.provider;
+                  return (
+                    <span className="text-[10px] font-medium text-green-400">
+                      {PROVIDER_LABELS[winner]}
+                    </span>
+                  );
+                })()}
             </td>
           </tr>
         </tbody>
@@ -210,7 +216,9 @@ interface MultiModelScoreIslandProps {
 }
 
 export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
-  promptId, content, isPl = true,
+  promptId,
+  content,
+  isPl = true,
 }) => {
   const [status, setStatus] = useState<Status>('idle');
   const [results, setResults] = useState<ModelScoreResult[]>([]);
@@ -225,9 +233,7 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
 
   const toggleProvider = useCallback((p: AIProvider) => {
     setSelectedProviders((prev) =>
-      prev.includes(p)
-        ? prev.length > 1 ? prev.filter((x) => x !== p) : prev
-        : [...prev, p],
+      prev.includes(p) ? (prev.length > 1 ? prev.filter((x) => x !== p) : prev) : [...prev, p],
     );
   }, []);
 
@@ -250,9 +256,11 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
 
       if (!res.ok) {
         if (json.code === 'MULTI_SCORE_LIMIT') {
-          setErrorMsg(isPl
-            ? 'Miesięczny limit multi-score wyczerpany (10/miesiąc)'
-            : 'Monthly multi-model scoring limit reached (10/month)');
+          setErrorMsg(
+            isPl
+              ? 'Miesięczny limit multi-score wyczerpany (10/miesiąc)'
+              : 'Monthly multi-model scoring limit reached (10/month)',
+          );
         } else {
           setErrorMsg(json.error ?? (isPl ? 'Błąd oceniania' : 'Scoring failed'));
         }
@@ -260,8 +268,13 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
         return;
       }
 
-      setResults(json.data!.results);
-      setUsageRemaining(json.data!.usageRemaining);
+      if (!json.data) {
+        setErrorMsg(isPl ? 'Brak danych odpowiedzi' : 'Invalid response data');
+        setStatus('error');
+        return;
+      }
+      setResults(json.data.results);
+      setUsageRemaining(json.data.usageRemaining);
       setStatus('done');
     } catch {
       setErrorMsg(isPl ? 'Błąd połączenia' : 'Connection error');
@@ -272,20 +285,20 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
   // ── Idle ───────────────────────────────────────────────────────────────────
   if (status === 'idle' || status === 'error') {
     return (
-      <div className="flex flex-col gap-4 rounded-xl border border-dashed border-border p-5">
+      <div className="border-border flex flex-col gap-4 rounded-xl border border-dashed p-5">
         <div className="flex items-center gap-2">
           <BarChart3 size={16} className="text-brand-400" />
-          <p className="text-sm font-semibold text-text-primary">
+          <p className="text-text-primary text-sm font-semibold">
             {isPl ? 'Porównanie modeli' : 'Multi-Model Scoring'}
           </p>
           {usageRemaining !== null && (
-            <span className="ml-auto rounded-full bg-surface-raised px-2 py-0.5 text-[10px] text-text-muted">
+            <span className="bg-surface-raised text-text-muted ml-auto rounded-full px-2 py-0.5 text-[10px]">
               {usageRemaining} {isPl ? 'pozostało' : 'left this month'}
             </span>
           )}
         </div>
 
-        <p className="text-xs text-text-muted">
+        <p className="text-text-muted text-xs">
           {isPl
             ? 'Oceń prompt jednocześnie przez GPT-4o i Claude, porównaj wyniki na wykresie radarowym.'
             : 'Score your prompt with GPT-4o and Claude simultaneously, compare results on a radar chart.'}
@@ -294,7 +307,10 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
         {/* Provider checkboxes */}
         <div className="flex gap-3">
           {(['openai', 'anthropic'] as AIProvider[]).map((p) => (
-            <label key={p} className="flex cursor-pointer items-center gap-2 text-xs text-text-secondary">
+            <label
+              key={p}
+              className="text-text-secondary flex cursor-pointer items-center gap-2 text-xs"
+            >
               <input
                 type="checkbox"
                 checked={selectedProviders.includes(p)}
@@ -326,9 +342,9 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
   // ── Loading ────────────────────────────────────────────────────────────────
   if (status === 'loading') {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-raised p-5">
-        <Loader2 size={18} className="animate-spin text-brand-400" />
-        <p className="text-sm text-text-muted">
+      <div className="border-border bg-surface-raised flex items-center gap-3 rounded-xl border p-5">
+        <Loader2 size={18} className="text-brand-400 animate-spin" />
+        <p className="text-text-muted text-sm">
           {isPl
             ? `Ocenianie przez ${selectedProviders.length} model${selectedProviders.length > 1 ? 'e' : ''}…`
             : `Scoring with ${selectedProviders.length} model${selectedProviders.length > 1 ? 's' : ''}…`}
@@ -339,20 +355,20 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
 
   // ── Done ───────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface-raised p-4">
+    <div className="border-border bg-surface-raised flex flex-col gap-4 rounded-xl border p-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <p className="text-text-muted text-xs font-semibold tracking-wider uppercase">
           {isPl ? 'Porównanie modeli' : 'Model Comparison'}
         </p>
         <div className="flex items-center gap-2">
           {usageRemaining !== null && (
-            <span className="text-[10px] text-text-muted">
+            <span className="text-text-muted text-[10px]">
               {usageRemaining} {isPl ? 'pozostało' : 'remaining'}
             </span>
           )}
           <button
             onClick={handleScore}
-            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface-overlay hover:text-text-primary"
+            className="text-text-muted hover:bg-surface-overlay hover:text-text-primary flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
             aria-label={isPl ? 'Oceń ponownie' : 'Re-score'}
           >
             <RefreshCw size={11} />
@@ -362,7 +378,9 @@ export const MultiModelScoreIsland: React.FC<MultiModelScoreIslandProps> = ({
       </div>
 
       {/* Radar chart */}
-      <Suspense fallback={<div className="h-[260px] animate-pulse rounded-lg bg-surface-overlay" />}>
+      <Suspense
+        fallback={<div className="bg-surface-overlay h-[260px] animate-pulse rounded-lg" />}
+      >
         <MultiRadarChart results={results} />
       </Suspense>
 

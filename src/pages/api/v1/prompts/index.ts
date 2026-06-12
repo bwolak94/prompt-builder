@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import type { PromptVariable } from '@/types';
 import { z } from 'zod';
 import { ok, created, error, unauthorized } from '@/lib/api/response';
 import { parseBody } from '@/lib/api/validate';
@@ -9,12 +10,14 @@ export const prerender = false;
 const CreatePromptSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
-  blocks: z.array(z.object({
-    id: z.string(),
-    section_slug: z.string(),
-    content: z.string(),
-    order_index: z.number(),
-  })),
+  blocks: z.array(
+    z.object({
+      id: z.string(),
+      section_slug: z.string(),
+      content: z.string(),
+      order_index: z.number(),
+    }),
+  ),
   variables: z.array(z.unknown()).optional(),
   tags: z.array(z.string()).optional(),
   is_public: z.boolean().optional().default(false),
@@ -23,8 +26,8 @@ const CreatePromptSchema = z.object({
 export const GET: APIRoute = async ({ locals, url }) => {
   if (!locals.apiUser) return unauthorized();
 
-  const page   = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
-  const limit  = Math.min(parseInt(url.searchParams.get('limit') ?? '20', 10), 50);
+  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+  const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '20', 10), 50);
   const search = url.searchParams.get('search');
   const isPublicParam = url.searchParams.get('is_public');
 
@@ -52,7 +55,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const prompt = await promptService.createPrompt(locals.supabase, locals.apiUser.userId, {
     ...parsed,
-    variables: (parsed.variables ?? []) as import('@/types').PromptVariable[],
+    variables: (parsed.variables ?? []) as PromptVariable[],
     tags: parsed.tags ?? [],
     is_public: parsed.is_public ?? false,
   });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ScoreResponseSchema } from '../scoring.provider';
 
 // ── ScoreResponseSchema validation ────────────────────────────────────────────
@@ -6,10 +6,10 @@ import { ScoreResponseSchema } from '../scoring.provider';
 const validResponse = {
   overall: 75,
   dimensions: {
-    clarity:      { score: 80, comment: 'Clear instructions.', suggestions: ['Be more specific.'] },
-    specificity:  { score: 70, comment: 'Moderately specific.', suggestions: ['Add examples.'] },
-    structure:    { score: 75, comment: 'Well structured.', suggestions: ['Add headers.'] },
-    tone:         { score: 78, comment: 'Professional tone.', suggestions: [] },
+    clarity: { score: 80, comment: 'Clear instructions.', suggestions: ['Be more specific.'] },
+    specificity: { score: 70, comment: 'Moderately specific.', suggestions: ['Add examples.'] },
+    structure: { score: 75, comment: 'Well structured.', suggestions: ['Add headers.'] },
+    tone: { score: 78, comment: 'Professional tone.', suggestions: [] },
     completeness: { score: 72, comment: 'Mostly complete.', suggestions: ['Add context.'] },
   },
 };

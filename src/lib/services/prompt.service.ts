@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@/db/supabase.client';
 import type { Prompt, CreatePromptDto, UpdatePromptDto } from '@/types';
+import type { Json } from '@/db/types';
 import { promptRepo } from '@/db/repositories/prompt.repo';
 import { templateRepo } from '@/db/repositories/template.repo';
 import { blocksToMarkdown, generateSlug } from '@/lib/markdown';
@@ -39,8 +40,8 @@ export const promptService = {
       user_id: userId,
       title: dto.title,
       description: dto.description ?? null,
-      blocks: dto.blocks as unknown as import('@/db/types').Json,
-      variables: (dto.variables ?? []) as unknown as import('@/db/types').Json,
+      blocks: dto.blocks as unknown as Json,
+      variables: (dto.variables ?? []) as unknown as Json,
       content_md,
       tags: dto.tags ?? [],
       is_public: dto.is_public,
@@ -70,11 +71,11 @@ export const promptService = {
       ...(dto.title !== undefined && { title: dto.title }),
       ...(dto.description !== undefined && { description: dto.description ?? null }),
       ...(dto.blocks !== undefined && {
-        blocks: dto.blocks as unknown as import('@/db/types').Json,
+        blocks: dto.blocks as unknown as Json,
         content_md,
       }),
       ...(dto.variables !== undefined && {
-        variables: dto.variables as unknown as import('@/db/types').Json,
+        variables: dto.variables as unknown as Json,
       }),
       ...(dto.tags !== undefined && { tags: dto.tags }),
       ...(dto.is_public !== undefined && { is_public: dto.is_public }),
@@ -84,22 +85,14 @@ export const promptService = {
     });
   },
 
-  async deletePrompt(
-    supabase: SupabaseClient,
-    id: string,
-    userId: string,
-  ): Promise<void> {
+  async deletePrompt(supabase: SupabaseClient, id: string, userId: string): Promise<void> {
     const existing = await promptRepo.findById(supabase, id);
     if (!existing) throw new Error('Prompt not found');
     if (existing.user_id !== userId) throw new Error('Forbidden');
     await promptRepo.softDelete(supabase, id);
   },
 
-  async forkPrompt(
-    supabase: SupabaseClient,
-    id: string,
-    userId: string,
-  ): Promise<Prompt> {
+  async forkPrompt(supabase: SupabaseClient, id: string, userId: string): Promise<Prompt> {
     // Look up in user prompts first, then fall back to system templates
     const sourcePrompt = await promptRepo.findById(supabase, id);
     const sourceTemplate = sourcePrompt ? null : await templateRepo.findById(supabase, id);
@@ -110,8 +103,8 @@ export const promptService = {
       user_id: userId,
       title: `${source.title} (fork)`,
       description: source.description,
-      blocks: source.blocks as unknown as import('@/db/types').Json,
-      variables: source.variables as unknown as import('@/db/types').Json,
+      blocks: source.blocks as unknown as Json,
+      variables: source.variables as unknown as Json,
       content_md: source.content_md,
       tags: source.tags,
       is_public: false,
@@ -124,7 +117,10 @@ export const promptService = {
     if (sourcePrompt) {
       promptRepo.incrementForkCount(supabase, source.id);
     } else {
-      supabase.from('system_templates').update({ fork_count: (source.fork_count ?? 0) + 1 }).eq('id', source.id);
+      supabase
+        .from('system_templates')
+        .update({ fork_count: (source.fork_count ?? 0) + 1 })
+        .eq('id', source.id);
     }
 
     return forked;

@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { requireAuth } from '@/lib/api/auth';
 import { parseBody } from '@/lib/api/validate';
-import { ok, notFound, forbidden } from '@/lib/api/response';
+import { ok, notFound } from '@/lib/api/response';
 import { commentRepo } from '@/db/repositories/comment.repo';
 
 export const prerender = false;
@@ -29,7 +29,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed';
     return new Response(JSON.stringify({ error: msg }), {
-      status: 500, headers: { 'Content-Type': 'application/json' },
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

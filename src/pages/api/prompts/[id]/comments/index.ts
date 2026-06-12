@@ -9,7 +9,7 @@ export const prerender = false;
 
 const CreateSchema = z.object({
   content: z.string().min(1).max(2000),
-  parentId: z.string().uuid().optional(),
+  parentId: z.uuid().optional(),
 });
 
 /** GET /api/prompts/[id]/comments?cursor=xxx — list threaded comments */

@@ -12,7 +12,7 @@ export const prerender = false;
 const VALID_ENVS: PromptEnv[] = ['dev', 'staging', 'production'];
 
 const PromoteSchema = z.object({
-  version_id: z.string().uuid(),
+  version_id: z.uuid(),
 });
 
 export const GET: APIRoute = async ({ params, locals }) => {

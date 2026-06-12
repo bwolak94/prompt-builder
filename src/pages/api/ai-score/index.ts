@@ -9,7 +9,7 @@ export const prerender = false;
 const TIMEOUT_MS = 30_000;
 
 const BodySchema = z.object({
-  promptId: z.string().uuid(),
+  promptId: z.uuid(),
   content: z.string().min(1).max(20_000),
   provider: z.enum(['openai', 'anthropic']).default('openai'),
 });
@@ -104,7 +104,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
       'X-Accel-Buffering': 'no',
     },
   });

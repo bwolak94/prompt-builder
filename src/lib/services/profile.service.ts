@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@/db/supabase.client';
 import type { UserPreferences } from '@/types';
+import type { Json } from '@/db/types';
 import { castPreferences } from '@/types';
 
 export interface ProfileData {
@@ -21,11 +22,7 @@ export interface UpdateProfileDto {
 
 export const profileService = {
   async getProfile(supabase: SupabaseClient, userId: string): Promise<ProfileData | null> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
     if (error || !data) return null;
 
@@ -59,11 +56,11 @@ export const profileService = {
     dto: UpdateProfileDto,
   ): Promise<ProfileData> {
     // If updating preferences, merge with existing
-    let preferencesUpdate: import('@/db/types').Json | undefined;
+    let preferencesUpdate: Json | undefined;
     if (dto.preferences) {
       const existing = await profileService.getProfile(supabase, userId);
       const merged = { ...(existing?.preferences ?? {}), ...dto.preferences };
-      preferencesUpdate = merged as unknown as import('@/db/types').Json;
+      preferencesUpdate = merged as unknown as Json;
     }
 
     const { data, error } = await supabase

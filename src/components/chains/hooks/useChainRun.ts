@@ -36,7 +36,9 @@ export function useChainRun(nodeCount: number): UseChainRunResult {
   const abortRef = useRef<AbortController | null>(null);
 
   const resetRun = useCallback(() => {
-    setNodeStates(Array.from({ length: nodeCount }, () => ({ status: 'idle', output: '', error: null })));
+    setNodeStates(
+      Array.from({ length: nodeCount }, () => ({ status: 'idle', output: '', error: null })),
+    );
     setIsRunning(false);
   }, [nodeCount]);
 
@@ -45,16 +47,13 @@ export function useChainRun(nodeCount: number): UseChainRunResult {
     setIsRunning(false);
   }, []);
 
-  const setNodeState = useCallback(
-    (index: number, updates: Partial<NodeRunState>) => {
-      setNodeStates((prev) => {
-        const next = [...prev];
-        next[index] = { ...next[index]!, ...updates };
-        return next;
-      });
-    },
-    [],
-  );
+  const setNodeState = useCallback((index: number, updates: Partial<NodeRunState>) => {
+    setNodeStates((prev) => {
+      const next = [...prev];
+      next[index] = { ...(next[index] ?? { status: 'idle', output: '', error: null }), ...updates };
+      return next;
+    });
+  }, []);
 
   const runSingle = useCallback(
     async (
@@ -143,7 +142,8 @@ export function useChainRun(nodeCount: number): UseChainRunResult {
         for (let i = 0; i < nodes.length; i++) {
           if (controller.signal.aborted) break;
 
-          const node = nodes[i]!;
+          const node = nodes[i];
+          if (!node) continue;
           const promptText = substituteVars(node.content_md || node.title, prevOutput).trim();
 
           if (!promptText) {

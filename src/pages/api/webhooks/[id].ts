@@ -15,13 +15,15 @@ const WEBHOOK_EVENTS = [
   'challenge.won',
 ] as const;
 
-const UpdateWebhookSchema = z.object({
-  label: z.string().min(1).max(100).optional(),
-  url: z.string().url().optional(),
-  events: z.array(z.enum(WEBHOOK_EVENTS)).optional(),
-  is_active: z.boolean().optional(),
-  secret: z.string().nullable().optional(),
-}).partial();
+const UpdateWebhookSchema = z
+  .object({
+    label: z.string().min(1).max(100).optional(),
+    url: z.url().optional(),
+    events: z.array(z.enum(WEBHOOK_EVENTS)).optional(),
+    is_active: z.boolean().optional(),
+    secret: z.string().nullable().optional(),
+  })
+  .partial();
 
 export const GET: APIRoute = async ({ params, locals }) => {
   const auth = requireAuth(locals);
