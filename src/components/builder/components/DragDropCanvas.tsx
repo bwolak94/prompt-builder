@@ -20,12 +20,14 @@ import { Plus } from 'lucide-react';
 import { PromptBlock } from './PromptBlock';
 import { useBuilderStore } from '../store/builder.store';
 import type { PromptSection } from '@/types';
+import type { Lang } from '@/lib/i18n';
 
 interface DragDropCanvasProps {
   sections: PromptSection[];
+  lang?: Lang;
 }
 
-export const DragDropCanvas: React.FC<DragDropCanvasProps> = ({ sections }) => {
+export const DragDropCanvas: React.FC<DragDropCanvasProps> = ({ sections, lang = 'pl' }) => {
   const blocks = useBuilderStore((s) => s.blocks);
   const addBlock = useBuilderStore((s) => s.addBlock);
   const reorderBlocks = useBuilderStore((s) => s.reorderBlocks);
@@ -112,6 +114,7 @@ export const DragDropCanvas: React.FC<DragDropCanvasProps> = ({ sections }) => {
                   section={section}
                   position={i + 1}
                   total={sorted.length}
+                  lang={lang}
                 />
               );
             })}
