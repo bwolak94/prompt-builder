@@ -10,7 +10,9 @@
     // Explicit any is caught by ESLint, not TS
     "noImplicitAny": true,
     // Strict null checks (inherited from astro/strict but explicit for clarity)
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    // Node.js globals (process, require) needed in server-side services
+    "types": ["node"]
   },
   "include": [".astro/types.d.ts", "**/*.ts", "**/*.tsx", "**/*.astro"],
   "exclude": ["node_modules", "dist", ".astro", "extension", "packages"]

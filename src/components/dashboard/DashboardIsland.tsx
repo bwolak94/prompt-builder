@@ -91,9 +91,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
     [prompts],
   );
 
-  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(
-    initialActiveCollectionId,
-  );
+  const [activeCollectionId] = useState<string | null>(initialActiveCollectionId);
 
   const collectionOptions = useMemo(() => flattenTree(initialCollectionTree), [initialCollectionTree]);
 
