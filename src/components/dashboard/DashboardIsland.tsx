@@ -2,13 +2,25 @@ import React, { useOptimistic, useTransition, useState, useCallback, useMemo } f
 import { Plus } from 'lucide-react';
 import { StatsRow, type Stats } from './components/StatsRow';
 import { FilterBar, type FilterValue } from './components/FilterBar';
-import { PromptCard } from './components/PromptCard';
+import { PromptCard, type CollectionOption } from './components/PromptCard';
 import { EmptyState } from './components/EmptyState';
 import { useI18n } from '@/lib/i18n';
 import type { Prompt } from '@/types';
 import type { Lang } from '@/lib/i18n';
 import { CollectionsSidebar } from '@/components/collections/CollectionsSidebar';
 import type { CollectionNode } from '@/db/repositories/collection.repo';
+
+function flattenTree(nodes: CollectionNode[]): CollectionOption[] {
+  const result: CollectionOption[] = [];
+  const visit = (list: CollectionNode[]) => {
+    for (const node of list) {
+      result.push({ id: node.id, name: node.name, icon: node.icon, color: node.color });
+      if (node.children.length > 0) visit(node.children);
+    }
+  };
+  visit(nodes);
+  return result;
+}
 
 interface DashboardIslandProps {
   initialPrompts: Prompt[];
@@ -83,9 +95,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
     initialActiveCollectionId,
   );
 
-  // Filter prompts by active collection
-  // Note: for collection filtering we rely on URL-driven reload (server fetches filtered list)
-  // The sidebar's setActiveCollection pushes to URL and triggers navigation
+  const collectionOptions = useMemo(() => flattenTree(initialCollectionTree), [initialCollectionTree]);
 
   return (
     <div className="relative mx-auto max-w-6xl px-4 py-8">
@@ -138,6 +148,9 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
                   prompt={prompt}
                   onDelete={handleDelete}
                   onFork={handleFork}
+                  collections={collectionOptions}
+                  addToCollectionLabel={t('collections.addToCollection')}
+                  noCollectionsLabel={t('collections.noCollections')}
                 />
               </li>
             ))}

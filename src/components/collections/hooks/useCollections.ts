@@ -55,14 +55,13 @@ export function useCollections(
   );
 
   const setActiveCollection = useCallback((id: string | null) => {
-    setActiveCollectionId(id);
     const url = new URL(window.location.href);
     if (id) {
       url.searchParams.set('collection', id);
     } else {
       url.searchParams.delete('collection');
     }
-    window.history.pushState({}, '', url.toString());
+    window.location.href = url.toString();
   }, []);
 
   const createCollection = useCallback(

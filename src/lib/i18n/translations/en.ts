@@ -318,6 +318,10 @@ export const en: Translations = {
     noCollectionsSub: 'Create a folder to organize your prompts',
     makePublic: 'Share as bundle',
     copyBundleLink: 'Copy bundle link',
+    addToCollection: 'Add to collection',
+    removeFromCollection: 'Remove from collection',
+    addedToCollection: 'Added to collection',
+    errorAdding: 'Failed to add to collection',
   },
 
   // ── Challenges ─────────────────────────────────────────────────

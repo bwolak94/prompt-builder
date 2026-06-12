@@ -22,7 +22,7 @@ export interface Translations {
   ab: { title: string; enterMode: string; enterModeDesc: string; creating: string; exit: string; variantA: string; variantB: string; scoreOffline: string; scoring: string; runLive: string; tabDiff: string; tabScore: string; tabResponses: string; applyB: string; keepBoth: string; winner: string; tie: string };
   smartVars: { title: string; reset: string; preview: string; copy: string; typeText: string; typeSelect: string; typeNumber: string; typeMultiline: string; typeBoolean: string; validationRequired: string; validationRange: string; on: string; off: string };
   community: { title: string; subtitle: string; tabs: { trending: string; recent: string; topRated: string; featured: string }; period: { h24: string; week: string; month: string; all: string }; forkThis: string; by: string; noResults: string; loadMore: string };
-  collections: { title: string; newCollection: string; editCollection: string; deleteCollection: string; deleteConfirm: string; namePlaceholder: string; noCollections: string; noCollectionsSub: string; makePublic: string; copyBundleLink: string };
+  collections: { title: string; newCollection: string; editCollection: string; deleteCollection: string; deleteConfirm: string; namePlaceholder: string; noCollections: string; noCollectionsSub: string; makePublic: string; copyBundleLink: string; addToCollection: string; removeFromCollection: string; addedToCollection: string; errorAdding: string };
   challenges: { title: string; subtitle: string; activeChallenge: string; timeRemaining: string; submit: string; submitConfirm: string; submissions: string; noSubmissions: string; vote: string; votes: string; voted: string; propose: string; proposals: string; noProposals: string; proposalThreshold: string; proposalTitlePlaceholder: string; proposalDescPlaceholder: string; leaderboard: string; leaderboardEmpty: string; wins: string; badges: string; noActive: string; statusActive: string; statusVoting: string; statusUpcoming: string; statusCompleted: string };
   ratings: { title: string; yourRating: string; rate: string; loginTo: string; loginLink: string };
   comments: { title: string; add: string; reply: string; edit: string; delete: string; helpful: string; report: string; send: string; sending: string; cancel: string; placeholder: string; replyPlaceholder: string; loadMore: string; loading: string; empty: string; loginTo: string; loginLink: string; reportSpam: string; reportAbuse: string; reportOfftopic: string; reportOther: string };
@@ -363,6 +363,10 @@ export const pl: Translations = {
     noCollectionsSub: 'Utwórz folder, aby organizować prompty',
     makePublic: 'Udostępnij jako bundle',
     copyBundleLink: 'Kopiuj link do bundle',
+    addToCollection: 'Dodaj do kolekcji',
+    removeFromCollection: 'Usuń z kolekcji',
+    addedToCollection: 'Dodano do kolekcji',
+    errorAdding: 'Nie udało się dodać do kolekcji',
   },
 
   // ── Challenges ─────────────────────────────────────────────────

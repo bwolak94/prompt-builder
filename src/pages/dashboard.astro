@@ -17,31 +17,33 @@ const errorMessages: Record<string, string> = {
   forbidden: 'Nie masz dostępu do tego promptu.',
 };
 
-// Fetch prompts server-side for fast initial render (repo returns fully-typed Prompt[])
-const prompts = await promptRepo.findByUserId(Astro.locals.supabase, user.id);
+// F-09: collections — read active collection from URL
+const activeCollectionId = Astro.url.searchParams.get('collection');
+const collectionsFlat = await collectionRepo.findByUser(Astro.locals.supabase, user.id);
+const initialCollectionTree = buildCollectionTree(collectionsFlat);
 
-// Fetch stats server-side
-const promptIds = prompts.map((p) => p.id);
-const publicCount = prompts.filter((p) => p.is_public).length;
-const forks = prompts.reduce((sum, p) => sum + (p.fork_count ?? 0), 0);
+// Fetch prompts server-side — filtered by collection if ?collection= is present
+const allPrompts = await promptRepo.findByUserId(Astro.locals.supabase, user.id);
+const prompts = activeCollectionId
+  ? await collectionRepo.findPromptsInCollection(Astro.locals.supabase, activeCollectionId)
+  : allPrompts;
+
+// Stats always based on the full set
+const publicCount = allPrompts.filter((p) => p.is_public).length;
+const forks = allPrompts.reduce((sum, p) => sum + (p.fork_count ?? 0), 0);
 
 let avgScore: number | null = null;
-if (promptIds.length > 0) {
+if (allPrompts.length > 0) {
   const { data: ratings } = await Astro.locals.supabase
     .from('prompt_ratings')
     .select('overall_score')
-    .in('prompt_id', promptIds);
+    .in('prompt_id', allPrompts.map((p) => p.id));
   if (ratings && ratings.length > 0) {
     avgScore = Math.round(ratings.reduce((s: number, r: { overall_score: number }) => s + r.overall_score, 0) / ratings.length);
   }
 }
 
-const initialStats = { total: prompts.length, public: publicCount, forks, avgScore };
-
-// F-09: collections
-const activeCollectionId = Astro.url.searchParams.get('collection');
-const collectionsFlat = await collectionRepo.findByUser(Astro.locals.supabase, user.id);
-const initialCollectionTree = buildCollectionTree(collectionsFlat);
+const initialStats = { total: allPrompts.length, public: publicCount, forks, avgScore };
 ---
 
 <AppLayout

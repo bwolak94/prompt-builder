@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Edit2, Copy, Share2, Trash2, Globe, Lock } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { Edit2, Copy, Share2, Trash2, Globe, Lock, FolderPlus, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -12,6 +12,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { Prompt } from '@/types';
 
 function timeAgo(dateStr: string): string {
@@ -23,19 +31,52 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(hrs / 24)}d temu`;
 }
 
+export interface CollectionOption {
+  id: string;
+  name: string;
+  icon?: string | null;
+  color?: string | null;
+}
+
 interface PromptCardProps {
   prompt: Prompt;
   onDelete: (id: string) => void;
   onFork: (id: string) => void;
+  collections?: CollectionOption[];
+  addToCollectionLabel?: string;
+  noCollectionsLabel?: string;
 }
 
-export const PromptCard: React.FC<PromptCardProps> = ({ prompt, onDelete, onFork }) => {
+export const PromptCard: React.FC<PromptCardProps> = ({
+  prompt,
+  onDelete,
+  onFork,
+  collections = [],
+  addToCollectionLabel = 'Add to collection',
+  noCollectionsLabel = 'No collections',
+}) => {
+  const [addedId, setAddedId] = useState<string | null>(null);
+
   const handleShare = useCallback(() => {
     if (prompt.slug) {
       const url = `${window.location.origin}/p/${prompt.slug}`;
       navigator.clipboard.writeText(url).catch(() => {});
     }
   }, [prompt.slug]);
+
+  const handleAddToCollection = useCallback(async (collectionId: string) => {
+    try {
+      await fetch(`/api/collections/${collectionId}/prompts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt_id: prompt.id }),
+      });
+      setAddedId(collectionId);
+      setTimeout(() => setAddedId(null), 2000);
+    } catch {
+      // ignore
+    }
+  }, [prompt.id]);
 
   return (
     <article className="group relative flex flex-col rounded-xl border border-border bg-surface-raised p-4 transition-colors hover:border-brand-500/40">
@@ -120,6 +161,39 @@ export const PromptCard: React.FC<PromptCardProps> = ({ prompt, onDelete, onFork
             <Share2 size={12} aria-hidden="true" />
           </button>
         )}
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="rounded-md border border-border p-1.5 text-text-muted transition-colors hover:text-text-primary"
+              aria-label={addToCollectionLabel}
+              title={addToCollectionLabel}
+            >
+              <FolderPlus size={12} aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="text-xs">{addToCollectionLabel}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {collections.length === 0 ? (
+              <DropdownMenuItem disabled className="text-xs text-text-muted">
+                {noCollectionsLabel}
+              </DropdownMenuItem>
+            ) : (
+              collections.map((col) => (
+                <DropdownMenuItem
+                  key={col.id}
+                  className="text-xs"
+                  onSelect={() => void handleAddToCollection(col.id)}
+                >
+                  <span className="mr-2 shrink-0">{col.icon ?? '📁'}</span>
+                  <span className="flex-1 truncate">{col.name}</span>
+                  {addedId === col.id && <Check size={12} className="shrink-0 text-emerald-400" />}
+                </DropdownMenuItem>
+              ))
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
