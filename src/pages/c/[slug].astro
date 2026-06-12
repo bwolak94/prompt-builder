@@ -87,7 +87,7 @@ function formatDate(dateStr: string): string {
               <div class="mt-auto flex items-center gap-3 text-[11px] text-text-muted">
                 {prompt.view_count > 0 && <span>👁 {prompt.view_count}</span>}
                 {prompt.fork_count > 0 && <span>🔀 {prompt.fork_count}</span>}
-                <time dateTime={prompt.created_at} class="ml-auto">
+                <time datetime={prompt.created_at} class="ml-auto">
                   {formatDate(prompt.created_at)}
                 </time>
               </div>
