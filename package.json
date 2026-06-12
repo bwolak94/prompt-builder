@@ -17,7 +17,21 @@
     "test": "vitest",
     "test:run": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage",
-    "db:types": "supabase gen types typescript --db-url postgresql://postgres:${POSTGRES_PASSWORD:-your-super-secret-postgres-password}@localhost:5432/postgres 2>/dev/null | grep -v '^Connecting to' | grep -v '^A new version' | grep -v '^We recommend' > src/db/types.ts"
+    "db:types": "supabase gen types typescript --db-url postgresql://postgres:${POSTGRES_PASSWORD:-your-super-secret-postgres-password}@localhost:5432/postgres 2>/dev/null | grep -v '^Connecting to' | grep -v '^A new version' | grep -v '^We recommend' > src/db/types.ts",
+    "lint-staged": "lint-staged",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{astro}": [
+      "prettier --write"
+    ],
+    "*.{css,json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
@@ -59,6 +73,7 @@
     "@astrojs/check": "^0.9.9",
     "@axe-core/react": "^4.11.3",
     "@testing-library/react": "^16.3.2",
+    "@types/node": "^25.9.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^5.2.0",
@@ -67,8 +82,10 @@
     "eslint": "^9.0.0",
     "eslint-plugin-astro": "^1.7.0",
     "eslint-plugin-react-hooks": "^5.0.0",
+    "husky": "^9.1.7",
     "jest-axe": "^10.0.0",
     "jsdom": "^29.0.0",
+    "lint-staged": "^17.0.7",
     "prettier": "^3.3.0",
     "prettier-plugin-astro": "^0.14.0",
     "prettier-plugin-tailwindcss": "^0.8.0",
