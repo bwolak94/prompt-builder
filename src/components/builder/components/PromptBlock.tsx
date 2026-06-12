@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useCallback, useId } from 'react';
-import { GripVertical, X } from 'lucide-react';
+import React, { useRef, useEffect, useCallback, useId, useState } from 'react';
+import { GripVertical, X, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -8,13 +8,16 @@ import { getSectionColors } from '@/lib/constants';
 import { useBuilderStore } from '../store/builder.store';
 import { useDynamicIcon } from '../hooks/useDynamicIcon';
 import { PromptBlockOverlay } from './PromptBlockOverlay';
+import { ImproveModal } from './ImproveModal';
 import type { PromptBlock as PromptBlockType, PromptSection } from '@/types';
+import type { Lang } from '@/lib/i18n';
 
 interface PromptBlockProps {
   block: PromptBlockType;
   section: PromptSection;
   position: number;
   total: number;
+  lang?: Lang;
 }
 
 function areEqual(prev: PromptBlockProps, next: PromptBlockProps): boolean {
@@ -22,16 +25,18 @@ function areEqual(prev: PromptBlockProps, next: PromptBlockProps): boolean {
     prev.block.content === next.block.content &&
     prev.block.section_slug === next.block.section_slug &&
     prev.position === next.position &&
-    prev.total === next.total
+    prev.total === next.total &&
+    prev.lang === next.lang
   );
 }
 
 export const PromptBlock: React.FC<PromptBlockProps> = React.memo(
-  ({ block, section, position, total }) => {
+  ({ block, section, position, total, lang = 'pl' }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const labelId = useId();
     const colors = getSectionColors(block.section_slug);
     const Icon = useDynamicIcon(section.icon);
+    const [improveOpen, setImproveOpen] = useState(false);
 
     const updateBlockContent = useBuilderStore((s) => s.updateBlockContent);
     const removeBlock = useBuilderStore((s) => s.removeBlock);
@@ -108,14 +113,29 @@ export const PromptBlock: React.FC<PromptBlockProps> = React.memo(
             </TooltipContent>
           </Tooltip>
 
+          {/* Improve button */}
+          <button
+            onClick={() => setImproveOpen(true)}
+            aria-label={lang === 'pl' ? `Ulepsz blok: ${section.name}` : `Improve block: ${section.name}`}
+            title={lang === 'pl' ? 'Ulepsz z AI' : 'Improve with AI'}
+            className={[
+              'ml-auto rounded p-0.5 transition-opacity',
+              'opacity-0 group-hover:opacity-100',
+              'coarse:opacity-100',
+              `${colors.text} hover:bg-white/10`,
+            ].join(' ')}
+          >
+            <Wand2 size={12} />
+          </button>
+
           {/* Delete button */}
           <button
             onClick={() => removeBlock(block.id)}
             aria-label={`Usuń blok: ${section.name}`}
             className={[
-              'ml-auto rounded p-0.5 transition-opacity',
+              'rounded p-0.5 transition-opacity',
               'opacity-0 group-hover:opacity-100',
-              'coarse:opacity-100', // always visible on touch devices
+              'coarse:opacity-100',
               `${colors.text} hover:bg-white/10`,
             ].join(' ')}
           >
@@ -143,6 +163,16 @@ export const PromptBlock: React.FC<PromptBlockProps> = React.memo(
             aria-label={`Treść sekcji ${section.name}`}
           />
         </div>
+
+        <ImproveModal
+          open={improveOpen}
+          lang={lang}
+          mode="block"
+          content={block.content}
+          sectionSlug={block.section_slug}
+          onApply={(content) => updateBlockContent(block.id, content)}
+          onClose={() => setImproveOpen(false)}
+        />
       </motion.article>
     );
   },

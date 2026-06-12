@@ -1,0 +1,27 @@
+{
+  "name": "promptbase-cli",
+  "version": "1.0.0",
+  "description": "PromptBase CLI — manage your AI prompts from the terminal",
+  "type": "module",
+  "bin": {
+    "promptbase": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "gray-matter": "^4.0.3",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

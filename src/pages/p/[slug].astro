@@ -4,6 +4,11 @@ export const prerender = false;
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { promptService } from '@/lib/services/prompt.service';
 import { ratingRepo } from '@/db/repositories/rating.repo';
+import { starRatingRepo } from '@/db/repositories/star-rating.repo';
+import { commentRepo } from '@/db/repositories/comment.repo';
+import PublicVariablesPanel from '@/components/public/PublicVariablesPanel';
+import RatingWidget from '@/components/public/RatingWidget';
+import CommentsSection from '@/components/public/CommentsSection';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/404');
@@ -13,6 +18,19 @@ if (!prompt) return new Response(null, { status: 404 });
 
 const latestRating = await ratingRepo.findLatestByPromptId(Astro.locals.supabase, prompt.id);
 const user = Astro.locals.user;
+
+// F-05: fetch initial star rating stats and comments
+const ratingStats = await starRatingRepo.getStats(
+  Astro.locals.supabase,
+  prompt.id,
+  user?.id,
+);
+const { threads: initialThreads, nextCursor: initialNextCursor } = await commentRepo.listThreaded(
+  Astro.locals.supabase,
+  prompt.id,
+  undefined,
+  user?.id,
+);
 
 const siteUrl = import.meta.env.SITE_URL || 'https://promptbase.app';
 const canonicalUrl = `${siteUrl}/p/${slug}`;
@@ -92,22 +110,27 @@ const DIMENSION_LABELS: Record<string, string> = {
           {prompt.content_md}
         </section>
 
-        <!-- Variables read-only -->
-        {prompt.variables.length > 0 && (
+        <!-- Smart Variables interactive panel (F-04) -->
+        {prompt.blocks.length > 0 && (
           <div class="mt-6">
-            <h2 class="mb-3 text-sm font-semibold text-text-primary">Zmienne</h2>
-            <div class="grid gap-3 sm:grid-cols-2">
-              {prompt.variables.map((v) => (
-                <div class="rounded-lg border border-border bg-surface-raised p-3">
-                  <p class="mb-1 text-xs font-medium text-text-primary">{v.label || v.name}</p>
-                  <p class="truncate rounded bg-surface-overlay px-2 py-1 font-mono text-xs text-text-muted">
-                    {v.defaultValue || `{{${v.name}}}`}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <PublicVariablesPanel
+              blocks={prompt.blocks}
+              contentMd={prompt.content_md}
+              client:load
+            />
           </div>
         )}
+        <!-- Comments (F-05) -->
+        <div class="mt-8">
+          <CommentsSection
+            promptId={prompt.id}
+            initialThreads={initialThreads}
+            initialNextCursor={initialNextCursor}
+            currentUserId={user?.id ?? null}
+            isLoggedIn={!!user}
+            client:load
+          />
+        </div>
       </div>
 
       <!-- Right: Sidebar -->
@@ -150,6 +173,19 @@ const DIMENSION_LABELS: Record<string, string> = {
               ⬇️ Pobierz .md
             </a>
           </div>
+        </div>
+
+        <!-- Star Ratings (F-05) -->
+        <div class="rounded-xl border border-border bg-surface-raised p-4">
+          <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">Ocena społeczności</h2>
+          <RatingWidget
+            promptId={prompt.id}
+            initialAvg={ratingStats.avg_rating}
+            initialCount={ratingStats.rating_count}
+            initialUserRating={ratingStats.user_rating}
+            isLoggedIn={!!user}
+            client:load
+          />
         </div>
 
         <!-- AI Score -->

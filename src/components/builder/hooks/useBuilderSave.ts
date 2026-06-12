@@ -1,36 +1,58 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { useBuilderStore } from '../store/builder.store';
+import type { Lang } from '@/lib/i18n';
 
 const AUTOSAVE_DELAY_MS = 30_000;
 
 /**
  * Handles save flow for the builder:
- * - Manual save with toast feedback
+ * - Manual save with toast feedback + auto-version snapshot
  * - Autosave every 30s when isDirty && !isSaving
  * - beforeunload warning when isDirty
  *
  * Returns `handleSave` to call from toolbar or keyboard shortcut.
  */
-export function useBuilderSave(): { handleSave: () => Promise<void> } {
+interface UseBuilderSaveOptions {
+  onSaved?: (promptId: string) => void;
+}
+
+export function useBuilderSave(
+  lang: Lang = 'pl',
+  options: UseBuilderSaveOptions = {},
+): { handleSave: () => Promise<void> } {
+  const { onSaved } = options;
   const save = useBuilderStore((s) => s.save);
   const isDirty = useBuilderStore((s) => s.isDirty);
   const isSaving = useBuilderStore((s) => s.isSaving);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const createVersionSilently = useCallback((promptId: string) => {
+    void fetch(`/api/prompts/${promptId}/versions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+  }, []);
+
   const handleSave = useCallback(async () => {
     try {
       await save();
-      toast.success('Prompt zapisany', { duration: 2000 });
+      const promptId = useBuilderStore.getState().promptId;
+      if (promptId) {
+        createVersionSilently(promptId);
+        onSaved?.(promptId);
+      }
+      toast.success(lang === 'pl' ? 'Prompt zapisany' : 'Prompt saved', { duration: 2000 });
     } catch {
-      toast.error('Nie udało się zapisać', {
+      toast.error(lang === 'pl' ? 'Nie udało się zapisać' : 'Failed to save', {
         action: {
-          label: 'Spróbuj ponownie',
+          label: lang === 'pl' ? 'Spróbuj ponownie' : 'Try again',
           onClick: () => { void handleSave(); },
         },
       });
     }
-  }, [save]);
+  }, [save, lang, createVersionSilently]);
 
   // Autosave: schedule save 30s after last change
   useEffect(() => {

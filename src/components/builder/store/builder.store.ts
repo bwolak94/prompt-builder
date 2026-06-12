@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { nanoid } from 'nanoid';
-import type { PromptBlock, PromptVariable, Prompt, VariableDefinition } from '@/types';
+import type { PromptBlock, PromptVariable, Prompt } from '@/types';
+import type { SmartVariable } from '@/lib/variables/parser';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -10,7 +11,7 @@ export interface BuilderStore {
   promptId: string | null;
   blocks: PromptBlock[];
   variables: Record<string, string>;
-  detectedVariables: VariableDefinition[];
+  detectedVariables: SmartVariable[];
   isDirty: boolean;
   isSaving: boolean;
   title: string;
@@ -28,7 +29,7 @@ export interface BuilderStore {
 
   // Variable actions
   setVariable: (name: string, value: string) => void;
-  setDetectedVariables: (vars: VariableDefinition[]) => void;
+  setDetectedVariables: (vars: SmartVariable[]) => void;
 
   // Metadata actions
   setTitle: (title: string) => void;
@@ -41,6 +42,7 @@ export interface BuilderStore {
   markClean: () => void;
   save: () => Promise<void>;
   loadPrompt: (prompt: Prompt) => void;
+  loadImportedBlocks: (title: string, blocks: PromptBlock[]) => void;
   reset: () => void;
 }
 
@@ -50,7 +52,7 @@ const initialState = {
   promptId: null,
   blocks: [] as PromptBlock[],
   variables: {} as Record<string, string>,
-  detectedVariables: [] as VariableDefinition[],
+  detectedVariables: [] as SmartVariable[],
   isDirty: false,
   isSaving: false,
   title: '',
@@ -192,6 +194,13 @@ const createStore = (set: (fn: (state: BuilderStore) => Partial<BuilderStore>) =
       isDirty: false,
       isSaving: false,
       activeBlockId: null,
+    })),
+
+  loadImportedBlocks: (title, blocks) =>
+    set((state) => ({
+      title: title || state.title,
+      blocks,
+      isDirty: true,
     })),
 
   reset: () => set(() => ({ ...initialState })),

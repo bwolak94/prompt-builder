@@ -1,13 +1,21 @@
 import React, { useId } from 'react';
-import { ArrowLeft, Save, Globe, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Globe, Lock, Loader2, Upload, Wand2, Zap } from 'lucide-react';
 import { useBuilderStore } from '../store/builder.store';
+import type { Lang } from '@/lib/i18n';
 
 interface BuilderToolbarProps {
   onBack?: () => void;
   onSave?: () => Promise<void>;
+  onImport?: () => void;
+  onImproveAll?: () => void;
+  onOptimize?: () => void;
+  lang?: Lang;
 }
 
-export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack, onSave }) => {
+export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({
+  onBack, onSave, onImport, onImproveAll, onOptimize, lang = 'pl',
+}) => {
+  const isPl = lang === 'pl';
   const titleId = useId();
 
   const title = useBuilderStore((s) => s.title);
@@ -57,6 +65,45 @@ export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack, onSave }
           {isPublic ? 'Publiczny' : 'Prywatny'}
         </span>
       </button>
+
+      {/* Token optimizer button */}
+      {onOptimize && (
+        <button
+          onClick={onOptimize}
+          aria-label={isPl ? 'Optymalizuj tokeny' : 'Optimize tokens'}
+          title={isPl ? 'Optymalizator tokenów' : 'Token Optimizer'}
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
+        >
+          <Zap size={14} className="text-amber-400" />
+          <span className="hidden sm:inline">{isPl ? 'Tokeny' : 'Tokens'}</span>
+        </button>
+      )}
+
+      {/* Improve All button */}
+      {onImproveAll && (
+        <button
+          onClick={onImproveAll}
+          aria-label={isPl ? 'Ulepsz cały prompt' : 'Improve full prompt'}
+          title={isPl ? 'Ulepsz z AI' : 'AI Improve'}
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
+        >
+          <Wand2 size={14} className="text-brand-400" />
+          <span className="hidden sm:inline">{isPl ? 'Ulepsz' : 'Improve'}</span>
+        </button>
+      )}
+
+      {/* Import button */}
+      {onImport && (
+        <button
+          onClick={onImport}
+          aria-label="Import prompt"
+          title="Import prompt"
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
+        >
+          <Upload size={14} />
+          <span className="hidden sm:inline">Import</span>
+        </button>
+      )}
 
       {/* Save button */}
       <button

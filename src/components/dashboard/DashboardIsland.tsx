@@ -2,22 +2,40 @@ import React, { useOptimistic, useTransition, useState, useCallback, useMemo } f
 import { Plus } from 'lucide-react';
 import { StatsRow, type Stats } from './components/StatsRow';
 import { FilterBar, type FilterValue } from './components/FilterBar';
-import { PromptCard } from './components/PromptCard';
+import { PromptCard, type CollectionOption } from './components/PromptCard';
 import { EmptyState } from './components/EmptyState';
 import { useI18n } from '@/lib/i18n';
 import type { Prompt } from '@/types';
 import type { Lang } from '@/lib/i18n';
+import { CollectionsSidebar } from '@/components/collections/CollectionsSidebar';
+import type { CollectionNode } from '@/db/repositories/collection.repo';
+
+function flattenTree(nodes: CollectionNode[]): CollectionOption[] {
+  const result: CollectionOption[] = [];
+  const visit = (list: CollectionNode[]) => {
+    for (const node of list) {
+      result.push({ id: node.id, name: node.name, icon: node.icon, color: node.color });
+      if (node.children.length > 0) visit(node.children);
+    }
+  };
+  visit(nodes);
+  return result;
+}
 
 interface DashboardIslandProps {
   initialPrompts: Prompt[];
   initialStats: Stats;
   lang: Lang;
+  initialCollectionTree?: CollectionNode[];
+  initialActiveCollectionId?: string | null;
 }
 
 export const DashboardIsland: React.FC<DashboardIslandProps> = ({
   initialPrompts,
   initialStats,
   lang,
+  initialCollectionTree = [],
+  initialActiveCollectionId = null,
 }) => {
   const { t } = useI18n(lang);
   const [filter, setFilter] = useState<FilterValue>('all');
@@ -73,8 +91,26 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
     [prompts],
   );
 
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(
+    initialActiveCollectionId,
+  );
+
+  const collectionOptions = useMemo(() => flattenTree(initialCollectionTree), [initialCollectionTree]);
+
   return (
-    <div className="relative mx-auto max-w-5xl px-4 py-8">
+    <div className="relative mx-auto max-w-6xl px-4 py-8">
+      <div className="flex gap-6">
+        {/* Collections sidebar */}
+        <aside className="hidden w-52 shrink-0 lg:block">
+          <CollectionsSidebar
+            lang={lang}
+            initialTree={initialCollectionTree}
+            initialActiveId={activeCollectionId}
+          />
+        </aside>
+
+        {/* Main content */}
+        <div className="min-w-0 flex-1">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -112,6 +148,9 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
                   prompt={prompt}
                   onDelete={handleDelete}
                   onFork={handleFork}
+                  collections={collectionOptions}
+                  addToCollectionLabel={t('collections.addToCollection')}
+                  noCollectionsLabel={t('collections.noCollections')}
                 />
               </li>
             ))}
@@ -127,6 +166,8 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({
       >
         <Plus size={24} aria-hidden="true" />
       </a>
+        </div> {/* end main content */}
+      </div> {/* end flex */}
     </div>
   );
 };

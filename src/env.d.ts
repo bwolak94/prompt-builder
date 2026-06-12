@@ -10,6 +10,8 @@ declare namespace App {
     user: import('@supabase/supabase-js').User | null;
     /** Active UI language — read from `lang` cookie */
     lang: import('@/lib/i18n').Lang;
+    /** Set by the /api/v1/ middleware when Bearer token is valid */
+    apiUser?: { userId: string };
   }
 }
 
@@ -23,6 +25,10 @@ interface ImportMetaEnv {
   readonly OPENAI_API_KEY: string;
   readonly ANTHROPIC_API_KEY: string;
   readonly AI_SCORE_PROVIDER: 'openai' | 'anthropic';
+  // Run prompt (F-01)
+  readonly GEMINI_API_KEY: string;
+  /** 64-char hex string (32 bytes) for AES-256-GCM BYOK key encryption */
+  readonly ENCRYPTION_KEY: string;
   // Site
   readonly SITE_URL: string;
 }

@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import type { PromptBlock } from '@/types';
 import { PROMPT_SECTIONS } from '@/lib/constants';
+import { substituteSmartVariables } from '@/lib/variables/substitutor';
 
 // ── Section label lookup ───────────────────────────────────────────────────────
 
@@ -27,19 +28,16 @@ export function blocksToMarkdown(blocks: PromptBlock[]): string {
 
 // ── substituteVariables ───────────────────────────────────────────────────────
 
-const VARIABLE_PATTERN = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g;
-
 /**
- * Replaces all {{variable_name}} placeholders in the markdown with
- * the provided values map. Unknown variables are left as-is.
+ * Replaces all variable tokens ({{name}} or smart {{name:type:params}}) in markdown.
+ * Delegates to the smart substitutor for full F-04 support.
+ * Backward-compatible: plain {{name}} tokens still work.
  */
 export function substituteVariables(
   markdown: string,
   variables: Record<string, string>,
 ): string {
-  return markdown.replace(VARIABLE_PATTERN, (match, name: string) => {
-    return variables[name] ?? match;
-  });
+  return substituteSmartVariables(markdown, variables);
 }
 
 // ── generateSlug ─────────────────────────────────────────────────────────────

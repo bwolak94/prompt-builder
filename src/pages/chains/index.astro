@@ -1,0 +1,111 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import { chainRepo } from '@/db/repositories/chain.repo';
+import { Plus, Link2 } from 'lucide-react';
+
+const lang = Astro.locals.lang;
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=/chains');
+
+const chains = await chainRepo.findByUser(Astro.locals.supabase, user.id);
+const isPl = lang === 'pl';
+---
+
+<AppLayout title={isPl ? 'Łańcuchy promptów' : 'Prompt Chains'}>
+  <div class="mx-auto max-w-4xl px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-text-primary">
+          {isPl ? 'Łańcuchy promptów' : 'Prompt Chains'}
+        </h1>
+        <p class="mt-1 text-sm text-text-muted">
+          {isPl
+            ? 'Połącz kilka promptów w sekwencję i uruchamiaj je automatycznie'
+            : 'Connect multiple prompts in a sequence and run them automatically'}
+        </p>
+      </div>
+
+      <form method="POST" action="/api/chains">
+        <input type="hidden" name="title" value={isPl ? 'Nowy łańcuch' : 'New chain'} />
+        <button
+          id="create-chain-btn"
+          type="button"
+          class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+        >
+          <Plus size={16} aria-hidden="true" />
+          {isPl ? 'Nowy łańcuch' : 'New chain'}
+        </button>
+      </form>
+    </div>
+
+    <!-- Chain list -->
+    {chains.length === 0 ? (
+      <div class="flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-20 text-center">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-500/10">
+          <Link2 size={24} class="text-brand-400" aria-hidden="true" />
+        </div>
+        <p class="text-sm font-medium text-text-primary">
+          {isPl ? 'Brak łańcuchów' : 'No chains yet'}
+        </p>
+        <p class="max-w-xs text-xs text-text-muted">
+          {isPl
+            ? 'Utwórz swój pierwszy łańcuch, aby połączyć kilka promptów w sekwencję'
+            : 'Create your first chain to connect multiple prompts in a sequence'}
+        </p>
+      </div>
+    ) : (
+      <ul class="grid gap-3 sm:grid-cols-2" role="list">
+        {chains.map((chain) => (
+          <li>
+            <a
+              href={`/chains/${chain.id}`}
+              class="group block rounded-xl border border-border bg-surface-raised p-4 transition-all hover:border-brand-400/40 hover:shadow-sm"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <h2 class="text-sm font-medium text-text-primary group-hover:text-brand-400 transition-colors">
+                  {chain.title}
+                </h2>
+                {chain.is_public && (
+                  <span class="shrink-0 rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-400">
+                    {isPl ? 'Publiczny' : 'Public'}
+                  </span>
+                )}
+              </div>
+              {chain.description && (
+                <p class="mt-1 line-clamp-2 text-xs text-text-muted">{chain.description}</p>
+              )}
+              <p class="mt-3 text-xs text-text-muted">
+                {new Date(chain.updated_at).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-US')}
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</AppLayout>
+
+<script>
+  // Create chain via API, then redirect to editor
+  document.getElementById('create-chain-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('create-chain-btn') as HTMLButtonElement;
+    btn.disabled = true;
+    const isPl = document.documentElement.lang !== 'en';
+    try {
+      const res = await fetch('/api/chains', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: isPl ? 'Nowy łańcuch' : 'New chain' }),
+      });
+      if (res.ok) {
+        const { data } = await res.json();
+        window.location.href = `/chains/${data.id}`;
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>

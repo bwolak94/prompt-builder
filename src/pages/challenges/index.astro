@@ -1,0 +1,54 @@
+---
+export const prerender = false;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ChallengesIsland from '@/components/challenges/ChallengesIsland';
+import { challengeRepo } from '@/db/repositories/challenge.repo';
+import { getT } from '@/lib/i18n';
+
+const lang = Astro.locals.lang;
+const t = getT(lang);
+const user = Astro.locals.user;
+
+const [challenge, proposals, leaderboard] = await Promise.all([
+  challengeRepo.findActive(Astro.locals.supabase),
+  challengeRepo.listProposals(Astro.locals.supabase, user?.id),
+  challengeRepo.getLeaderboard(Astro.locals.supabase, 10),
+]);
+
+const submissions = challenge
+  ? await challengeRepo.getSubmissions(Astro.locals.supabase, challenge.id, user?.id)
+  : [];
+
+// Fetch user's public prompts for the submit selector (logged-in only)
+let userPrompts: Array<{ id: string; title: string }> = [];
+if (user) {
+  const { data } = await Astro.locals.supabase
+    .from('prompts')
+    .select('id, title')
+    .eq('user_id', user.id)
+    .eq('is_public', true)
+    .is('deleted_at', null)
+    .order('updated_at', { ascending: false })
+    .limit(50);
+  userPrompts = (data ?? []) as Array<{ id: string; title: string }>;
+}
+---
+
+<BaseLayout
+  title={`${t('challenges.title')} — PromptBase`}
+  description={t('challenges.subtitle')}
+>
+  <main id="main" class="mx-auto max-w-6xl px-4 py-8">
+    <ChallengesIsland
+      lang={lang}
+      initialChallenge={challenge}
+      initialSubmissions={submissions}
+      initialProposals={proposals}
+      initialLeaderboard={leaderboard}
+      isLoggedIn={!!user}
+      userPrompts={userPrompts}
+      client:load
+    />
+  </main>
+</BaseLayout>

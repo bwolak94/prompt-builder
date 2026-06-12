@@ -1,0 +1,100 @@
+---
+/**
+ * Public collection bundle — /c/[slug]
+ * Visible without login if is_public = true.
+ */
+export const prerender = false;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { collectionRepo } from '@/db/repositories/collection.repo';
+
+const { slug } = Astro.params;
+if (!slug) return new Response(null, { status: 404 });
+
+const collection = await collectionRepo.findBySlug(Astro.locals.supabase, slug);
+if (!collection || !collection.is_public) return new Response(null, { status: 404 });
+
+const prompts = await collectionRepo.findPromptsInCollection(
+  Astro.locals.supabase,
+  collection.id,
+);
+
+function formatDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'medium' }).format(new Date(dateStr));
+}
+---
+
+<BaseLayout
+  title={`${collection.name} — PromptBase`}
+  description={collection.description ?? `Kolekcja promptów: ${collection.name}`}
+>
+  <main id="main" class="mx-auto max-w-4xl px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3">
+        {collection.icon && (
+          <span class="text-3xl" aria-hidden="true">{collection.icon}</span>
+        )}
+        <div>
+          <h1 class="text-2xl font-bold text-text-primary">{collection.name}</h1>
+          {collection.description && (
+            <p class="mt-1 text-sm text-text-muted">{collection.description}</p>
+          )}
+        </div>
+      </div>
+      <div class="mt-3 flex items-center gap-3 text-xs text-text-muted">
+        <span>{prompts.length} {prompts.length === 1 ? 'prompt' : 'promptów'}</span>
+        <span>·</span>
+        <span>Zaktualizowano {formatDate(collection.updated_at)}</span>
+        {collection.color && (
+          <span
+            class="inline-block h-3 w-3 rounded-full border border-border"
+            style={`background-color: ${collection.color}`}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+    </div>
+
+    <!-- Prompt grid -->
+    {prompts.length === 0 ? (
+      <div class="rounded-xl border border-border bg-surface-raised p-8 text-center">
+        <p class="text-sm text-text-muted">Kolekcja jest pusta.</p>
+      </div>
+    ) : (
+      <ul class="grid gap-4 sm:grid-cols-2" role="list">
+        {prompts.map((prompt) => (
+          <li>
+            <a
+              href={`/p/${prompt.slug ?? prompt.id}`}
+              class="group flex flex-col gap-2 rounded-xl border border-border bg-surface-raised p-4 transition-shadow hover:shadow-md"
+            >
+              <h2 class="font-semibold text-text-primary transition-colors group-hover:text-brand-400 line-clamp-2">
+                {prompt.title}
+              </h2>
+              {prompt.description && (
+                <p class="text-xs text-text-muted line-clamp-2">{prompt.description}</p>
+              )}
+              {prompt.tags.length > 0 && (
+                <div class="flex flex-wrap gap-1">
+                  {prompt.tags.slice(0, 4).map((tag) => (
+                    <span class="rounded-md bg-surface-overlay px-1.5 py-0.5 text-[10px] text-text-muted">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div class="mt-auto flex items-center gap-3 text-[11px] text-text-muted">
+                {prompt.view_count > 0 && <span>👁 {prompt.view_count}</span>}
+                {prompt.fork_count > 0 && <span>🔀 {prompt.fork_count}</span>}
+                <time dateTime={prompt.created_at} class="ml-auto">
+                  {formatDate(prompt.created_at)}
+                </time>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </main>
+</BaseLayout>
