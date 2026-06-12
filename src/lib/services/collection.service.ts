@@ -13,9 +13,10 @@ export function buildCollectionTree(flat: CollectionWithCount[]): CollectionNode
 
   flat.forEach((c) => map.set(c.id, { ...c, children: [] }));
   flat.forEach((c) => {
-    const node = map.get(c.id)!;
+    const node = map.get(c.id);
+    if (!node) return;
     if (c.parent_id && map.has(c.parent_id)) {
-      map.get(c.parent_id)!.children.push(node);
+      map.get(c.parent_id)?.children.push(node);
     } else {
       roots.push(node);
     }
@@ -38,15 +39,11 @@ function slugify(text: string): string {
 }
 
 /** Generate a unique slug for a collection, appending a numeric suffix if needed. */
-export async function generateUniqueSlug(
-  supabase: SupabaseClient,
-  name: string,
-): Promise<string> {
+export async function generateUniqueSlug(supabase: SupabaseClient, name: string): Promise<string> {
   const base = slugify(name) || 'collection';
   let candidate = base;
   let i = 2;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const existing = await collectionRepo.findBySlug(supabase, candidate);
     if (!existing) return candidate;
@@ -80,9 +77,10 @@ export const collectionService = {
   ): Promise<Collection> {
     const collection = await assertOwner(supabase, collectionId, userId);
     const makePublic = !collection.is_public;
-    const slug = makePublic && !collection.slug
-      ? await generateUniqueSlug(supabase, collection.name)
-      : collection.slug;
+    const slug =
+      makePublic && !collection.slug
+        ? await generateUniqueSlug(supabase, collection.name)
+        : collection.slug;
 
     return collectionRepo.update(supabase, collectionId, {
       is_public: makePublic,

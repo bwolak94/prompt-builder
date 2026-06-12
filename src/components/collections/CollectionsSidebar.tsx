@@ -7,7 +7,11 @@ import React, { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import type { Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
-import type { CollectionNode, CreateCollectionDto, Collection } from '@/db/repositories/collection.repo';
+import type {
+  CollectionNode,
+  CreateCollectionDto,
+  Collection,
+} from '@/db/repositories/collection.repo';
 import { useCollections } from './hooks/useCollections';
 
 interface CollectionsSidebarProps {
@@ -43,16 +47,24 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({
     <div className="flex flex-col gap-2">
       {/* Header */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <span className="text-text-muted text-xs font-semibold tracking-wider uppercase">
           {t('collections.title')}
         </span>
         <button
           onClick={() => setModalState({ open: true, mode: 'create' })}
-          className="rounded p-0.5 text-text-muted transition-colors hover:text-text-primary"
+          className="text-text-muted hover:text-text-primary rounded p-0.5 transition-colors"
           title={t('collections.newCollection')}
           aria-label={t('collections.newCollection')}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
             <line x1="7" y1="1" x2="7" y2="13" />
             <line x1="1" y1="7" x2="13" y2="7" />
           </svg>
@@ -60,7 +72,7 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({
       </div>
 
       {error && (
-        <p className="rounded bg-destructive/10 px-2 py-1 text-[10px] text-destructive">{error}</p>
+        <p className="bg-destructive/10 text-destructive rounded px-2 py-1 text-[10px]">{error}</p>
       )}
 
       {/* All prompts (no filter) */}
@@ -68,7 +80,7 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({
         onClick={() => setActiveCollection(null)}
         className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors ${
           activeCollectionId === null
-            ? 'bg-surface-overlay font-medium text-text-primary'
+            ? 'bg-surface-overlay text-text-primary font-medium'
             : 'text-text-muted hover:text-text-primary'
         }`}
       >
@@ -79,8 +91,10 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({
       {/* Tree */}
       {tree.length === 0 ? (
         <div className="px-2 py-3 text-center">
-          <p className="text-[10px] text-text-muted">{t('collections.noCollections')}</p>
-          <p className="mt-0.5 text-[10px] text-text-muted/70">{t('collections.noCollectionsSub')}</p>
+          <p className="text-text-muted text-[10px]">{t('collections.noCollections')}</p>
+          <p className="text-text-muted/70 mt-0.5 text-[10px]">
+            {t('collections.noCollectionsSub')}
+          </p>
         </div>
       ) : (
         <ul className="flex flex-col gap-0.5" role="tree">
@@ -128,7 +142,13 @@ interface NodeItemProps {
 }
 
 const CollectionNodeItem: React.FC<NodeItemProps> = ({
-  node, activeId, onSelect, onEdit, onDelete, onAddChild, depth,
+  node,
+  activeId,
+  onSelect,
+  onEdit,
+  onDelete,
+  onAddChild,
+  depth,
 }) => {
   const [expanded, setExpanded] = useState(true);
   const [showActions, setShowActions] = useState(false);
@@ -139,7 +159,9 @@ const CollectionNodeItem: React.FC<NodeItemProps> = ({
     <li role="treeitem" aria-expanded={hasChildren ? expanded : undefined}>
       <div
         className={`group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors ${
-          isActive ? 'bg-brand-500/15 text-brand-400' : 'text-text-muted hover:bg-surface-overlay hover:text-text-primary'
+          isActive
+            ? 'bg-brand-500/15 text-brand-400'
+            : 'text-text-muted hover:bg-surface-overlay hover:text-text-primary'
         }`}
         style={{ paddingLeft: `${8 + depth * 16}px` }}
         onMouseEnter={() => setShowActions(true)}
@@ -149,7 +171,7 @@ const CollectionNodeItem: React.FC<NodeItemProps> = ({
         {hasChildren ? (
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="shrink-0 text-[10px] text-text-muted/60"
+            className="text-text-muted/60 shrink-0 text-[10px]"
             aria-label={expanded ? 'Zwiń' : 'Rozwiń'}
           >
             {expanded ? '▾' : '▸'}
@@ -173,7 +195,7 @@ const CollectionNodeItem: React.FC<NodeItemProps> = ({
           )}
           <span className="truncate">{node.name}</span>
           {node.prompt_count > 0 && (
-            <span className="ml-auto shrink-0 rounded-full bg-surface-overlay px-1.5 py-0.5 text-[9px]">
+            <span className="bg-surface-overlay ml-auto shrink-0 rounded-full px-1.5 py-0.5 text-[9px]">
               {node.prompt_count}
             </span>
           )}
@@ -185,7 +207,7 @@ const CollectionNodeItem: React.FC<NodeItemProps> = ({
             {node.depth < 4 && (
               <button
                 onClick={() => onAddChild(node.id)}
-                className="rounded p-0.5 text-[10px] text-text-muted/60 hover:text-text-primary"
+                className="text-text-muted/60 hover:text-text-primary rounded p-0.5 text-[10px]"
                 title="Dodaj podkolekcję"
               >
                 +
@@ -193,7 +215,7 @@ const CollectionNodeItem: React.FC<NodeItemProps> = ({
             )}
             <button
               onClick={() => onEdit(node)}
-              className="rounded p-0.5 text-[10px] text-text-muted/60 hover:text-text-primary"
+              className="text-text-muted/60 hover:text-text-primary rounded p-0.5 text-[10px]"
               title="Edytuj"
             >
               ✎
@@ -246,10 +268,19 @@ interface ModalProps {
 }
 
 // fix type — onUpdate is from useCollections
-type UpdateFn = (id: string, dto: { name?: string; description?: string; is_public?: boolean; color?: string; icon?: string }) => Promise<void>;
+type UpdateFn = (
+  id: string,
+  dto: { name?: string; description?: string; is_public?: boolean; color?: string; icon?: string },
+) => Promise<void>;
 
 const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: UpdateFn }> = ({
-  mode, collection, parentId, onCreate, onUpdate, onClose, t,
+  mode,
+  collection,
+  parentId,
+  onCreate,
+  onUpdate,
+  onClose,
+  t,
 }) => {
   const [name, setName] = useState(collection?.name ?? '');
   const [description, setDescription] = useState(collection?.description ?? '');
@@ -258,16 +289,27 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim()) return;
     setLoading(true);
     setError(null);
     try {
       if (mode === 'create') {
-        await onCreate({ name: name.trim(), description: description || undefined, parent_id: parentId, color: color || undefined, icon: icon || undefined });
+        await onCreate({
+          name: name.trim(),
+          description: description || undefined,
+          parent_id: parentId,
+          color: color || undefined,
+          icon: icon || undefined,
+        });
       } else if (collection) {
-        await onUpdate(collection.id, { name: name.trim(), description: description || undefined, color: color || undefined, icon: icon || undefined });
+        await onUpdate(collection.id, {
+          name: name.trim(),
+          description: description || undefined,
+          color: color || undefined,
+          icon: icon || undefined,
+        });
       }
       onClose();
     } catch (err) {
@@ -277,15 +319,16 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
     }
   };
 
-  const title = mode === 'create' ? t('collections.newCollection') : t('collections.editCollection');
+  const title =
+    mode === 'create' ? t('collections.newCollection') : t('collections.editCollection');
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-sm rounded-xl border border-border bg-surface-base p-5 shadow-xl">
-        <h3 className="mb-4 text-sm font-semibold text-text-primary">{title}</h3>
+      <div className="border-border bg-surface-base w-full max-w-sm rounded-xl border p-5 shadow-xl">
+        <h3 className="text-text-primary mb-4 text-sm font-semibold">{title}</h3>
         <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
           {/* Name */}
           <input
@@ -296,7 +339,7 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
             maxLength={100}
             required
             autoFocus
-            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-brand-400"
+            className="border-border bg-surface-raised text-text-primary placeholder:text-text-muted focus:ring-brand-400 rounded-md border px-3 py-2 text-xs focus:ring-1 focus:outline-none"
           />
 
           {/* Description */}
@@ -306,12 +349,12 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Opis (opcjonalnie)"
             maxLength={500}
-            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-brand-400"
+            className="border-border bg-surface-raised text-text-primary placeholder:text-text-muted focus:ring-brand-400 rounded-md border px-3 py-2 text-xs focus:ring-1 focus:outline-none"
           />
 
           {/* Color picker */}
           <div>
-            <p className="mb-1.5 text-[10px] text-text-muted">Kolor</p>
+            <p className="text-text-muted mb-1.5 text-[10px]">Kolor</p>
             <div className="flex gap-1.5">
               {PRESET_COLORS.map((c) => (
                 <button
@@ -319,7 +362,7 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
                   type="button"
                   onClick={() => setColor(c)}
                   className={`h-5 w-5 rounded-full border-2 transition-all ${
-                    color === c ? 'border-white scale-110' : 'border-transparent'
+                    color === c ? 'scale-110 border-white' : 'border-transparent'
                   }`}
                   style={{ backgroundColor: c }}
                   aria-label={c}
@@ -328,7 +371,7 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
               <button
                 type="button"
                 onClick={() => setColor('')}
-                className={`flex h-5 w-5 items-center justify-center rounded-full border border-border text-[9px] text-text-muted transition-all ${
+                className={`border-border text-text-muted flex h-5 w-5 items-center justify-center rounded-full border text-[9px] transition-all ${
                   !color ? 'border-text-muted' : ''
                 }`}
               >
@@ -339,7 +382,7 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
 
           {/* Icon picker */}
           <div>
-            <p className="mb-1.5 text-[10px] text-text-muted">Ikona</p>
+            <p className="text-text-muted mb-1.5 text-[10px]">Ikona</p>
             <div className="flex flex-wrap gap-1">
               {PRESET_ICONS.map((ic) => (
                 <button
@@ -356,7 +399,7 @@ const CollectionModal: React.FC<Omit<ModalProps, 'onUpdate'> & { onUpdate: Updat
             </div>
           </div>
 
-          {error && <p className="text-[10px] text-destructive">{error}</p>}
+          {error && <p className="text-destructive text-[10px]">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="ghost" size="sm" onClick={onClose}>

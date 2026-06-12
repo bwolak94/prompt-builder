@@ -109,7 +109,7 @@ export function heuristicParse(text: string): ParsedImport {
     const content = sec.lines.join('\n').trim();
     if (!content) continue;
     if (merged.has(sec.slug)) {
-      merged.set(sec.slug, `${merged.get(sec.slug)!}\n\n${content}`);
+      merged.set(sec.slug, `${merged.get(sec.slug) ?? ''}\n\n${content}`);
     } else {
       merged.set(sec.slug, content);
       order.push(sec.slug);
@@ -118,7 +118,7 @@ export function heuristicParse(text: string): ParsedImport {
 
   const blocks: ImportedBlock[] = order.map((slug) => ({
     section_slug: slug,
-    content: merged.get(slug)!,
+    content: merged.get(slug) ?? '',
   }));
 
   return { title: inferTitle(text), blocks };

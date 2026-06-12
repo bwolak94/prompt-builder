@@ -4,7 +4,7 @@
  * Renders as a React island (client:load).
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import type { Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -52,7 +52,7 @@ export const ChallengesIsland: React.FC<ChallengesIslandProps> = ({
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">{t('challenges.title')}</h1>
+        <h1 className="text-text-primary text-2xl font-bold">{t('challenges.title')}</h1>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
@@ -77,8 +77,8 @@ export const ChallengesIsland: React.FC<ChallengesIslandProps> = ({
               />
             </>
           ) : (
-            <div className="rounded-xl border border-border bg-surface-raised p-8 text-center">
-              <p className="text-sm text-text-muted">{t('challenges.noActive')}</p>
+            <div className="border-border bg-surface-raised rounded-xl border p-8 text-center">
+              <p className="text-text-muted text-sm">{t('challenges.noActive')}</p>
             </div>
           )}
 
@@ -103,7 +103,9 @@ export const ChallengesIsland: React.FC<ChallengesIslandProps> = ({
 // ── Countdown Timer ───────────────────────────────────────────────────────────
 
 function useCountdown(targetIso: string) {
-  const [remaining, setRemaining] = useState(() => Math.max(0, new Date(targetIso).getTime() - Date.now()));
+  const [remaining, setRemaining] = useState(() =>
+    Math.max(0, new Date(targetIso).getTime() - Date.now()),
+  );
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -112,8 +114,8 @@ function useCountdown(targetIso: string) {
     return () => clearInterval(id);
   }, [targetIso]);
 
-  const days    = Math.floor(remaining / 86400000);
-  const hours   = Math.floor((remaining % 86400000) / 3600000);
+  const days = Math.floor(remaining / 86400000);
+  const hours = Math.floor((remaining % 86400000) / 3600000);
   const minutes = Math.floor((remaining % 3600000) / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
 
@@ -132,7 +134,12 @@ interface HeroProps {
 }
 
 const ActiveChallengeHero: React.FC<HeroProps> = ({
-  challenge, isLoggedIn, userPrompts, isSubmitting, onSubmit, t,
+  challenge,
+  isLoggedIn,
+  userPrompts,
+  isSubmitting,
+  onSubmit,
+  t,
 }) => {
   const target = challenge.status === 'voting' ? challenge.voting_ends_at : challenge.ends_at;
   const { days, hours, minutes, seconds, expired } = useCountdown(target);
@@ -153,26 +160,29 @@ const ActiveChallengeHero: React.FC<HeroProps> = ({
   };
 
   const statusLabel =
-    challenge.status === 'active'   ? t('challenges.statusActive') :
-    challenge.status === 'voting'   ? t('challenges.statusVoting') :
-    challenge.status === 'upcoming' ? t('challenges.statusUpcoming') :
-                                      t('challenges.statusCompleted');
+    challenge.status === 'active'
+      ? t('challenges.statusActive')
+      : challenge.status === 'voting'
+        ? t('challenges.statusVoting')
+        : challenge.status === 'upcoming'
+          ? t('challenges.statusUpcoming')
+          : t('challenges.statusCompleted');
 
   return (
-    <div className="rounded-xl border border-brand-500/30 bg-surface-raised p-6">
+    <div className="border-brand-500/30 bg-surface-raised rounded-xl border p-6">
       <div className="mb-2 flex items-center gap-2">
-        <span className="rounded-full bg-brand-500/15 px-2.5 py-0.5 text-xs font-semibold text-brand-400">
+        <span className="bg-brand-500/15 text-brand-400 rounded-full px-2.5 py-0.5 text-xs font-semibold">
           {t('challenges.activeChallenge')}
         </span>
-        <span className="text-xs text-text-muted">{statusLabel}</span>
+        <span className="text-text-muted text-xs">{statusLabel}</span>
       </div>
 
-      <h2 className="text-xl font-bold text-text-primary">{challenge.title}</h2>
-      <p className="mt-2 text-sm text-text-muted">{challenge.description}</p>
+      <h2 className="text-text-primary text-xl font-bold">{challenge.title}</h2>
+      <p className="text-text-muted mt-2 text-sm">{challenge.description}</p>
 
       {!expired && (
-        <div className="mt-4 flex items-center gap-1 text-sm font-medium text-text-secondary">
-          <span className="text-xs text-text-muted mr-1">{t('challenges.timeRemaining')}</span>
+        <div className="text-text-secondary mt-4 flex items-center gap-1 text-sm font-medium">
+          <span className="text-text-muted mr-1 text-xs">{t('challenges.timeRemaining')}</span>
           {days > 0 && <span>{days}d</span>}
           <span>{String(hours).padStart(2, '0')}h</span>
           <span>{String(minutes).padStart(2, '0')}m</span>
@@ -191,16 +201,22 @@ const ActiveChallengeHero: React.FC<HeroProps> = ({
               <select
                 value={selectedPromptId}
                 onChange={(e) => setSelectedPromptId(e.target.value)}
-                className="rounded-md border border-border bg-surface-base px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-400"
+                className="border-border bg-surface-base text-text-primary focus:ring-brand-400 rounded-md border px-3 py-1.5 text-xs focus:ring-1 focus:outline-none"
               >
                 <option value="">— wybierz prompt —</option>
                 {userPrompts.map((p) => (
-                  <option key={p.id} value={p.id}>{p.title}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                  </option>
                 ))}
               </select>
-              {error && <p className="text-[10px] text-destructive">{error}</p>}
+              {error && <p className="text-destructive text-[10px]">{error}</p>}
               <div className="flex gap-2">
-                <Button size="sm" disabled={!selectedPromptId || isSubmitting} onClick={() => void handleSubmit()}>
+                <Button
+                  size="sm"
+                  disabled={!selectedPromptId || isSubmitting}
+                  onClick={() => void handleSubmit()}
+                >
                   {isSubmitting ? t('common.loading') : t('challenges.submitConfirm')}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setShowSelector(false)}>
@@ -226,27 +242,25 @@ interface SubmissionsGridProps {
 }
 
 const SubmissionsGrid: React.FC<SubmissionsGridProps> = ({
-  submissions, isLoggedIn, challengeStatus, onVote, t,
+  submissions,
+  isLoggedIn,
+  challengeStatus,
+  onVote,
+  t,
 }) => {
   const canVote = isLoggedIn && challengeStatus === 'voting';
 
   return (
     <section>
-      <h3 className="mb-3 text-sm font-semibold text-text-primary">
+      <h3 className="text-text-primary mb-3 text-sm font-semibold">
         {t('challenges.submissions')} ({submissions.length})
       </h3>
       {submissions.length === 0 ? (
-        <p className="text-xs text-text-muted">{t('challenges.noSubmissions')}</p>
+        <p className="text-text-muted text-xs">{t('challenges.noSubmissions')}</p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {submissions.map((s) => (
-            <SubmissionCard
-              key={s.id}
-              submission={s}
-              canVote={canVote}
-              onVote={onVote}
-              t={t}
-            />
+            <SubmissionCard key={s.id} submission={s} canVote={canVote} onVote={onVote} t={t} />
           ))}
         </div>
       )}
@@ -261,57 +275,64 @@ interface SubmissionCardProps {
   t: ReturnType<typeof useI18n>['t'];
 }
 
-const SubmissionCard: React.FC<SubmissionCardProps> = React.memo(({ submission, canVote, onVote, t }) => (
-  <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-raised p-4">
-    {submission.rank && (
-      <span className="w-fit rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400">
-        #{submission.rank}
-      </span>
-    )}
-
-    <div className="flex items-center gap-1.5">
-      {submission.author_avatar ? (
-        <img src={submission.author_avatar} alt="" className="h-4 w-4 rounded-full object-cover" />
-      ) : (
-        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/20 text-[9px] font-bold text-brand-400">
-          {(submission.author_name ?? 'A')[0]?.toUpperCase()}
-        </div>
+const SubmissionCard: React.FC<SubmissionCardProps> = React.memo(
+  ({ submission, canVote, onVote, t }) => (
+    <div className="border-border bg-surface-raised flex flex-col gap-2 rounded-xl border p-4">
+      {submission.rank && (
+        <span className="w-fit rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400">
+          #{submission.rank}
+        </span>
       )}
-      <span className="text-[11px] text-text-muted">{submission.author_name}</span>
-    </div>
 
-    <a
-      href={`/p/${submission.prompt_id}`}
-      className="font-medium text-sm text-text-primary hover:text-brand-400 transition-colors line-clamp-2"
-    >
-      {submission.prompt_title}
-    </a>
+      <div className="flex items-center gap-1.5">
+        {submission.author_avatar ? (
+          <img
+            src={submission.author_avatar}
+            alt=""
+            className="h-4 w-4 rounded-full object-cover"
+          />
+        ) : (
+          <div className="bg-brand-500/20 text-brand-400 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold">
+            {(submission.author_name ?? 'A')[0]?.toUpperCase()}
+          </div>
+        )}
+        <span className="text-text-muted text-[11px]">{submission.author_name}</span>
+      </div>
 
-    {submission.prompt_content_md && (
-      <p className="text-[11px] text-text-muted line-clamp-3 font-mono">
-        {submission.prompt_content_md.slice(0, 120)}…
-      </p>
-    )}
+      <a
+        href={`/p/${submission.prompt_id}`}
+        className="text-text-primary hover:text-brand-400 line-clamp-2 text-sm font-medium transition-colors"
+      >
+        {submission.prompt_title}
+      </a>
 
-    <div className="mt-auto flex items-center justify-between">
-      <span className="text-xs text-text-muted">
-        {submission.vote_count} {submission.vote_count === 1 ? t('challenges.vote') : t('challenges.votes')}
-      </span>
-      {canVote && (
-        <button
-          onClick={() => void onVote(submission.id)}
-          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-            submission.viewer_voted
-              ? 'bg-brand-500/20 text-brand-400'
-              : 'border border-border text-text-muted hover:text-text-primary'
-          }`}
-        >
-          {submission.viewer_voted ? t('challenges.voted') : t('challenges.vote')}
-        </button>
+      {submission.prompt_content_md && (
+        <p className="text-text-muted line-clamp-3 font-mono text-[11px]">
+          {submission.prompt_content_md.slice(0, 120)}…
+        </p>
       )}
+
+      <div className="mt-auto flex items-center justify-between">
+        <span className="text-text-muted text-xs">
+          {submission.vote_count}{' '}
+          {submission.vote_count === 1 ? t('challenges.vote') : t('challenges.votes')}
+        </span>
+        {canVote && (
+          <button
+            onClick={() => void onVote(submission.id)}
+            className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+              submission.viewer_voted
+                ? 'bg-brand-500/20 text-brand-400'
+                : 'border-border text-text-muted hover:text-text-primary border'
+            }`}
+          >
+            {submission.viewer_voted ? t('challenges.voted') : t('challenges.vote')}
+          </button>
+        )}
+      </div>
     </div>
-  </div>
-));
+  ),
+);
 SubmissionCard.displayName = 'SubmissionCard';
 
 // ── LeaderboardSidebar ────────────────────────────────────────────────────────
@@ -322,29 +343,27 @@ interface LeaderboardSidebarProps {
 }
 
 const LeaderboardSidebar: React.FC<LeaderboardSidebarProps> = ({ leaderboard, t }) => (
-  <div className="rounded-xl border border-border bg-surface-raised p-4">
-    <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
+  <div className="border-border bg-surface-raised rounded-xl border p-4">
+    <h3 className="text-text-muted mb-3 text-xs font-semibold tracking-wider uppercase">
       {t('challenges.leaderboard')}
     </h3>
     {leaderboard.length === 0 ? (
-      <p className="text-xs text-text-muted">{t('challenges.leaderboardEmpty')}</p>
+      <p className="text-text-muted text-xs">{t('challenges.leaderboardEmpty')}</p>
     ) : (
       <ol className="flex flex-col gap-2">
         {leaderboard.slice(0, 10).map((entry, i) => (
           <li key={entry.user_id} className="flex items-center gap-2">
-            <span className="w-5 text-center text-xs font-bold text-text-muted">
-              {i + 1}
-            </span>
+            <span className="text-text-muted w-5 text-center text-xs font-bold">{i + 1}</span>
             {entry.avatar_url ? (
               <img src={entry.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
             ) : (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-500/20 text-[10px] font-bold text-brand-400">
+              <div className="bg-brand-500/20 text-brand-400 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold">
                 {(entry.display_name ?? 'A')[0]?.toUpperCase()}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-text-primary">{entry.display_name}</p>
-              <p className="text-[10px] text-text-muted">
+              <p className="text-text-primary truncate text-xs font-medium">{entry.display_name}</p>
+              <p className="text-text-muted text-[10px]">
                 🏆 {entry.wins} · 🥈 {entry.top10s}
               </p>
             </div>
@@ -366,14 +385,18 @@ interface ProposalSectionProps {
 }
 
 const ProposalSection: React.FC<ProposalSectionProps> = ({
-  proposals, isLoggedIn, onVote, onCreate, t,
+  proposals,
+  isLoggedIn,
+  onVote,
+  onCreate,
+  t,
 }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">{t('challenges.proposals')}</h3>
+        <h3 className="text-text-primary text-sm font-semibold">{t('challenges.proposals')}</h3>
         {isLoggedIn && (
           <Button size="sm" variant="outline" onClick={() => setShowModal(true)}>
             {t('challenges.propose')}
@@ -382,28 +405,16 @@ const ProposalSection: React.FC<ProposalSectionProps> = ({
       </div>
 
       {proposals.length === 0 ? (
-        <p className="text-xs text-text-muted">{t('challenges.noProposals')}</p>
+        <p className="text-text-muted text-xs">{t('challenges.noProposals')}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {proposals.map((p) => (
-            <ProposalCard
-              key={p.id}
-              proposal={p}
-              isLoggedIn={isLoggedIn}
-              onVote={onVote}
-              t={t}
-            />
+            <ProposalCard key={p.id} proposal={p} isLoggedIn={isLoggedIn} onVote={onVote} t={t} />
           ))}
         </div>
       )}
 
-      {showModal && (
-        <ProposalModal
-          onCreate={onCreate}
-          onClose={() => setShowModal(false)}
-          t={t}
-        />
-      )}
+      {showModal && <ProposalModal onCreate={onCreate} onClose={() => setShowModal(false)} t={t} />}
     </section>
   );
 };
@@ -415,34 +426,38 @@ interface ProposalCardProps {
   t: ReturnType<typeof useI18n>['t'];
 }
 
-const ProposalCard: React.FC<ProposalCardProps> = React.memo(({ proposal, isLoggedIn, onVote, t }) => (
-  <div className="flex items-start gap-3 rounded-lg border border-border bg-surface-raised p-3">
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <p className="text-xs font-medium text-text-primary">{proposal.title}</p>
-      <p className="line-clamp-2 text-[11px] text-text-muted">{proposal.description}</p>
-      <p className="text-[10px] text-text-muted">
-        {t('challenges.proposalThreshold').replace('{{n}}', '10')}
-      </p>
+const ProposalCard: React.FC<ProposalCardProps> = React.memo(
+  ({ proposal, isLoggedIn, onVote, t }) => (
+    <div className="border-border bg-surface-raised flex items-start gap-3 rounded-lg border p-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <p className="text-text-primary text-xs font-medium">{proposal.title}</p>
+        <p className="text-text-muted line-clamp-2 text-[11px]">{proposal.description}</p>
+        <p className="text-text-muted text-[10px]">
+          {t('challenges.proposalThreshold').replace('{{n}}', '10')}
+        </p>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        {isLoggedIn ? (
+          <button
+            onClick={() => void onVote(proposal.id)}
+            className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+              proposal.viewer_voted
+                ? 'bg-brand-500/20 text-brand-400'
+                : 'border-border text-text-muted hover:text-text-primary border'
+            }`}
+          >
+            ▲
+          </button>
+        ) : (
+          <span className="border-border text-text-muted/50 rounded-md border px-2 py-1 text-xs">
+            ▲
+          </span>
+        )}
+        <span className="text-text-primary text-xs font-bold">{proposal.upvotes}</span>
+      </div>
     </div>
-    <div className="flex flex-col items-center gap-1">
-      {isLoggedIn ? (
-        <button
-          onClick={() => void onVote(proposal.id)}
-          className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-            proposal.viewer_voted
-              ? 'bg-brand-500/20 text-brand-400'
-              : 'border border-border text-text-muted hover:text-text-primary'
-          }`}
-        >
-          ▲
-        </button>
-      ) : (
-        <span className="rounded-md border border-border px-2 py-1 text-xs text-text-muted/50">▲</span>
-      )}
-      <span className="text-xs font-bold text-text-primary">{proposal.upvotes}</span>
-    </div>
-  </div>
-));
+  ),
+);
 ProposalCard.displayName = 'ProposalCard';
 
 interface ProposalModalProps {
@@ -457,7 +472,7 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onCreate, onClose, t }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -476,8 +491,8 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onCreate, onClose, t }) =
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-md rounded-xl border border-border bg-surface-base p-6 shadow-xl">
-        <h3 className="mb-4 text-sm font-semibold text-text-primary">{t('challenges.propose')}</h3>
+      <div className="border-border bg-surface-base w-full max-w-md rounded-xl border p-6 shadow-xl">
+        <h3 className="text-text-primary mb-4 text-sm font-semibold">{t('challenges.propose')}</h3>
         <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
           <input
             type="text"
@@ -487,7 +502,7 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onCreate, onClose, t }) =
             maxLength={200}
             required
             minLength={5}
-            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-brand-400"
+            className="border-border bg-surface-raised text-text-primary placeholder:text-text-muted focus:ring-brand-400 rounded-md border px-3 py-2 text-xs focus:ring-1 focus:outline-none"
           />
           <Textarea
             value={description}
@@ -499,7 +514,7 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onCreate, onClose, t }) =
             minLength={20}
             className="min-h-0 resize-none text-xs"
           />
-          {error && <p className="text-[10px] text-destructive">{error}</p>}
+          {error && <p className="text-destructive text-[10px]">{error}</p>}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" size="sm" onClick={onClose}>
               {t('common.cancel')}

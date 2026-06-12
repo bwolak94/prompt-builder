@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowLeft, Sparkles, Wand2 } from 'lucide-react';
 import { withIds } from '@/lib/services/import.service';
 import type { ParsedImport, ImportedBlock } from '@/lib/services/import.service';
@@ -48,12 +47,12 @@ const BlockPreview: React.FC<{ block: ImportedBlock; index: number }> = ({ block
   const label = SLUG_LABELS[block.section_slug] ?? block.section_slug;
   const color = SLUG_COLORS[block.section_slug] ?? 'bg-gray-100 text-gray-700';
   return (
-    <div className="rounded-lg border border-border bg-surface-raised p-3">
+    <div className="border-border bg-surface-raised rounded-lg border p-3">
       <div className="mb-1.5 flex items-center gap-2">
-        <span className="text-xs text-text-muted">{index + 1}.</span>
+        <span className="text-text-muted text-xs">{index + 1}.</span>
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>{label}</span>
       </div>
-      <p className="line-clamp-4 whitespace-pre-wrap text-xs text-text-secondary">
+      <p className="text-text-secondary line-clamp-4 text-xs whitespace-pre-wrap">
         {block.content}
       </p>
     </div>
@@ -114,8 +113,10 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
         return;
       }
 
-      setParsed(json.data!);
-      setStep('preview');
+      if (json.data) {
+        setParsed(json.data);
+        setStep('preview');
+      }
     } catch {
       setError(isPl ? 'Błąd połączenia' : 'Connection error');
     } finally {
@@ -136,8 +137,12 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
         <DialogHeader>
           <DialogTitle>
             {step === 'input'
-              ? isPl ? 'Importuj prompt' : 'Import prompt'
-              : isPl ? 'Podgląd sekcji' : 'Section preview'}
+              ? isPl
+                ? 'Importuj prompt'
+                : 'Import prompt'
+              : isPl
+                ? 'Podgląd sekcji'
+                : 'Section preview'}
           </DialogTitle>
           <DialogDescription>
             {step === 'input'
@@ -154,10 +159,10 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
           <div className="flex flex-col gap-4">
             {/* Mode toggle */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-text-muted">
+              <span className="text-text-muted text-xs">
                 {isPl ? 'Tryb parsowania:' : 'Parse mode:'}
               </span>
-              <div className="flex overflow-hidden rounded-lg border border-border text-xs">
+              <div className="border-border flex overflow-hidden rounded-lg border text-xs">
                 <button
                   type="button"
                   onClick={() => setMode('heuristic')}
@@ -173,7 +178,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
                 <button
                   type="button"
                   onClick={() => setMode('ai')}
-                  className={`flex items-center gap-1.5 border-l border-border px-3 py-1.5 transition-colors ${
+                  className={`border-border flex items-center gap-1.5 border-l px-3 py-1.5 transition-colors ${
                     mode === 'ai'
                       ? 'bg-brand-500 text-white'
                       : 'text-text-secondary hover:bg-surface-raised'
@@ -194,14 +199,10 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
                 id={textareaId}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={
-                  isPl
-                    ? 'Wklej tutaj swój prompt…'
-                    : 'Paste your prompt here…'
-                }
+                placeholder={isPl ? 'Wklej tutaj swój prompt…' : 'Paste your prompt here…'}
                 className="min-h-[200px] resize-none font-mono text-xs"
               />
-              <span className="text-right text-xs text-text-muted">
+              <span className="text-text-muted text-right text-xs">
                 {text.length.toLocaleString()} {isPl ? 'znaków' : 'chars'}
               </span>
             </div>
@@ -220,8 +221,10 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
                     <Loader2 size={14} className="animate-spin" />
                     {isPl ? 'Parsowanie…' : 'Parsing…'}
                   </>
+                ) : isPl ? (
+                  'Parsuj'
                 ) : (
-                  isPl ? 'Parsuj' : 'Parse'
+                  'Parse'
                 )}
               </Button>
             </div>
@@ -229,20 +232,20 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
         ) : (
           <div className="flex flex-col gap-4">
             {/* Parsed title */}
-            <div className="flex items-center gap-2 rounded-md bg-surface-raised px-3 py-2">
-              <span className="text-xs text-text-muted">{isPl ? 'Tytuł:' : 'Title:'}</span>
-              <span className="text-xs font-medium text-text-primary">{parsed?.title}</span>
+            <div className="bg-surface-raised flex items-center gap-2 rounded-md px-3 py-2">
+              <span className="text-text-muted text-xs">{isPl ? 'Tytuł:' : 'Title:'}</span>
+              <span className="text-text-primary text-xs font-medium">{parsed?.title}</span>
             </div>
 
             {/* Blocks preview */}
-            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+            <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
               {parsed?.blocks.map((block, i) => (
                 <BlockPreview key={i} block={block} index={i} />
               ))}
             </div>
 
             {parsed && parsed.blocks.length === 0 && (
-              <p className="text-center text-sm text-text-muted">
+              <p className="text-text-muted text-center text-sm">
                 {isPl ? 'Nie wykryto żadnych sekcji' : 'No sections detected'}
               </p>
             )}
@@ -256,10 +259,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ open, lang, onImport, 
                 <Button variant="outline" onClick={handleClose}>
                   {isPl ? 'Anuluj' : 'Cancel'}
                 </Button>
-                <Button
-                  onClick={handleImport}
-                  disabled={!parsed?.blocks.length}
-                >
+                <Button onClick={handleImport} disabled={!parsed?.blocks.length}>
                   {isPl ? 'Importuj do buildera' : 'Import to builder'}
                 </Button>
               </div>

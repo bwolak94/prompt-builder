@@ -13,15 +13,16 @@ type ShikiHighlighter = HighlighterGeneric<BundledLanguage, BundledTheme>;
 let highlighterPromise: Promise<ShikiHighlighter> | null = null;
 
 async function getHighlighter(): Promise<ShikiHighlighter> {
-  if (!highlighterPromise) {
-    highlighterPromise = import('shiki').then(({ createHighlighter }) =>
-      createHighlighter({
-        themes: ['github-dark-dimmed', 'github-light'],
-        langs: ['javascript', 'typescript', 'python', 'bash', 'json', 'markdown', 'sql'],
-      }),
-    ) as Promise<ShikiHighlighter>;
-  }
-  return highlighterPromise!;
+  const existing = highlighterPromise;
+  if (existing) return existing;
+  const newPromise = import('shiki').then(({ createHighlighter }) =>
+    createHighlighter({
+      themes: ['github-dark-dimmed', 'github-light'],
+      langs: ['javascript', 'typescript', 'python', 'bash', 'json', 'markdown', 'sql'],
+    }),
+  ) as Promise<ShikiHighlighter>;
+  highlighterPromise = newPromise;
+  return newPromise;
 }
 
 // ── Code block with shiki ─────────────────────────────────────────────────────
@@ -54,18 +55,24 @@ const CodeBlock: React.FC<CodeProps> = ({ inline, className, children }) => {
       }
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [code, lang, inline]);
 
   if (inline) {
-    return <code className="rounded bg-surface-1 px-1 py-0.5 font-mono text-xs text-text-primary">{children}</code>;
+    return (
+      <code className="bg-surface-1 text-text-primary rounded px-1 py-0.5 font-mono text-xs">
+        {children}
+      </code>
+    );
   }
 
   if (!highlighted) {
     // Skeleton while shiki loads
     return (
-      <pre className="overflow-x-auto rounded-lg bg-surface-1 p-4">
-        <code className="font-mono text-xs text-text-muted">{code}</code>
+      <pre className="bg-surface-1 overflow-x-auto rounded-lg p-4">
+        <code className="text-text-muted font-mono text-xs">{code}</code>
       </pre>
     );
   }
@@ -82,10 +89,31 @@ const CodeBlock: React.FC<CodeProps> = ({ inline, className, children }) => {
 
 const sanitizeOptions = {
   tagNames: [
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'p', 'ul', 'ol', 'li', 'blockquote',
-    'strong', 'em', 'del', 'code', 'pre',
-    'a', 'hr', 'br', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'p',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'strong',
+    'em',
+    'del',
+    'code',
+    'pre',
+    'a',
+    'hr',
+    'br',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
   ],
   attributes: {
     '*': ['className'],
@@ -98,22 +126,17 @@ const sanitizeOptions = {
 import { Copy, Check, Download, Link } from 'lucide-react';
 
 function slugifyTitle(title: string): string {
-  return title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '') || 'prompt';
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'prompt'
+  );
 }
 
 async function copyToClipboard(text: string): Promise<void> {
-  if (navigator.clipboard) {
-    await navigator.clipboard.writeText(text);
-  } else {
-    const el = document.createElement('textarea');
-    el.value = text;
-    el.style.position = 'fixed';
-    el.style.opacity = '0';
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-  }
+  await navigator.clipboard.writeText(text);
 }
 
 const ExportToolbar: React.FC<{ markdown: string }> = ({ markdown }) => {
@@ -154,7 +177,7 @@ const ExportToolbar: React.FC<{ markdown: string }> = ({ markdown }) => {
         onClick={handleCopy}
         aria-label="Kopiuj Markdown do schowka"
         title="Kopiuj Markdown"
-        className="flex h-7 w-7 items-center justify-center rounded text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
+        className="text-text-muted hover:bg-surface-raised hover:text-text-primary flex h-7 w-7 items-center justify-center rounded transition-colors"
       >
         {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
       </button>
@@ -162,7 +185,7 @@ const ExportToolbar: React.FC<{ markdown: string }> = ({ markdown }) => {
         onClick={handleDownload}
         aria-label="Pobierz plik .md"
         title="Pobierz .md"
-        className="flex h-7 w-7 items-center justify-center rounded text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
+        className="text-text-muted hover:bg-surface-raised hover:text-text-primary flex h-7 w-7 items-center justify-center rounded transition-colors"
       >
         <Download size={13} />
       </button>
@@ -171,7 +194,7 @@ const ExportToolbar: React.FC<{ markdown: string }> = ({ markdown }) => {
           onClick={handleShareLink}
           aria-label="Kopiuj link do promptu"
           title={isPublic ? 'Kopiuj link publiczny' : 'Kopiuj link (prywatny)'}
-          className="flex h-7 w-7 items-center justify-center rounded text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
+          className="text-text-muted hover:bg-surface-raised hover:text-text-primary flex h-7 w-7 items-center justify-center rounded transition-colors"
         >
           {linkCopied ? <Check size={13} className="text-emerald-400" /> : <Link size={13} />}
         </button>
@@ -193,8 +216,8 @@ export const MarkdownPreview: React.FC = () => {
 
   if (!markdown) {
     return (
-      <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border p-6 text-center">
-        <p className="text-xs text-text-muted">Podgląd pojawi się tutaj</p>
+      <div className="border-border flex flex-1 items-center justify-center rounded-lg border border-dashed p-6 text-center">
+        <p className="text-text-muted text-xs">Podgląd pojawi się tutaj</p>
       </div>
     );
   }
@@ -202,13 +225,13 @@ export const MarkdownPreview: React.FC = () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Podgląd</p>
+        <p className="text-text-muted text-xs font-semibold tracking-wider uppercase">Podgląd</p>
         <ExportToolbar markdown={markdown} />
       </div>
       <div
         className={[
-          'max-h-[calc(100vh-16rem)] overflow-y-auto rounded-lg border border-border bg-surface-1 p-4',
-          'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border',
+          'border-border bg-surface-1 max-h-[calc(100vh-16rem)] overflow-y-auto rounded-lg border p-4',
+          'scrollbar-thumb-border scrollbar-thin scrollbar-track-transparent',
         ].join(' ')}
       >
         <div

@@ -48,11 +48,13 @@ export function useBuilderSave(
       toast.error(lang === 'pl' ? 'Nie udało się zapisać' : 'Failed to save', {
         action: {
           label: lang === 'pl' ? 'Spróbuj ponownie' : 'Try again',
-          onClick: () => { void handleSave(); },
+          onClick: () => {
+            void handleSave();
+          },
         },
       });
     }
-  }, [save, lang, createVersionSilently]);
+  }, [save, lang, createVersionSilently, onSaved]);
 
   // Autosave: schedule save 30s after last change
   useEffect(() => {
@@ -76,7 +78,6 @@ export function useBuilderSave(
     const handler = (e: BeforeUnloadEvent) => {
       if (useBuilderStore.getState().isDirty) {
         e.preventDefault();
-        e.returnValue = '';
       }
     };
     window.addEventListener('beforeunload', handler);

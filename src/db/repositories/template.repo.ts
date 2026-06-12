@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@/db/supabase.client';
 import type { PromptBlock, PromptVariable } from '@/types';
+import type { Json } from '@/db/types';
 import { castBlocks, castVariables } from '@/types';
 
 export interface SystemTemplate {
@@ -44,8 +45,8 @@ function rowToTemplate(row: Record<string, unknown>): SystemTemplate {
     category: row.category as string,
     difficulty: row.difficulty as string,
     tags: (row.tags as string[]) ?? [],
-    blocks: castBlocks(row.blocks as import('@/db/types').Json),
-    variables: castVariables(row.variables as import('@/db/types').Json),
+    blocks: castBlocks(row.blocks as Json),
+    variables: castVariables(row.variables as Json),
     content_md: row.content_md as string,
     ai_score: row.ai_score as number | null,
     fork_count: (row.fork_count as number) ?? 0,
@@ -59,7 +60,9 @@ export const templateRepo = {
   async findById(supabase: SupabaseClient, id: string): Promise<SystemTemplate | null> {
     const { data, error } = await supabase
       .from('system_templates')
-      .select('id,title,title_en,description,description_en,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at')
+      .select(
+        'id,title,title_en,description,description_en,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at',
+      )
       .eq('id', id)
       .single();
     if (error || !data) return null;
@@ -71,7 +74,9 @@ export const templateRepo = {
 
     let query = supabase
       .from('system_templates')
-      .select('id,title,title_en,description,description_en,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at')
+      .select(
+        'id,title,title_en,description,description_en,category,difficulty,tags,blocks,variables,content_md,ai_score,fork_count,is_featured,order_index,created_at',
+      )
       .order('order_index', { ascending: true })
       .order('created_at', { ascending: false })
       .limit(limit + 1); // fetch one extra to detect nextCursor

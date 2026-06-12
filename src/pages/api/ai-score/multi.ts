@@ -14,9 +14,12 @@ const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 const BodySchema = z.object({
-  promptId: z.string().uuid(),
+  promptId: z.uuid(),
   content: z.string().min(1).max(20_000),
-  providers: z.array(z.enum(['openai', 'anthropic'])).min(1).max(2),
+  providers: z
+    .array(z.enum(['openai', 'anthropic']))
+    .min(1)
+    .max(2),
 });
 
 export interface ModelScoreResult {
@@ -24,10 +27,7 @@ export interface ModelScoreResult {
   score: z.infer<typeof ScoreResponseSchema>;
 }
 
-async function scoreWithProvider(
-  content: string,
-  provider: AIProvider,
-): Promise<ModelScoreResult> {
+async function scoreWithProvider(content: string, provider: AIProvider): Promise<ModelScoreResult> {
   const p = await getScoringProvider(provider);
   let rawJson = '';
   for await (const delta of p.score(content)) {

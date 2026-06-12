@@ -14,7 +14,7 @@ const schema = z
       .string()
       .min(2, 'Nazwa musi mieć co najmniej 2 znaki')
       .max(50, 'Nazwa może mieć maksymalnie 50 znaków'),
-    email: z.string().email('Podaj prawidłowy adres email'),
+    email: z.email('Podaj prawidłowy adres email'),
     password: z
       .string()
       .min(8, 'Hasło musi mieć co najmniej 8 znaków')
@@ -41,12 +41,12 @@ interface FieldProps {
 function Field({ id, label, error, children }: FieldProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="block text-sm font-medium text-text-primary">
+      <label htmlFor={id} className="text-text-primary block text-sm font-medium">
         {label}
       </label>
       {children}
       {error && (
-        <p id={`${id}-error`} className="text-xs text-error" role="alert">
+        <p id={`${id}-error`} className="text-error text-xs" role="alert">
           {error}
         </p>
       )}
@@ -145,17 +145,16 @@ export default function RegisterForm() {
             className={inputClass(!!errors.password) + ' pr-10'}
             placeholder="••••••••"
             aria-invalid={!!errors.password}
-            aria-describedby={[
-              errors.password ? 'reg-password-error' : '',
-              'password-strength',
-            ]
-              .filter(Boolean)
-              .join(' ') || undefined}
+            aria-describedby={
+              [errors.password ? 'reg-password-error' : '', 'password-strength']
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
           />
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+            className="text-text-muted hover:text-text-secondary absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
             aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -167,11 +166,7 @@ export default function RegisterForm() {
       </Field>
 
       {/* Confirm password */}
-      <Field
-        id="reg-confirm"
-        label="Potwierdź hasło"
-        error={errors.confirmPassword?.message}
-      >
+      <Field id="reg-confirm" label="Potwierdź hasło" error={errors.confirmPassword?.message}>
         <div className="relative">
           <input
             id="reg-confirm"
@@ -186,7 +181,7 @@ export default function RegisterForm() {
           <button
             type="button"
             onClick={() => setShowConfirm((v) => !v)}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+            className="text-text-muted hover:text-text-secondary absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
             aria-label={showConfirm ? 'Ukryj potwierdzenie hasła' : 'Pokaż potwierdzenie hasła'}
           >
             {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -198,13 +193,13 @@ export default function RegisterForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="flex w-full items-center justify-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-brand-500 mt-2"
+        className="bg-brand-500 hover:bg-brand-600 focus-visible:outline-brand-500 mt-2 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
         {isSubmitting ? 'Rejestracja…' : 'Utwórz konto'}
       </button>
 
-      <p className="text-center text-xs text-text-muted">
+      <p className="text-text-muted text-center text-xs">
         Rejestrując się, akceptujesz{' '}
         <a href="/terms" className="text-brand-400 hover:text-brand-300 transition-colors">
           Regulamin

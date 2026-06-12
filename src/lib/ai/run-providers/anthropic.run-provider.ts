@@ -22,7 +22,7 @@ export class AnthropicRunProvider implements AIRunProvider {
   async *run(options: RunOptions): AsyncGenerator<string, RunResult, unknown> {
     const { prompt, model, systemMessage, maxTokens = 2048, signal } = options;
 
-    const stream = await this.client.messages.stream(
+    const stream = this.client.messages.stream(
       {
         model,
         max_tokens: maxTokens,

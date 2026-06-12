@@ -21,10 +21,10 @@ const CreateChallengeSchema = z.object({
   title: z.string().min(5).max(200),
   description: z.string().min(20).max(2000),
   category: z.string().optional(),
-  starts_at: z.string().datetime(),
-  ends_at: z.string().datetime(),
-  voting_ends_at: z.string().datetime(),
-  proposal_id: z.string().uuid().optional(),
+  starts_at: z.iso.datetime(),
+  ends_at: z.iso.datetime(),
+  voting_ends_at: z.iso.datetime(),
+  proposal_id: z.uuid().optional(),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -32,7 +32,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (auth instanceof Response) return auth;
 
   const { data: profile } = await locals.supabase
-    .from('profiles').select('plan').eq('id', auth.user.id).single();
+    .from('profiles')
+    .select('plan')
+    .eq('id', auth.user.id)
+    .single();
   if (profile?.plan !== 'admin') return forbidden('Admin access required');
 
   const parsed = await parseBody(request, CreateChallengeSchema);

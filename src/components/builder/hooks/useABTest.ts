@@ -94,130 +94,136 @@ export function useABTest(): UseABTestReturn {
     });
   }, [test, variantBBlocks, variantBContentMd]);
 
-  const scoreOffline = useCallback(async (provider: AIProvider = 'openai') => {
-    if (!test) return;
-    // Persist current variant B before scoring
-    await saveVariantB();
-    setStatus('scoring');
-    setError(null);
-    try {
-      const res = await fetch(`/api/ab-tests/${test.id}/score`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider }),
-      });
-      if (!res.ok) {
-        const body = (await res.json()) as { error?: string };
-        throw new Error(body.error ?? 'Scoring failed');
+  const scoreOffline = useCallback(
+    async (provider: AIProvider = 'openai') => {
+      if (!test) return;
+      // Persist current variant B before scoring
+      await saveVariantB();
+      setStatus('scoring');
+      setError(null);
+      try {
+        const res = await fetch(`/api/ab-tests/${test.id}/score`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider }),
+        });
+        if (!res.ok) {
+          const body = (await res.json()) as { error?: string };
+          throw new Error(body.error ?? 'Scoring failed');
+        }
+        const { data } = (await res.json()) as { data: ABTest };
+        setTest(data);
+        setScoreA(data.score_a);
+        setScoreB(data.score_b);
+        setStatus('ready');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Scoring failed');
+        setStatus('error');
       }
-      const { data } = (await res.json()) as { data: ABTest };
-      setTest(data);
-      setScoreA(data.score_a);
-      setScoreB(data.score_b);
-      setStatus('ready');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Scoring failed');
-      setStatus('error');
-    }
-  }, [test, saveVariantB]);
+    },
+    [test, saveVariantB],
+  );
 
-  const runLive = useCallback(async (
-    provider: RunProviderName,
-    model: string,
-    useByok = false,
-  ) => {
-    if (!test) return;
-    await saveVariantB();
+  const runLive = useCallback(
+    async (provider: RunProviderName, model: string, useByok = false) => {
+      if (!test) return;
+      await saveVariantB();
 
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
+      abortRef.current?.abort();
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
 
-    setStatus('running');
-    setResponseA('');
-    setResponseB('');
-    setError(null);
+      setStatus('running');
+      setResponseA('');
+      setResponseB('');
+      setError(null);
 
-    try {
-      const res = await fetch(`/api/ab-tests/${test.id}/run`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, model, useByok }),
-        signal: ctrl.signal,
-      });
+      try {
+        const res = await fetch(`/api/ab-tests/${test.id}/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider, model, useByok }),
+          signal: ctrl.signal,
+        });
 
-      if (!res.ok) {
-        const body = (await res.json()) as { error?: string };
-        throw new Error(body.error ?? 'Run failed');
-      }
+        if (!res.ok) {
+          const body = (await res.json()) as { error?: string };
+          throw new Error(body.error ?? 'Run failed');
+        }
 
-      if (!res.body) throw new Error('No response body');
+        if (!res.body) throw new Error('No response body');
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        const text = decoder.decode(value, { stream: true });
-        for (const line of text.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const raw = line.slice(6).trim();
+          const text = decoder.decode(value, { stream: true });
+          for (const line of text.split('\n')) {
+            if (!line.startsWith('data: ')) continue;
+            const raw = line.slice(6).trim();
 
-          let msg: { variant?: 'a' | 'b'; type: string; delta?: string; error?: string };
-          try { msg = JSON.parse(raw); } catch { continue; }
+            let msg: { variant?: 'a' | 'b'; type: string; delta?: string; error?: string };
+            try {
+              msg = JSON.parse(raw);
+            } catch {
+              continue;
+            }
 
-          if (msg.type === 'done' && !msg.variant) {
-            setStatus('ready');
-            return;
-          }
-          if (msg.type === 'error') {
-            setError(msg.error ?? 'Run error');
-            setStatus('error');
-            return;
-          }
-          if (msg.type === 'delta' && msg.delta) {
-            if (msg.variant === 'a') setResponseA((prev) => prev + msg.delta!);
-            if (msg.variant === 'b') setResponseB((prev) => prev + msg.delta!);
+            if (msg.type === 'done' && !msg.variant) {
+              setStatus('ready');
+              return;
+            }
+            if (msg.type === 'error') {
+              setError(msg.error ?? 'Run error');
+              setStatus('error');
+              return;
+            }
+            if (msg.type === 'delta' && msg.delta) {
+              if (msg.variant === 'a') setResponseA((prev) => prev + (msg.delta ?? ''));
+              if (msg.variant === 'b') setResponseB((prev) => prev + (msg.delta ?? ''));
+            }
           }
         }
-      }
 
-      setStatus('ready');
-    } catch (err) {
-      if ((err as { name?: string }).name === 'AbortError') {
         setStatus('ready');
-        return;
+      } catch (err) {
+        if ((err as { name?: string }).name === 'AbortError') {
+          setStatus('ready');
+          return;
+        }
+        setError(err instanceof Error ? err.message : 'Run failed');
+        setStatus('error');
       }
-      setError(err instanceof Error ? err.message : 'Run failed');
-      setStatus('error');
-    }
-  }, [test, saveVariantB]);
+    },
+    [test, saveVariantB],
+  );
 
   const cancelRun = useCallback(() => {
     abortRef.current?.abort();
     setStatus('ready');
   }, []);
 
-  const applyWinner = useCallback(async (
-    winner: 'a' | 'b' | 'tie',
-    applyToPrompt = false,
-  ): Promise<ABTest> => {
-    if (!test) throw new Error('No active A/B test');
-    const res = await fetch(`/api/ab-tests/${test.id}/resolve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ winner, applyWinner: applyToPrompt }),
-    });
-    if (!res.ok) {
-      const body = (await res.json()) as { error?: string };
-      throw new Error(body.error ?? 'Failed to resolve test');
-    }
-    const { data } = (await res.json()) as { data: { test: ABTest } };
-    setTest(data.test);
-    return data.test;
-  }, [test]);
+  const applyWinner = useCallback(
+    async (winner: 'a' | 'b' | 'tie', applyToPrompt = false): Promise<ABTest> => {
+      if (!test) throw new Error('No active A/B test');
+      const res = await fetch(`/api/ab-tests/${test.id}/resolve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ winner, applyWinner: applyToPrompt }),
+      });
+      if (!res.ok) {
+        const body = (await res.json()) as { error?: string };
+        throw new Error(body.error ?? 'Failed to resolve test');
+      }
+      const { data } = (await res.json()) as { data: { test: ABTest } };
+      setTest(data.test);
+      return data.test;
+    },
+    [test],
+  );
 
   const exitABMode = useCallback(() => {
     abortRef.current?.abort();

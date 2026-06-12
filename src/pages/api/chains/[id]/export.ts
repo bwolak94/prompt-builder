@@ -7,8 +7,10 @@ export const prerender = false;
 // GET /api/chains/[id]/export?lang=python|javascript
 export const GET: APIRoute = async ({ params, url, locals }) => {
   if (!locals.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  const { id } = params;
+  if (!id) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
 
-  const chain = await chainRepo.findById(locals.supabase, params.id!);
+  const chain = await chainRepo.findById(locals.supabase, id);
   if (!chain) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
   if (chain.user_id !== locals.user.id && !chain.is_public) {
     return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
@@ -16,7 +18,9 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
 
   const lang = (url.searchParams.get('lang') ?? 'python') as ExportLang;
   if (!['python', 'javascript'].includes(lang)) {
-    return new Response(JSON.stringify({ error: 'lang must be python or javascript' }), { status: 422 });
+    return new Response(JSON.stringify({ error: 'lang must be python or javascript' }), {
+      status: 422,
+    });
   }
 
   const code = generateExport(lang, chain.title, chain.nodes);

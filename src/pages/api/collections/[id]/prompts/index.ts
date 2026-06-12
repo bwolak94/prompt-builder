@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 };
 
 const AddPromptSchema = z.object({
-  prompt_id: z.string().uuid(),
+  prompt_id: z.uuid(),
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {

@@ -17,7 +17,7 @@ export const GET: APIRoute = async ({ locals }) => {
 };
 
 const SetFeaturedSchema = z.object({
-  promptId: z.string().uuid(),
+  promptId: z.uuid(),
   featured: z.boolean(),
 });
 

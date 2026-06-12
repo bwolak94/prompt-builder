@@ -1,11 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2, Zap, TrendingDown } from 'lucide-react';
 import {
-  countTokens, costPer1kCalls, MODEL_PRICING, type OptimizeMode, type OptimizeResult,
+  countTokens,
+  costPer1kCalls,
+  MODEL_PRICING,
+  type OptimizeMode,
+  type OptimizeResult,
 } from '@/lib/services/token-optimizer.service';
 import type { Lang } from '@/lib/i18n';
 
@@ -16,13 +24,17 @@ const PricingTable: React.FC<{
   optimizedTokens: number;
   isPl: boolean;
 }> = ({ originalTokens, optimizedTokens, isPl }) => (
-  <div className="rounded-xl border border-border overflow-hidden">
+  <div className="border-border overflow-hidden rounded-xl border">
     <table className="w-full text-xs">
       <thead>
         <tr className="bg-surface-raised text-text-muted">
           <th className="px-3 py-2 text-left font-medium">{isPl ? 'Model' : 'Model'}</th>
-          <th className="px-3 py-2 text-right font-medium">{isPl ? 'Przed ($/1k)' : 'Before ($/1k)'}</th>
-          <th className="px-3 py-2 text-right font-medium">{isPl ? 'Po ($/1k)' : 'After ($/1k)'}</th>
+          <th className="px-3 py-2 text-right font-medium">
+            {isPl ? 'Przed ($/1k)' : 'Before ($/1k)'}
+          </th>
+          <th className="px-3 py-2 text-right font-medium">
+            {isPl ? 'Po ($/1k)' : 'After ($/1k)'}
+          </th>
           <th className="px-3 py-2 text-right font-medium">{isPl ? 'Oszczędność' : 'Savings'}</th>
         </tr>
       </thead>
@@ -32,9 +44,9 @@ const PricingTable: React.FC<{
           const after = costPer1kCalls(optimizedTokens, m.inputCostPerMillion);
           const saved = before - after;
           return (
-            <tr key={m.model} className="border-t border-border">
-              <td className="px-3 py-2 font-mono text-text-secondary">{m.label}</td>
-              <td className="px-3 py-2 text-right text-text-secondary">${before.toFixed(3)}</td>
+            <tr key={m.model} className="border-border border-t">
+              <td className="text-text-secondary px-3 py-2 font-mono">{m.label}</td>
+              <td className="text-text-secondary px-3 py-2 text-right">${before.toFixed(3)}</td>
               <td className="px-3 py-2 text-right text-green-400">${after.toFixed(3)}</td>
               <td className="px-3 py-2 text-right font-semibold text-green-400">
                 {saved > 0 ? `-$${saved.toFixed(3)}` : '—'}
@@ -58,7 +70,11 @@ interface TokenOptimizerModalProps {
 }
 
 export const TokenOptimizerModal: React.FC<TokenOptimizerModalProps> = ({
-  open, lang, content, onApply, onClose,
+  open,
+  lang,
+  content,
+  onApply,
+  onClose,
 }) => {
   const isPl = lang === 'pl';
   const [mode, setMode] = useState<OptimizeMode>('conservative');
@@ -90,7 +106,7 @@ export const TokenOptimizerModal: React.FC<TokenOptimizerModalProps> = ({
         setError(json.error ?? (isPl ? 'Optymalizacja nie powiodła się' : 'Optimization failed'));
         return;
       }
-      setResult(json.data!);
+      setResult(json.data ?? null);
     } catch {
       setError(isPl ? 'Błąd połączenia' : 'Connection error');
     } finally {
@@ -125,35 +141,46 @@ export const TokenOptimizerModal: React.FC<TokenOptimizerModalProps> = ({
             <button
               key={m}
               type="button"
-              onClick={() => { setMode(m); setResult(null); }}
+              onClick={() => {
+                setMode(m);
+                setResult(null);
+              }}
               className={[
                 'flex-1 rounded-xl border p-3 text-left transition-all',
                 mode === m
-                  ? 'border-brand-500/60 bg-brand-500/10 ring-1 ring-brand-500'
+                  ? 'border-brand-500/60 bg-brand-500/10 ring-brand-500 ring-1'
                   : 'border-border hover:border-border-active',
               ].join(' ')}
             >
-              <p className="text-xs font-semibold text-text-primary">
+              <p className="text-text-primary text-xs font-semibold">
                 {m === 'conservative'
-                  ? (isPl ? 'Konserwatywna' : 'Conservative')
-                  : (isPl ? 'Agresywna' : 'Aggressive')}
+                  ? isPl
+                    ? 'Konserwatywna'
+                    : 'Conservative'
+                  : isPl
+                    ? 'Agresywna'
+                    : 'Aggressive'}
               </p>
-              <p className="mt-0.5 text-[10px] text-text-muted">
+              <p className="text-text-muted mt-0.5 text-[10px]">
                 {m === 'conservative'
-                  ? (isPl ? '~20% mniej tokenów, pełna semantyka' : '~20% fewer tokens, full semantics')
-                  : (isPl ? '~40% mniej tokenów, może zmienić brzmienie' : '~40% fewer tokens, may rephrase')}
+                  ? isPl
+                    ? '~20% mniej tokenów, pełna semantyka'
+                    : '~20% fewer tokens, full semantics'
+                  : isPl
+                    ? '~40% mniej tokenów, może zmienić brzmienie'
+                    : '~40% fewer tokens, may rephrase'}
               </p>
             </button>
           ))}
         </div>
 
         {/* Original token stats */}
-        <div className="flex items-center gap-3 rounded-lg bg-surface-raised px-4 py-2.5">
-          <span className="text-xs text-text-muted">{isPl ? 'Oryginał:' : 'Original:'}</span>
-          <span className="font-mono text-sm font-semibold text-text-primary">
+        <div className="bg-surface-raised flex items-center gap-3 rounded-lg px-4 py-2.5">
+          <span className="text-text-muted text-xs">{isPl ? 'Oryginał:' : 'Original:'}</span>
+          <span className="text-text-primary font-mono text-sm font-semibold">
             {originalTokens.toLocaleString()} {isPl ? 'tokenów' : 'tokens'}
           </span>
-          <span className="ml-auto text-xs text-text-muted">
+          <span className="text-text-muted ml-auto text-xs">
             ≈ {content.length.toLocaleString()} {isPl ? 'znaków' : 'chars'}
           </span>
         </div>
@@ -163,9 +190,9 @@ export const TokenOptimizerModal: React.FC<TokenOptimizerModalProps> = ({
         )}
 
         {isLoading && (
-          <div className="flex items-center gap-3 py-6 text-center justify-center">
-            <Loader2 size={20} className="animate-spin text-brand-400" />
-            <span className="text-sm text-text-muted">
+          <div className="flex items-center justify-center gap-3 py-6 text-center">
+            <Loader2 size={20} className="text-brand-400 animate-spin" />
+            <span className="text-text-muted text-sm">
               {isPl ? 'Optymalizowanie…' : 'Optimizing…'}
             </span>
           </div>
@@ -187,11 +214,11 @@ export const TokenOptimizerModal: React.FC<TokenOptimizerModalProps> = ({
             </div>
 
             {/* Explanation */}
-            <p className="text-xs italic text-text-muted">{result.explanation}</p>
+            <p className="text-text-muted text-xs italic">{result.explanation}</p>
 
             {/* Optimized preview */}
-            <div className="max-h-40 overflow-y-auto rounded-lg border border-border bg-surface-base p-3">
-              <p className="whitespace-pre-wrap font-mono text-xs text-text-secondary">
+            <div className="border-border bg-surface-base max-h-40 overflow-y-auto rounded-lg border p-3">
+              <p className="text-text-secondary font-mono text-xs whitespace-pre-wrap">
                 {result.optimized}
               </p>
             </div>
@@ -214,8 +241,12 @@ export const TokenOptimizerModal: React.FC<TokenOptimizerModalProps> = ({
           >
             {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
             {result
-              ? (isPl ? 'Optymalizuj ponownie' : 'Re-optimize')
-              : (isPl ? 'Optymalizuj' : 'Optimize')}
+              ? isPl
+                ? 'Optymalizuj ponownie'
+                : 'Re-optimize'
+              : isPl
+                ? 'Optymalizuj'
+                : 'Optimize'}
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleClose}>

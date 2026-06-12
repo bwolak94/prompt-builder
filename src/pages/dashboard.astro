@@ -37,19 +37,22 @@ if (allPrompts.length > 0) {
   const { data: ratings } = await Astro.locals.supabase
     .from('prompt_ratings')
     .select('overall_score')
-    .in('prompt_id', allPrompts.map((p) => p.id));
+    .in(
+      'prompt_id',
+      allPrompts.map((p) => p.id),
+    );
   if (ratings && ratings.length > 0) {
-    avgScore = Math.round(ratings.reduce((s: number, r: { overall_score: number }) => s + r.overall_score, 0) / ratings.length);
+    avgScore = Math.round(
+      ratings.reduce((s: number, r: { overall_score: number }) => s + r.overall_score, 0) /
+        ratings.length,
+    );
   }
 }
 
 const initialStats = { total: allPrompts.length, public: publicCount, forks, avgScore };
 ---
 
-<AppLayout
-  title="Dashboard — PromptBase"
-  breadcrumbs={[{ label: 'Dashboard' }]}
->
+<AppLayout title="Dashboard — PromptBase" breadcrumbs={[{ label: 'Dashboard' }]}>
   <DashboardIsland
     client:load
     initialPrompts={prompts}
@@ -60,8 +63,9 @@ const initialStats = { total: allPrompts.length, public: publicCount, forks, avg
   />
 </AppLayout>
 
-{errorParam && errorMessages[errorParam] && (
-  <script define:vars={{ msg: errorMessages[errorParam] }}>
-    import('sonner').then(({ toast }) => toast.error(msg));
-  </script>
-)}
+<script is:inline define:vars={{ errorMsg: (errorParam ? errorMessages[errorParam] : null) ?? '' }}>
+  if (errorMsg)
+    import('sonner').then(function (m) {
+      m.toast.error(errorMsg);
+    });
+</script>

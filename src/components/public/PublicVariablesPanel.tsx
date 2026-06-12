@@ -8,7 +8,6 @@ import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { SmartVariableField } from '@/components/builder/components/SmartVariableField';
 import { useSmartVariables } from '@/components/builder/hooks/useSmartVariables';
-import { blocksToMarkdown } from '@/lib/markdown';
 import type { PromptBlock } from '@/types';
 
 interface PublicVariablesPanelProps {
@@ -32,12 +31,12 @@ export const PublicVariablesPanel: React.FC<PublicVariablesPanelProps> = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Variable fields */}
-      <div className="rounded-xl border border-border bg-surface-raised p-4">
+      <div className="border-border bg-surface-raised rounded-xl border p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text-primary">Zmienne</h2>
+          <h2 className="text-text-primary text-sm font-semibold">Zmienne</h2>
           <button
             onClick={resetToDefaults}
-            className="text-[10px] text-text-muted transition-colors hover:text-text-primary"
+            className="text-text-muted hover:text-text-primary text-[10px] transition-colors"
           >
             Resetuj
           </button>
@@ -56,7 +55,7 @@ export const PublicVariablesPanel: React.FC<PublicVariablesPanelProps> = ({
         {validationErrors.length > 0 && (
           <ul className="mt-2 flex flex-col gap-0.5">
             {validationErrors.map((e) => (
-              <li key={e.name} className="text-[10px] text-destructive">
+              <li key={e.name} className="text-destructive text-[10px]">
                 {e.message}
               </li>
             ))}
@@ -65,9 +64,9 @@ export const PublicVariablesPanel: React.FC<PublicVariablesPanelProps> = ({
       </div>
 
       {/* Live preview with substituted variables */}
-      <div className="rounded-xl border border-border bg-surface-raised p-4">
+      <div className="border-border bg-surface-raised rounded-xl border p-4">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text-primary">Podgląd z wartościami</h2>
+          <h2 className="text-text-primary text-sm font-semibold">Podgląd z wartościami</h2>
           <Button
             size="sm"
             variant="outline"
@@ -77,7 +76,7 @@ export const PublicVariablesPanel: React.FC<PublicVariablesPanelProps> = ({
             Kopiuj
           </Button>
         </div>
-        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-text-secondary">
+        <pre className="text-text-secondary overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap">
           {resolvedContent}
         </pre>
       </div>

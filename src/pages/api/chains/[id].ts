@@ -20,8 +20,10 @@ async function assertOwner(locals: App.Locals, id: string) {
 // GET /api/chains/[id]
 export const GET: APIRoute = async ({ params, locals }) => {
   if (!locals.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  const { id } = params;
+  if (!id) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
 
-  const chain = await chainRepo.findById(locals.supabase, params.id!);
+  const chain = await chainRepo.findById(locals.supabase, id);
   if (!chain) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
   if (chain.user_id !== locals.user.id && !chain.is_public) {
     return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
@@ -35,23 +37,31 @@ export const GET: APIRoute = async ({ params, locals }) => {
 // PUT /api/chains/[id]
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   if (!locals.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  const { id: putId } = params;
+  if (!putId) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
 
-  const owner = await assertOwner(locals, params.id!);
+  const owner = await assertOwner(locals, putId);
   if (!owner) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
-  if (owner === 'forbidden') return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+  if (owner === 'forbidden')
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
 
   let body: unknown;
-  try { body = await request.json(); } catch {
+  try {
+    body = await request.json();
+  } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 });
   }
 
   const parsed = UpdateChainSchema.safeParse(body);
   if (!parsed.success) {
-    return new Response(JSON.stringify({ error: parsed.error.issues[0]?.message ?? 'Validation error' }), { status: 422 });
+    return new Response(
+      JSON.stringify({ error: parsed.error.issues[0]?.message ?? 'Validation error' }),
+      { status: 422 },
+    );
   }
 
   try {
-    const updated = await chainRepo.update(locals.supabase, params.id!, {
+    const updated = await chainRepo.update(locals.supabase, putId, {
       ...parsed.data,
       description: parsed.data.description ?? undefined,
     });
@@ -60,25 +70,32 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'Failed' }), { status: 500 });
+    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'Failed' }), {
+      status: 500,
+    });
   }
 };
 
 // DELETE /api/chains/[id]
 export const DELETE: APIRoute = async ({ params, locals }) => {
   if (!locals.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  const { id: deleteId } = params;
+  if (!deleteId) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
 
-  const owner = await assertOwner(locals, params.id!);
+  const owner = await assertOwner(locals, deleteId);
   if (!owner) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
-  if (owner === 'forbidden') return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+  if (owner === 'forbidden')
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
 
   try {
-    await chainRepo.delete(locals.supabase, params.id!);
+    await chainRepo.delete(locals.supabase, deleteId);
     return new Response(JSON.stringify({ data: { success: true } }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'Failed' }), { status: 500 });
+    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'Failed' }), {
+      status: 500,
+    });
   }
 };

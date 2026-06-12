@@ -3,7 +3,11 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/api/auth';
 import { parseBody } from '@/lib/api/validate';
 import { ok, created } from '@/lib/api/response';
-import { webhookRepo, type WebhookEventType, type WebhookType } from '@/db/repositories/webhook.repo';
+import {
+  webhookRepo,
+  type WebhookEventType,
+  type WebhookType,
+} from '@/db/repositories/webhook.repo';
 
 export const prerender = false;
 
@@ -18,7 +22,7 @@ const WEBHOOK_EVENTS = [
 const CreateWebhookSchema = z.object({
   type: z.enum(['generic', 'slack', 'discord'] as const),
   label: z.string().min(1).max(100),
-  url: z.string().url(),
+  url: z.url(),
   events: z.array(z.enum(WEBHOOK_EVENTS)).min(1),
   secret: z.string().optional(),
   headers: z.record(z.string(), z.string()).optional(),

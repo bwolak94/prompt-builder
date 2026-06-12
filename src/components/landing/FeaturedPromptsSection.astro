@@ -28,40 +28,39 @@ try {
       <div>
         <h2
           id="featured-heading"
-          class="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl"
+          class="text-text-primary text-3xl font-bold tracking-tight sm:text-4xl"
         >
           Wyróżnione szablony
         </h2>
-        <p class="mt-2 text-text-secondary">
-          Sprawdzone przez AI, gotowe do użycia i forkowania.
-        </p>
+        <p class="text-text-secondary mt-2">Sprawdzone przez AI, gotowe do użycia i forkowania.</p>
       </div>
       <a
         href="/explore"
-        class="hidden shrink-0 text-sm text-brand-400 transition-colors hover:text-brand-300 sm:block"
+        class="text-brand-400 hover:text-brand-300 hidden shrink-0 text-sm transition-colors sm:block"
       >
         Wszystkie szablony →
       </a>
     </div>
 
-    {templates.length > 0 ? (
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {templates.map((template) => (
-          <TemplateCard template={template} />
-        ))}
-      </div>
-    ) : (
-      <!-- Skeleton placeholders when Supabase is unavailable -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map(() => (
-          <div class="h-56 animate-shimmer rounded-xl border border-border" />
-        ))}
-      </div>
-    )}
+    {
+      templates.length > 0 ? (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {templates.map((template) => (
+            <TemplateCard template={template} />
+          ))}
+        </div>
+      ) : (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map(() => (
+            <div class="animate-shimmer border-border h-56 rounded-xl border" />
+          ))}
+        </div>
+      )
+    }
 
     <!-- Mobile "all templates" link -->
     <div class="mt-6 text-center sm:hidden">
-      <a href="/explore" class="text-sm text-brand-400 transition-colors hover:text-brand-300">
+      <a href="/explore" class="text-brand-400 hover:text-brand-300 text-sm transition-colors">
         Przeglądaj wszystkie szablony →
       </a>
     </div>

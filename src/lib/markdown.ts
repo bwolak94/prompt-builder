@@ -1,12 +1,12 @@
 import { nanoid } from 'nanoid';
 import type { PromptBlock } from '@/types';
-import { PROMPT_SECTIONS } from '@/lib/constants';
+import { getPromptSections } from '@/lib/constants';
 import { substituteSmartVariables } from '@/lib/variables/substitutor';
 
 // ── Section label lookup ───────────────────────────────────────────────────────
 
 function getSectionName(slug: string): string {
-  return PROMPT_SECTIONS.find((s) => s.slug === slug)?.name ?? slug;
+  return getPromptSections('pl').find((s) => s.slug === slug)?.name ?? slug;
 }
 
 // ── blocksToMarkdown ──────────────────────────────────────────────────────────
@@ -33,10 +33,7 @@ export function blocksToMarkdown(blocks: PromptBlock[]): string {
  * Delegates to the smart substitutor for full F-04 support.
  * Backward-compatible: plain {{name}} tokens still work.
  */
-export function substituteVariables(
-  markdown: string,
-  variables: Record<string, string>,
-): string {
+export function substituteVariables(markdown: string, variables: Record<string, string>): string {
   return substituteSmartVariables(markdown, variables);
 }
 

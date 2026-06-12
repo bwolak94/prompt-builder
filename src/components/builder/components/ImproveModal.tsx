@@ -1,6 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2, Wand2, Check } from 'lucide-react';
@@ -10,14 +14,14 @@ import type { Lang } from '@/lib/i18n';
 // ── Labels & colors ───────────────────────────────────────────────────────────
 
 const VARIANT_META: Record<ImproveVariantId, { color: string; dotColor: string }> = {
-  concise:    { color: 'border-blue-500/40 bg-blue-500/5',    dotColor: 'bg-blue-400' },
-  precise:    { color: 'border-green-500/40 bg-green-500/5',  dotColor: 'bg-green-400' },
-  structured: { color: 'border-amber-500/40 bg-amber-500/5',  dotColor: 'bg-amber-400' },
+  concise: { color: 'border-blue-500/40 bg-blue-500/5', dotColor: 'bg-blue-400' },
+  precise: { color: 'border-green-500/40 bg-green-500/5', dotColor: 'bg-green-400' },
+  structured: { color: 'border-amber-500/40 bg-amber-500/5', dotColor: 'bg-amber-400' },
 };
 
 const VARIANT_SELECTED: Record<ImproveVariantId, string> = {
-  concise:    'ring-2 ring-blue-500',
-  precise:    'ring-2 ring-green-500',
+  concise: 'ring-2 ring-blue-500',
+  precise: 'ring-2 ring-green-500',
   structured: 'ring-2 ring-amber-500',
 };
 
@@ -36,18 +40,18 @@ const VariantCard: React.FC<{
       className={[
         'w-full rounded-xl border p-4 text-left transition-all',
         meta.color,
-        selected ? VARIANT_SELECTED[variant.id] : 'hover:ring-1 hover:ring-border',
+        selected ? VARIANT_SELECTED[variant.id] : 'hover:ring-border hover:ring-1',
       ].join(' ')}
     >
       <div className="mb-2 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${meta.dotColor}`} aria-hidden />
-        <span className="text-xs font-semibold text-text-primary">{variant.label}</span>
-        {selected && <Check size={12} className="ml-auto text-text-primary" />}
+        <span className="text-text-primary text-xs font-semibold">{variant.label}</span>
+        {selected && <Check size={12} className="text-text-primary ml-auto" />}
       </div>
-      <p className="mb-2 line-clamp-5 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-text-secondary">
+      <p className="text-text-secondary mb-2 line-clamp-5 font-mono text-[11px] leading-relaxed whitespace-pre-wrap">
         {variant.content}
       </p>
-      <p className="text-[10px] italic text-text-muted">{variant.explanation}</p>
+      <p className="text-text-muted text-[10px] italic">{variant.explanation}</p>
     </button>
   );
 };
@@ -66,7 +70,13 @@ interface ImproveModalProps {
 }
 
 export const ImproveModal: React.FC<ImproveModalProps> = ({
-  open, lang, mode, content, sectionSlug, onApply, onClose,
+  open,
+  lang,
+  mode,
+  content,
+  sectionSlug,
+  onApply,
+  onClose,
 }) => {
   const isPl = lang === 'pl';
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +111,7 @@ export const ImproveModal: React.FC<ImproveModalProps> = ({
       }
       const v = json.data?.variants ?? [];
       setVariants(v);
-      if (v.length > 0) setSelectedId(v[0]!.id);
+      if (v.length > 0) setSelectedId(v[0]?.id ?? null);
     } catch {
       setError(isPl ? 'Błąd połączenia' : 'Connection error');
     } finally {
@@ -110,10 +120,16 @@ export const ImproveModal: React.FC<ImproveModalProps> = ({
   }, [content, sectionSlug, mode, isPl]);
 
   // Trigger fetch when dialog opens
-  const handleOpenChange = useCallback((open: boolean) => {
-    if (open) { void handleFetch(); }
-    else { handleClose(); }
-  }, [handleFetch, handleClose]);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        void handleFetch();
+      } else {
+        handleClose();
+      }
+    },
+    [handleFetch, handleClose],
+  );
 
   const handleApply = useCallback(() => {
     const selected = variants.find((v) => v.id === selectedId);
@@ -122,9 +138,14 @@ export const ImproveModal: React.FC<ImproveModalProps> = ({
     handleClose();
   }, [variants, selectedId, onApply, handleClose]);
 
-  const title = mode === 'full'
-    ? (isPl ? 'Ulepsz cały prompt' : 'Improve full prompt')
-    : (isPl ? 'Ulepsz blok' : 'Improve block');
+  const title =
+    mode === 'full'
+      ? isPl
+        ? 'Ulepsz cały prompt'
+        : 'Improve full prompt'
+      : isPl
+        ? 'Ulepsz blok'
+        : 'Improve block';
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -143,8 +164,8 @@ export const ImproveModal: React.FC<ImproveModalProps> = ({
 
         {isLoading && (
           <div className="flex flex-col items-center gap-3 py-12">
-            <Loader2 size={24} className="animate-spin text-brand-400" />
-            <p className="text-sm text-text-muted">
+            <Loader2 size={24} className="text-brand-400 animate-spin" />
+            <p className="text-text-muted text-sm">
               {isPl ? 'AI ulepsza prompt…' : 'AI is improving the prompt…'}
             </p>
           </div>

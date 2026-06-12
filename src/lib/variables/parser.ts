@@ -39,8 +39,7 @@ export interface SmartVariable {
  * Matches: {{name}} or {{name:type}} or {{name:type:params}}
  * Groups: [1]=name, [2]=type (optional), [3]=params (optional)
  */
-export const SMART_VAR_REGEX =
-  /\{\{([a-zA-Z_][a-zA-Z0-9_]*)(?::([a-z]+)(?::([^}]*))?)?\}\}/g;
+export const SMART_VAR_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)(?::([a-z]+)(?::([^}]*))?)?\}\}/g;
 
 function humanize(name: string): string {
   return name
@@ -60,7 +59,12 @@ export function parseVariableDefinition(
 
   switch (type) {
     case 'select': {
-      const options = rawParams ? rawParams.split(',').map((s) => s.trim()).filter(Boolean) : [];
+      const options = rawParams
+        ? rawParams
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
       return { name, type: 'select', label, defaultValue: options[0] ?? '', options };
     }
     case 'number': {
@@ -103,5 +107,8 @@ export function parseSmartVariables(blocks: PromptBlock[]): SmartVariable[] {
     }
   }
 
-  return order.map((name) => map.get(name)!);
+  return order.flatMap((name) => {
+    const v = map.get(name);
+    return v ? [v] : [];
+  });
 }

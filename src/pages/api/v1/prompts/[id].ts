@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import type { PromptBlock, PromptVariable } from '@/types';
 import { z } from 'zod';
 import { ok, noContent, notFound, forbidden, error, unauthorized } from '@/lib/api/response';
 import { parseBody } from '@/lib/api/validate';
@@ -8,14 +9,16 @@ import { environmentRepo } from '@/db/repositories/environment.repo';
 
 export const prerender = false;
 
-const UpdatePromptSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
-  description: z.string().max(1000).optional(),
-  blocks: z.array(z.unknown()).optional(),
-  variables: z.array(z.unknown()).optional(),
-  tags: z.array(z.string()).optional(),
-  is_public: z.boolean().optional(),
-}).partial();
+const UpdatePromptSchema = z
+  .object({
+    title: z.string().min(1).max(200).optional(),
+    description: z.string().max(1000).optional(),
+    blocks: z.array(z.unknown()).optional(),
+    variables: z.array(z.unknown()).optional(),
+    tags: z.array(z.string()).optional(),
+    is_public: z.boolean().optional(),
+  })
+  .partial();
 
 export const GET: APIRoute = async ({ params, locals, url }) => {
   if (!locals.apiUser) return unauthorized();
@@ -56,19 +59,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   const parsed = await parseBody(request, UpdatePromptSchema);
   if (parsed instanceof Response) return parsed;
 
-  const updated = await promptService.updatePrompt(
-    locals.supabase,
-    id,
-    locals.apiUser.userId,
-    {
-      ...(parsed.title !== undefined && { title: parsed.title }),
-      ...(parsed.description !== undefined && { description: parsed.description }),
-      ...(parsed.blocks !== undefined && { blocks: parsed.blocks as import('@/types').PromptBlock[] }),
-      ...(parsed.variables !== undefined && { variables: parsed.variables as import('@/types').PromptVariable[] }),
-      ...(parsed.tags !== undefined && { tags: parsed.tags }),
-      ...(parsed.is_public !== undefined && { is_public: parsed.is_public }),
-    },
-  );
+  const updated = await promptService.updatePrompt(locals.supabase, id, locals.apiUser.userId, {
+    ...(parsed.title !== undefined && { title: parsed.title }),
+    ...(parsed.description !== undefined && { description: parsed.description }),
+    ...(parsed.blocks !== undefined && { blocks: parsed.blocks as PromptBlock[] }),
+    ...(parsed.variables !== undefined && { variables: parsed.variables as PromptVariable[] }),
+    ...(parsed.tags !== undefined && { tags: parsed.tags }),
+    ...(parsed.is_public !== undefined && { is_public: parsed.is_public }),
+  });
   return ok(updated);
 };
 
