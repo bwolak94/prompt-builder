@@ -1,13 +1,14 @@
 import React, { useId } from 'react';
-import { ArrowLeft, Save, Globe, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Globe, Lock, Loader2, Upload } from 'lucide-react';
 import { useBuilderStore } from '../store/builder.store';
 
 interface BuilderToolbarProps {
   onBack?: () => void;
   onSave?: () => Promise<void>;
+  onImport?: () => void;
 }
 
-export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack, onSave }) => {
+export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack, onSave, onImport }) => {
   const titleId = useId();
 
   const title = useBuilderStore((s) => s.title);
@@ -57,6 +58,19 @@ export const BuilderToolbar: React.FC<BuilderToolbarProps> = ({ onBack, onSave }
           {isPublic ? 'Publiczny' : 'Prywatny'}
         </span>
       </button>
+
+      {/* Import button */}
+      {onImport && (
+        <button
+          onClick={onImport}
+          aria-label="Import prompt"
+          title="Import prompt"
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
+        >
+          <Upload size={14} />
+          <span className="hidden sm:inline">Import</span>
+        </button>
+      )}
 
       {/* Save button */}
       <button

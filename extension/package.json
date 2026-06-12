@@ -1,0 +1,15 @@
+{
+  "name": "promptbase-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PromptBase browser extension — quick access and save to your prompt library",
+  "scripts": {
+    "build": "vite build && node scripts/post-build.mjs",
+    "dev": "vite build --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0"
+  }
+}

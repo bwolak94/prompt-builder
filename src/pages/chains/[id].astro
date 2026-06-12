@@ -1,0 +1,22 @@
+---
+export const prerender = false;
+
+import AppLayout from '@/layouts/AppLayout.astro';
+import { ChainBuilderIsland } from '@/components/chains/ChainBuilderIsland';
+import { chainRepo } from '@/db/repositories/chain.repo';
+
+const lang = Astro.locals.lang;
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login');
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/chains');
+
+const chain = await chainRepo.findById(Astro.locals.supabase, id);
+if (!chain) return Astro.redirect('/chains?error=not_found');
+if (chain.user_id !== user.id) return Astro.redirect('/chains?error=forbidden');
+---
+
+<AppLayout title={chain.title}>
+  <ChainBuilderIsland chain={chain} lang={lang} client:load />
+</AppLayout>

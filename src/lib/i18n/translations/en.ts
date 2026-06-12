@@ -223,6 +223,7 @@ export const en: Translations = {
     explore: 'Explore',
     settings: 'Settings',
     newPrompt: 'New prompt',
+    chains: 'Chains',
   },
 
   // ── Public prompt page ─────────────────────────────────────────

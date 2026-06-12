@@ -397,6 +397,66 @@ export type Database = {
           },
         ]
       }
+      prompt_chains: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chain_nodes: {
+        Row: {
+          id: string
+          chain_id: string
+          prompt_id: string | null
+          title: string
+          content_md: string
+          order_index: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          chain_id: string
+          prompt_id?: string | null
+          title?: string
+          content_md?: string
+          order_index?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          chain_id?: string
+          prompt_id?: string | null
+          title?: string
+          content_md?: string
+          order_index?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
       prompt_versions: {
         Row: {
           id: string

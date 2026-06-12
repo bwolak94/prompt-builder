@@ -13,7 +13,7 @@ export interface Translations {
   templateCard: { use: string; difficulty: { beginner: string; intermediate: string; advanced: string }; featured: string; forks: string };
   settings: { title: string; profileTab: string; preferencesTab: string; accountTab: string; displayName: string; displayNameSub: string; bio: string; bioPlaceholder: string; website: string; saveProfile: string; language: string; aiModel: string; savePreferences: string; changePassword: string; currentPassword: string; newPassword: string; confirmNewPassword: string; updatePassword: string; dangerZone: string; deleteAccount: string; deleteAccountSub: string; deleteAccountConfirm: string };
   aiScore: { title: string; score: string; clarity: string; specificity: string; structure: string; tone: string; completeness: string; excellent: string; good: string; fair: string; poor: string; analyze: string; analyzing: string; suggestions: string; noScore: string; noScoreSub: string };
-  sidebar: { dashboard: string; builder: string; explore: string; settings: string; newPrompt: string };
+  sidebar: { dashboard: string; builder: string; explore: string; settings: string; newPrompt: string; chains: string };
   publicPrompt: { fork: string; viewCount: string; forkCount: string; notFound: string; notFoundSub: string };
   landing: { heroTitle: string; heroSubtitle: string; heroCta: string; heroCtaSub: string; featuredTitle: string; featuredSubtitle: string; featuresTitle: string; howItWorksTitle: string; ctaTitle: string; ctaSubtitle: string; ctaButton: string };
   common: { loading: string; error: string; cancel: string; confirm: string; save: string; delete: string; edit: string; close: string; back: string; next: string; yes: string; no: string; or: string; and: string; search: string; filter: string; clear: string; copy: string; copied: string; share: string; notFound: string; forbidden: string; serverError: string; tryAgain: string };
@@ -251,6 +251,7 @@ export const pl: Translations = {
     explore: 'Explore',
     settings: 'Ustawienia',
     newPrompt: 'Nowy prompt',
+    chains: 'Łańcuchy',
   },
 
   // ── Public prompt page ─────────────────────────────────────────

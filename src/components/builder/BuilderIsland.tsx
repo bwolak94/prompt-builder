@@ -16,6 +16,7 @@ import { useBuilderSave } from './hooks/useBuilderSave';
 import { useAutoCategorize } from './hooks/useAutoCategorize';
 import { useMarkdownGeneration } from './hooks/useMarkdownGeneration';
 import { AutoTagModal } from './components/AutoTagModal';
+import { ImportModal } from './components/ImportModal';
 import { getPromptSections } from '@/lib/constants';
 import { useI18n, type Lang } from '@/lib/i18n';
 import type { Prompt, PromptSection, AIProvider } from '@/types';
@@ -57,6 +58,8 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
   useVariableDetection();
   const { suggestAndToast, suggestion, editOpen, setEditOpen, applyTags } = useAutoCategorize(lang);
   const { handleSave } = useBuilderSave(lang, { onSaved: suggestAndToast });
+  const loadImportedBlocks = useBuilderStore((s) => s.loadImportedBlocks);
+  const [importOpen, setImportOpen] = useState(false);
   const markdown = useMarkdownGeneration();
 
   // Stable getter passed to RunButton — avoids re-renders on markdown change
@@ -111,11 +114,20 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
     />
   );
 
+  const ImportModalEl = (
+    <ImportModal
+      open={importOpen}
+      lang={lang}
+      onImport={(title, blocks) => loadImportedBlocks(title, blocks)}
+      onClose={() => setImportOpen(false)}
+    />
+  );
+
   if (abMode) {
     return (
       <TooltipProvider delayDuration={500}>
         <div className="flex h-screen flex-col overflow-hidden bg-surface-base">
-          <BuilderToolbar onBack={() => history.back()} onSave={handleSave} />
+          <BuilderToolbar onBack={() => history.back()} onSave={handleSave} onImport={() => setImportOpen(true)} />
           <ABTestView
             sections={resolvedSections}
             lang={lang}
@@ -123,6 +135,7 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
           />
         </div>
         {TagModal}
+        {ImportModalEl}
       </TooltipProvider>
     );
   }
@@ -131,7 +144,7 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
     <TooltipProvider delayDuration={500}>
       <div className="flex h-screen flex-col overflow-hidden bg-surface-base">
         {/* Toolbar */}
-        <BuilderToolbar onBack={() => history.back()} onSave={handleSave} />
+        <BuilderToolbar onBack={() => history.back()} onSave={handleSave} onImport={() => setImportOpen(true)} />
 
         {/* Desktop layout: 3 columns xl, 2 columns lg */}
         <div className="hidden flex-1 overflow-hidden lg:grid lg:grid-cols-[1fr_320px] xl:grid-cols-[280px_1fr_320px]">
@@ -173,6 +186,7 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
         </div>
       </div>
       {TagModal}
+      {ImportModalEl}
     </TooltipProvider>
   );
 };

@@ -42,6 +42,7 @@ export interface BuilderStore {
   markClean: () => void;
   save: () => Promise<void>;
   loadPrompt: (prompt: Prompt) => void;
+  loadImportedBlocks: (title: string, blocks: PromptBlock[]) => void;
   reset: () => void;
 }
 
@@ -193,6 +194,13 @@ const createStore = (set: (fn: (state: BuilderStore) => Partial<BuilderStore>) =
       isDirty: false,
       isSaving: false,
       activeBlockId: null,
+    })),
+
+  loadImportedBlocks: (title, blocks) =>
+    set((state) => ({
+      title: title || state.title,
+      blocks,
+      isDirty: true,
     })),
 
   reset: () => set(() => ({ ...initialState })),

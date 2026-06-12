@@ -33,12 +33,11 @@ No explanation, no markdown, no code blocks — just the raw JSON object.`;
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
-const anthropic = new Anthropic({
-  apiKey: import.meta.env.ANTHROPIC_API_KEY ?? process.env.ANTHROPIC_API_KEY,
-});
-
 export const autoCategorizeService = {
   async suggest(contentMd: string): Promise<PromptSuggestion> {
+    const anthropic = new Anthropic({
+      apiKey: import.meta.env.ANTHROPIC_API_KEY ?? process.env.ANTHROPIC_API_KEY,
+    });
     const truncated = contentMd.slice(0, 3000);
 
     const message = await anthropic.messages.create({
