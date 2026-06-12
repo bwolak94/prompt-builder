@@ -240,7 +240,7 @@ interface ModalProps {
   collection?: Collection;
   parentId?: string;
   onCreate: (dto: CreateCollectionDto) => Promise<void>;
-  onUpdate: (id: string, dto: Parameters<typeof onUpdate>[1]) => Promise<void>;
+  onUpdate: UpdateFn;
   onClose: () => void;
   t: ReturnType<typeof useI18n>['t'];
 }

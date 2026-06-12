@@ -29,7 +29,7 @@ export const challengeService = {
       proposal_id: proposalId,
       title: (proposal as { title: string }).title,
       description: (proposal as { description: string }).description,
-      category: overrides?.category,
+      category: overrides?.category ?? undefined,
       starts_at,
       ends_at,
       voting_ends_at,

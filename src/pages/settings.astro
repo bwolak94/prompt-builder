@@ -30,5 +30,5 @@ const email = user.email ?? '';
     { label: 'Ustawienia' },
   ]}
 >
-  <SettingsIsland client:load profile={profileData} email={email} />
+  <SettingsIsland client:load profile={profileData} email={email} lang={Astro.locals.lang} />
 </AppLayout>

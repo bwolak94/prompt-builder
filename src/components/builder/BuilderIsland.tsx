@@ -9,6 +9,7 @@ import { VariableForm } from './components/VariableForm';
 import { MarkdownPreview } from './components/MarkdownPreview';
 import { RunButton } from './components/RunButton';
 import { VersionsPanel } from './components/VersionsPanel';
+import { EnvironmentsPanel } from './components/EnvironmentsPanel';
 import { ABTestView } from './components/ABTestView';
 import { useBuilderStore } from './store/builder.store';
 import { useVariableDetection } from './hooks/useVariableDetection';
@@ -76,9 +77,10 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
   const RightPanel = (
     <Tabs defaultValue="preview" className="flex h-full flex-col overflow-hidden">
       <div className="flex items-center gap-2 px-4 pt-2 shrink-0">
-        <TabsList className="grid flex-1 grid-cols-2">
+        <TabsList className={`grid flex-1 ${promptId ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="preview">{t('builder.preview')}</TabsTrigger>
           <TabsTrigger value="history">{t('versions.title')}</TabsTrigger>
+          {promptId && <TabsTrigger value="environments">Envs</TabsTrigger>}
         </TabsList>
         {promptId && (
           <Button size="sm" variant="outline" className="shrink-0 text-xs" onClick={() => setAbMode(true)}>
@@ -115,6 +117,10 @@ export const BuilderIsland: React.FC<BuilderIslandProps> = ({
 
       <TabsContent value="history" className="flex-1 overflow-y-auto mt-0">
         <VersionsPanel lang={lang} />
+      </TabsContent>
+
+      <TabsContent value="environments" className="flex-1 overflow-y-auto mt-0">
+        <EnvironmentsPanel lang={lang} />
       </TabsContent>
     </Tabs>
   );

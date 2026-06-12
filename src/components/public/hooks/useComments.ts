@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { CommentThread } from '@/db/repositories/comment.repo';
+import type { Comment, CommentThread } from '@/db/repositories/comment.repo';
 
 interface UseCommentsReturn {
   threads: CommentThread[];
@@ -96,11 +96,11 @@ export function useComments(promptId: string, initial: CommentsPage): UseComment
     if (!res.ok) return;
     const { data } = (await res.json()) as { data: { helpful: boolean; count: number } };
 
-    const update = (c: CommentThread | typeof threads[number]) =>
+    const updateComment = <T extends Comment>(c: T): T =>
       c.id === id ? { ...c, is_helpful: data.count, viewer_helpful: data.helpful } : c;
 
     setThreads((prev) =>
-      prev.map((t) => ({ ...update(t), replies: t.replies.map(update) })),
+      prev.map((t) => ({ ...updateComment(t), replies: t.replies.map(updateComment) })),
     );
   }, [promptId]);
 

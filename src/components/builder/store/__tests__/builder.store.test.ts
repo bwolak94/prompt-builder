@@ -194,6 +194,8 @@ describe('BuilderStore', () => {
       fork_of: null,
       fork_count: 0,
       view_count: 5,
+      category: null,
+      difficulty: null,
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-01T00:00:00Z',
       deleted_at: null,

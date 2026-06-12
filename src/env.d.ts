@@ -10,6 +10,8 @@ declare namespace App {
     user: import('@supabase/supabase-js').User | null;
     /** Active UI language — read from `lang` cookie */
     lang: import('@/lib/i18n').Lang;
+    /** Set by the /api/v1/ middleware when Bearer token is valid */
+    apiUser?: { userId: string };
   }
 }
 
